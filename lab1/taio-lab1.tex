@@ -177,6 +177,108 @@ możliwej wartości parametru $M$.
 \end{thm}
 
 \begin{proof}
+Aby dowieść to twierdzenie, wykażemy kolejno, że:
+\begin{enumerate}
+	\item Dowolny przepływ w~sieci przydziałów wyznacza poprawne (niekoniecznie
+	maksymalne) przyporządkowanie ekspertów do~zadań.
+	
+	Niech dany będzie pewien przepływ $f$ w~sieci przydziałów $N$.
+	Przyporządkowanie ekspertów do projektów wyznaczamy w~następujący sposób:
+	\begin{enumerate}
+		\item Pewnego eksperta $e \in E$ przypisujemy do~umiejętności $s \in S$,
+		jeżeli $f(e,s) = 1$.
+		%\item Pewnemu projektowi $p \in P$ w~dziedzinie umiejętności $s \in S$
+		%przypisujemy dokładnie $f(s,p)$ ekspertów.
+		\item Niech dana będzie pewna umiejętność $s \in S$. Oznaczmy zbiór
+		ekspertów przypisanych do~tej umiejętności w punkcie (a) jako $E_s$.
+
+		Zbiór $E_s$ dzielimy na~rozłączne podzbiory $E_{s,p}$ takie, że
+		$|E_{s,p}| = f(s,p)$.
+		\item Dla każdego z uzyskanych podzbiorów $E_{s,p}$, gdzie
+		$s \in S, p \in P$ określamy wartość przyporządkowania $\assign_f$ jako
+		$$ (\forall e \in E_{s,p}) \assign_f(e) = (s,p) $$
+
+	\end{enumerate}
+	Zauważmy następujące fakty:
+	\begin{itemize}
+		\item Rozważmy wierzchołek $e \in E$ odpowiadający pewnemu ekspertowi.
+		
+		Z~definicji zbioru krawędzi sieci i~funkcji przepustowości,
+		do~wierzchołka tego wchodzi dokładnie jedna krawędź o~pojemności 1,
+		a~wychodzi z~niego co~najwyżej $|S|$ krawędzi o~pojemności 1.
+
+		Stąd w~przepływie $f$ tylko jedna z~krawędzi wychodzących może mieć
+		przepływ 1, a~więc każdy ekspert może być przyporządkowany
+		do~co~najwyżej jednej umiejętności.
+		\item Rozważmy dowolny wierzchołek $s \in S$ odpowiadający pewnej
+		umiejętności.
+
+		Z~własności przepływu mamy
+		$$ \sum_{us \in E_G} f(us) = \sum_{sv \in E_G} f(sv) $$
+		Wiedząc, że~wszystkie krawędzie wchodzące do~$s$ wychodzą ze~zbioru $E$,
+		oraz że~wszystkie krawędzie wychodzące z~$s$ wchodzą do~zbioru $P$, mamy
+		$$ \sum_{e \in E} f(es) = \sum_{p \in P} f(sp) $$
+		Krawędzie o~niezerowym przepływie wchodzące do~$e$ reprezentują
+		ekspertów przydzielonych do~danej umiejętności, zaś krawędzie
+		o~niezerowym przepływie wychodzące z~$e$ reprezentują zapotrzebowanie
+		projektów na~ekspertów z~umiejętnością $s$.
+
+		Ponieważ suma przepływów krawędzi wchodzących i~wychodzących jest
+		taka sama, każdego eksperta w~dziedzinie umiejętności $s$
+		można przypisać do~dokładnie jednego projektu, a~więc można wykonać
+		punkt (b) konstrukcji.
+		\item Rozważmy dowolne dwa wierzchołki $s \in S, p \in P$ takie, że
+		$sp \in E_G$. Z~definicji sieci mamy $c(s,p) = \need(s,p)$,
+		a~z~konstrukcji rozwiązania wynika, że
+		$f(s,p) = \left|\assign_f^{-1}[s,p]\right|$. Stąd na~mocy definicji
+		przepływu mamy
+		$$ \left|\assign_f^{-1}[s,p]\right| = f(s,p) \leq c(s,p) = \need(s,p)$$
+		\item Rozważmy dowolny wierzchołek $p \in P$. Z~definicji funkcji
+		pojemności, jeśli wszystkie krawędzie wchodzące do~$p$ będą wysycone
+		przepływem (tj. $f(e) = c(e)$), to~przepływ ten można przekazać
+		w~całości do ujścia krawędzią $pt_G$, bo
+		$$ c(pt_G) = \sum_{up \in E_G} c(up) $$
+		Stąd pojemność krawędzi $pt_G$ nie ogranicza wartości maksymalnego
+		przepływu.
+	\end{itemize}
+	Wyznaczone przyporządkowanie $\assign_f$ spełnia więc wszystkie warunki
+	prawidłowego przyporządkowania ekspertów do projektów.
+
+	\item Skonstruowane z~przepływu maksymalnego przyporządkowanie wyznacza
+	minimalną wartość parametru $M$.
+
+	Dowód nie~wprost: Załóżmy, że~przyporządkowanie $\assign_{\max}$
+	skonstruowane na~podstawie przepływu maksymalnego $f_{\max}$ w~sposób
+	opisany w punkcie 1. można rozszerzyć tak, aby zmniejszyć wartość parametru
+	$M$.
+
+	Na mocy lematu mamy
+	\begin{align*}
+	\left( \sum_{p \in P} \sum_{s \in S} \need(p,s) \right) -
+	\left(\sum_{p \in P} \sum_{s \in S} \left| \assign_{\max}^{-1} [p,s]\right|\right) 
+	&= M(\assign_{\max}) > \\
+	&> \left( \sum_{p \in P} \sum_{s \in S} \need(p,s) \right) - |E|
+	\end{align*}
+	a~więc istnieje co~najmniej jeden ekspert $e \in E$, który nie~jest
+	przyporządkowany do~jednego z~projektów.
+	\begin{enumerate}
+		\item Jeżeli $(\forall s \in S) \ability(e,s) = 0$, to eksperta
+		nie~można przyporządkować do~żadnego projektu.
+		\item Załóżmy, że istnieje umiejętność $s \in S$ taka, że
+		$\ability(e,s) = 1$.
+		\begin{enumerate}
+			\item Jeżeli $(\forall p \in P) \need(p,s) =
+			\left|\assign_{\max}^{-1} [p,s]\right|$, to eksperta nie~można
+			przyporządkować do~żadnego projektu.
+			\item Załóżmy, że~istnieje projekt $p$ taki, że
+			$\need(p,s) > \left|\assign_{\max}^{-1} [p,s]\right|$.
+			Wówczas w~sieci rezydualnej dla przepływu $f_{\max}$ istnieje
+			ścieżka rozszerzająca postaci $s_G e s p t_G$, wzdłuż której można
+			zwiększyć przepływ o~1. Sprzeczność z~maksymalnością przepływu
+			$f_{\max}$.
+		\end{enumerate}
+	\end{enumerate}
+\end{enumerate}
 \end{proof}
 
 \end{document}
