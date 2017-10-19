@@ -76,25 +76,23 @@ Dane są zbiory:
 \end{itemize}
 
 \noindent
-Każdemu ekspertowi przypisany jest wektor binarny opisujący posiadane przez niego umiejętności. Przykładowo, jeżeli ekspert posiada umiejętność $i$, to w~wektorze umiejętności odpowiadającemu temu ekspertowi na $i$-tym miejscu znajduje się znak $1$, w~przeciwnym wypadku --- $0$.
+Każdemu ekspertowi przypisany jest wektor binarny opisujący posiadane przez niego umiejętności. Przykładowo, jeżeli ekspert posiada umiejętność $i$, to w~wektorze umiejętności odpowiadającemu temu ekspertowi na $i$-tym miejscu znajduje się znak $1$, w~przeciwnym wypadku --- $0$.\\
 
-\begin{tcolorbox}
-\paragraph{Przykład --- wektory ekspertów.}
-Załóżmy, że liczność zbioru umiejętności $S$ jest równa 5. Wówczas ponumerujemy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$.
-
-Pewien ekspert ze~zbioru $E$ posiada umiejętności 2, 3 i~5. Wówczas wektor opisujący jego umiejętności to:
+\begin{tcolorbox}[title=Przykład --- wektory ekspertów.]
+Załóżmy, że liczność zbioru umiejętności $S$ jest równa 5. Wówczas ponumerujemy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$. Niech pewien ekspert ze~zbioru $E$ posiada umiejętności 2, 3 i~5. Wówczas wektor opisujący jego umiejętności to:
 $$[0, 1, 1, 0, 1]$$
 \end{tcolorbox}
 
+\vspace{0.5em}
 \noindent
-Każdemu projektowi przypisany jest wektor liczbowy opisujący zapotrzebowanie na ekspertów posiadających dane umiejętności. Przykładowo, jeżeli do realizacji projektu potrzeba trzech ekspertów posiadających umiejętność $i$, to w wektorze umiejętności odpowiadającemu temu projektowi na $i$-tym miejscu znajduje się liczba $3$.
+Każdemu projektowi przypisany jest wektor liczbowy opisujący zapotrzebowanie na ekspertów posiadających dane umiejętności. Przykładowo, jeżeli do realizacji projektu potrzeba trzech ekspertów posiadających umiejętność $i$, to w wektorze umiejętności odpowiadającemu temu projektowi na $i$-tym miejscu znajduje się liczba $3$.\\
 
-\begin{tcolorbox}
-\paragraph{Przykład --- wektory zapotrzebowania projektów.}
+\begin{tcolorbox}[title=Przykład --- wektory zapotrzebowania projektów.]
 Utrzymując założenie o~liczności zbioru umiejętności z~poprzedniego przykładu, rozważmy pewien projekt ze~zbioru $P$. Niech jego zapotrzebowanie na~ekspertów posiadających umiejętności 1 i 4 wynosi odpowiednio 4 i 3, a~na~pozostałe --- 0. Wówczas wektor opisujący zapotrzebowanie tego projektu to:
 $$[4, 0, 0, 3, 0]$$
 \end{tcolorbox}
 
+\vspace{0.5em}
 \noindent
 Wszystkie projekty realizowane są w tym samym oknie czasowym, tzn. prace nad każdym z nich rozpoczynają się w momencie $t_0$ i kończą w późniejszym momencie $t_k$. Oznacza to, że jeżeli dany ekspert zostanie zatrudniony do pracy nad projektem $P_1$, to nie będzie mógł brać udziału w równoległym projekcie $P_2$. Ponadto każdy ekspert podczas pracy nad projektem może wykorzystywać tylko jedną z posiadanych umiejętności i nie może jej zmienić w trakcie trwania prac.\\
 
@@ -102,25 +100,25 @@ Wszystkie projekty realizowane są w tym samym oknie czasowym, tzn. prace nad ka
 Prace nad danym projektem zostaną zakończone nawet jeżeli nie zostanie mu przydzielona wymagana liczba ekspertów posiadających potrzebne umiejętności, określona przez wektor liczbowy odpowiadający temu projektowi. Będzie on natomiast zrealizowany gorzej niż w przypadku, gdyby przypisana została odpowiednia liczba ekspertów. Może się również zdarzyć, że najbardziej optymalne okaże się takie przypisanie ekspertów, że nad pewnym projektem nie będzie pracował nikt.\\
 
 \noindent
-Jeżeli zapotrzebowanie projektu nie zostanie wypełnione w~całości, mamy do~czynienia z~brakami. Poprzez braki rozumiemy różnicę pomiędzy zapotrzebowaniem projektu na ekspertów o danych umiejętnościach a rzeczywistym przydziałem. Aby wyznaczyć braki w danym projekcie, należy odjąć wektor zapotrzebowania projektu na~ekspertów od wektora zawierającego informację o~ekspertach przydzielonych do~tego projektu i~zsumować elementy uzyskanej różnicy. Dokładna definicja tego pojęcia znajduje się w rozdziale zawierającym dowód poprawności (definicja \ref{defn:missing}).
+Jeżeli zapotrzebowanie projektu nie zostanie wypełnione w~całości, mamy do~czynienia z~brakami. Poprzez braki rozumiemy różnicę pomiędzy zapotrzebowaniem projektu na ekspertów o danych umiejętnościach a rzeczywistym przydziałem. Aby wyznaczyć braki w danym projekcie, należy odjąć wektor zapotrzebowania projektu na~ekspertów od wektora zawierającego informację o~ekspertach przydzielonych do~tego projektu i~zsumować elementy uzyskanej różnicy. Dokładna definicja tego pojęcia znajduje się w rozdziale zawierającym dowód poprawności (definicja \ref{defn:missing}).\\
 
-\begin{tcolorbox}
-\paragraph{Przykład --- obliczanie liczby braków.}
-Niech wektorem opisującym zapotrzebowanie projektu na ekspertów będzie:
+\begin{tcolorbox}[title=Przykład --- obliczanie liczby braków.]
+Niech wektorem opisującym zapotrzebowanie pewnego projektu na ekspertów będzie:
 $$[4, 0, 0, 3, 0]$$
-Załóżmy, że do tego projektu zostali przypisani eksperci opisani przez:
+Załóżmy, że do tego projektu zostali przypisani eksperci opisani przez wektory:
 \begin{align*}
-[1, 0, 1, 0, 1] & \qquad (\text{wykorzystuje }1) \\
-[1, 0, 0, 0, 1] & \qquad (\text{wykorzystuje }1) \\
-[1, 1, 0, 1, 0] & \qquad (\text{wykorzystuje }4) \\
-[0, 0, 0, 1, 1] & \qquad (\text{wykorzystuje }4)
+[1, 0, 1, 0, 1] & \qquad (\text{wykorzystuje umiejętność }1) \\
+[1, 0, 0, 0, 1] & \qquad (\text{wykorzystuje umiejętność }1) \\
+[1, 1, 0, 1, 0] & \qquad (\text{wykorzystuje umiejętność }4) \\
+[0, 0, 0, 1, 1] & \qquad (\text{wykorzystuje umiejętność }4)
 \end{align*}
-Stąd przydział ekspertów do tego projektu można opisać wektorem:
+Wówczas przydział ekspertów do tego projektu można opisać wektorem:
 $$[2, 0, 0, 2, 0]$$
 Braki w tym projekcie obliczymy następująco:
 $$\sum([4, 0, 0, 3, 0] - [2, 0, 0, 2, 0]) = \sum([2, 0, 0, 1, 0]) = 3$$
 \end{tcolorbox}
 
+\vspace{0.5em}
 \noindent
 Naszym celem jest zminimalizowanie braków w obrębie wszystkich projektów (sumy wszystkich braków), czyli znalezienie optymalnego przydziału ekspertów do projektów.
 
