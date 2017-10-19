@@ -7,10 +7,12 @@
 \usepackage{graphicx}
 \usepackage{tabularx}
 \usepackage{multirow}
+\usepackage{float}
+\usepackage{listings}
 \usepackage[hidelinks]{hyperref}
 \usepackage[polish]{babel}
 \usepackage[useregional=numeric]{datetime2}
-\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage[a4paper,margin=1in]{geometry}
 
 \newtheorem{lem}{Lemat}
 \newtheorem{thm}{Twierdzenie}
@@ -21,6 +23,11 @@
 \DeclareMathOperator{\need}{need}
 \DeclareMathOperator{\assign}{assign}
 \DeclareMathOperator{\missing}{missing}
+
+\renewcommand{\lstlistingname}{Przykład}
+\lstset{
+	captionpos=b
+}
 
 \begin{document}
 
@@ -57,6 +64,72 @@ Lista zmian:\\[.5\baselineskip]
 
 \section{Opis problemu}
 \label{sec:description}
+Niniejszy rozdział poświęcony jest dokładnemu opisaniu podstawowej wersji zadanego problemu.\\
+
+\noindent
+Dane są zbiory:
+\begin{itemize}
+	\item $E$ - \textbf{ekspertów} realizujących projekty,
+	\item $S$ - \textbf{umiejętności} posiadanych przez ekspertów,
+	\item $P$ - \textbf{projektów} do zrealizowania.\\
+\end{itemize}
+
+\noindent
+Każdemu ekspertowi przypisany jest wektor binarny opisujący posiadane przez niego umiejętności. Przykładowo, jeżeli ekspert posiada umiejętność $i$, to w wektorze umiejętności odpowiadającemu temu ekspertowi na $i$-tym miejscu znajduje się znak $1$, w przeciwnym wypadku - $0$.
+
+\begin{verbatim}
+Załóżmy, że liczność zbioru umiejętności S jest równa 5. Wówczas ponume-
+rujemy umiejętności rozważane w problemie liczbami z zakresu [1, 5].
+
+Pewien ekspert ze zbioru E posiada umiejętności 2, 3 i 5. Wówczas wektor
+opisujący jego umiejętności to:
+
+                            [0, 1, 1, 0, 1]
+\end{verbatim}
+\begin{lstlisting}[caption={Wektor opisujący umiejętności eksperta}]
+\end{lstlisting}
+
+\noindent
+Każdemu projektowi przypisany jest wektor liczbowy opisujący zapotrzebowanie na ekspertów posiadających dane umiejętności. Przykładowo, jeżeli do realizacji projektu potrzeba trzech ekspertów posiadających umiejętność $i$, to w wektorze umiejętności odpowiadającemu temu projektowi na $i$-tym miejscu znajduje się liczba $3$.
+
+\begin{verbatim}
+Utrzymując założenie o liczności zbioru umiejętności z poprzedniego przy-
+kładu, rozważmy pewien projekt ze zbioru P. Niech jego zapotrzebowanie na
+ekspertów posiadających umiejętności 1 i 4 wynosi odpowiednio 4 i 3, a na
+pozostałe - 0. Wówczas wektor opisujący zapotrzebowanie tego projektu to:
+ 
+                            [4, 0, 0, 3, 0]
+\end{verbatim}
+\begin{lstlisting}[caption={Wektor opisujący zapotrzebowanie projektu}]
+\end{lstlisting}
+
+\noindent
+Wszystkie projekty realizowane są w tym samym oknie czasowym, tzn. prace nad każdym z nich rozpoczynają się w momencie $t_0$ i kończą w późniejszym momencie $t_k$. Oznacza to, że jeżeli dany ekspert zostanie zatrudniony do pracy nad projektem $P_1$, to nie będzie mógł brać udziału w równoległym projekcie $P_2$. Ponadto każdy ekspert podczas pracy nad projektem może wykorzystywać tylko jedną z posiadanych umiejętności i nie może jej zmienić w trakcie trwania prac.\\
+
+\noindent
+Prace nad danym projektem zostaną zakończone nawet jeżeli nie zostanie mu przydzielona wymagana liczba ekspertów posiadających potrzebne umiejętności, określona przez wektor liczbowy odpowiadający temu projektowi. Będzie on natomiast zrealizowany gorzej niż w przypadku, gdyby przypisana została odpowiednia liczba ekspertów. Może się również zdarzyć, że najbardziej optymalne okaże się takie przypisanie ekspertów, że nad pewnym projektem nie będzie pracował nikt.\\
+
+\noindent
+Wówczas mamy do czynienia z brakami. Poprzez braki rozumiemy różnicę pomiędzy zapotrzebowaniem projektu na ekspertów o danych umiejętnościach a rzeczywistym przydziałem. Aby wyznaczyć braki w danym projekcie, należy odjąć wektor zapotrzebowania projektu na ekspertów od wektora zawierającego informację o ekspertach przydzielonych do tego projektu i zsumować elementy uzyskanej różnicy. Dokładna definicja tego pojęcia znajduje się w rodziale zawięrającym dowód poprawności (definicja nr 8).
+
+\begin{verbatim}
+Niech wektorem opisującym zapotrzebowanie projektu na ekspertów będzie:
+                            [4, 0, 0, 3, 0]
+Załóżmy, że do tego projektu zostali przypisani eksperci opisani przez:
+                            [1, 0, 1, 0, 1] (wykorzystuje 1)
+                            [1, 0, 0, 0, 1] (wykorzystuje 1)
+                            [1, 1, 0, 1, 0] (wykorzystuje 4)
+                            [0, 0, 0, 1, 1] (wykorzystuje 4)
+Stąd przydział ekspertów do tego projektu można opisać wektorem:
+                            [2, 0, 0, 2, 0]
+Braki w tym projekcie obliczymy następująco:
+    sum([4, 0, 0, 3, 0] - [2, 0, 0, 2, 0]) = sum([2, 0, 0, 1, 0]) = 3
+\end{verbatim}
+\begin{lstlisting}[caption={Wektor opisujący zapotrzebowanie projektu}]
+\end{lstlisting}
+
+\noindent
+Naszym celem jest zminimalizowanie braków w obrębie wszystkich projektów (sumy wszystkich braków), czyli znalezienie optymalnego przydziału ekspertów do projektów.
 
 \section{Problem znajdowania maksymalnego przepływu}
 \label{sec:maxflow}
@@ -82,12 +155,15 @@ spełniającą następujące warunki:
 	\item $\displaystyle(\forall v \in V - \{ s,t \})
 	\sum_{u : \; uv \in E} f(uv) = \sum_{u : \; vu \in E} f(vu)$ 
 	--- tzw. prawo Kirchhoffa.
+\end{enumerate}
 \end{defn}
 
+\noindent
 W~ogólniejszym przypadku funkcje przepustowości i~przepływu mogą mieć wartości
 nieujemne rzeczywiste, lecz założenie o~całkowitości zapewnia, że~algorytmy
-wyznaczające maksymalny przepływ zawsze zakończą działanie.
+wyznaczające maksymalny przepływ zawsze zakończą działanie.\\
 
+\noindent
 Prawo Kirchhoffa stanowi, że~suma wartości przepływu na~krawędziach wchodzących
 do~danego wierzchołka musi być równa sumie wartości przepływu na~krawędziach
 wychodzących z~tego wierzchołka.
@@ -97,6 +173,7 @@ wychodzących z~tego wierzchołka.
 $$ W(f) = \sum_{u: \; su \in E} f(su) - \sum_{u: \; us \in E} f(us) $$
 \end{defn}
 
+\noindent
 Powyższe definicje wystarczą, aby~zdefiniować problem maksymalnego przepływu.
 
 \begin{defn}[Problem maksymalnego przepływu]
@@ -104,6 +181,7 @@ Dana jest sieć $S = (G,c,s,t)$. Szukamy przepływu $f$ o~maksymalnej wartości
 $W(f)$, zwanego również \textbf{przepływem maksymalnym}.
 \end{defn}
 
+\noindent
 Zagadnienie znajdowania maksymalnego przepływu jest rozwiązywalne przez
 wiele zachłannych algorytmów opartych na metodzie Forda-Fulkersona,
 polegającej na~znajdowaniu ścieżek w~tzw. sieci rezydualnej. Szczegółowy
@@ -116,8 +194,9 @@ opis jednego z~takich algorytmów znajduje się w następnej sekcji.
 \label{sec:correctnessproof}
 
 W~tej sekcji wykażemy związek między postawionym problemem a~zagadnieniem
-wyznaczania przepływu maksymalnego oraz równoważność rozwiązań obu zadań.
+wyznaczania przepływu maksymalnego oraz równoważność rozwiązań obu zadań.\\
 
+\noindent
 Na początek zdefiniujmy w~sposób formalny pojęcia użyte w~oryginalnym zadaniu.
 Załóżmy, że dane są następujące zbiory:
 
@@ -172,9 +251,11 @@ liczbę
 $$ M(\assign) = \sum_{p \in P} \missing(p, \assign) $$
 \end{defn}
 
+\noindent
 Widoczne jest, że $M$ jest parametrem minimalizowanym w~postawionym problemie,
-zależnym od~końcowego przyporządkowania.
+zależnym od~końcowego przyporządkowania.\\
 
+\noindent
 Na~podstawie powyższych definicji skonstruujemy teraz sieć, której użyjemy
 do~wyznaczenia rozwiązań problemu.
 
