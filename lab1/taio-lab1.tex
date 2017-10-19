@@ -78,7 +78,7 @@ Dane są zbiory:
 \noindent
 Każdemu ekspertowi przypisany jest wektor binarny opisujący posiadane przez niego umiejętności. Przykładowo, jeżeli ekspert posiada umiejętność $i$, to w~wektorze umiejętności odpowiadającemu temu ekspertowi na $i$-tym miejscu znajduje się znak $1$, w~przeciwnym wypadku --- $0$.\\
 
-\begin{tcolorbox}[title=Przykład --- wektory ekspertów.]
+\begin{tcolorbox}[title=Przykład --- wektory ekspertów]
 Załóżmy, że liczność zbioru umiejętności $S$ jest równa 5. Wówczas ponumerujemy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$. Niech pewien ekspert ze~zbioru $E$ posiada umiejętności 2, 3 i~5. Wówczas wektor opisujący jego umiejętności to:
 $$[0, 1, 1, 0, 1]$$
 \end{tcolorbox}
@@ -87,7 +87,7 @@ $$[0, 1, 1, 0, 1]$$
 \noindent
 Każdemu projektowi przypisany jest wektor liczbowy opisujący zapotrzebowanie na ekspertów posiadających dane umiejętności. Przykładowo, jeżeli do realizacji projektu potrzeba trzech ekspertów posiadających umiejętność $i$, to w wektorze umiejętności odpowiadającemu temu projektowi na $i$-tym miejscu znajduje się liczba $3$.\\
 
-\begin{tcolorbox}[title=Przykład --- wektory zapotrzebowania projektów.]
+\begin{tcolorbox}[title=Przykład --- wektory zapotrzebowania projektów]
 Utrzymując założenie o~liczności zbioru umiejętności z~poprzedniego przykładu, rozważmy pewien projekt ze~zbioru $P$. Niech jego zapotrzebowanie na~ekspertów posiadających umiejętności 1 i 4 wynosi odpowiednio 4 i 3, a~na~pozostałe --- 0. Wówczas wektor opisujący zapotrzebowanie tego projektu to:
 $$[4, 0, 0, 3, 0]$$
 \end{tcolorbox}
@@ -102,7 +102,7 @@ Prace nad danym projektem zostaną zakończone nawet jeżeli nie zostanie mu prz
 \noindent
 Jeżeli zapotrzebowanie projektu nie zostanie wypełnione w~całości, mamy do~czynienia z~brakami. Poprzez braki rozumiemy różnicę pomiędzy zapotrzebowaniem projektu na ekspertów o danych umiejętnościach a rzeczywistym przydziałem. Aby wyznaczyć braki w danym projekcie, należy odjąć wektor zapotrzebowania projektu na~ekspertów od wektora zawierającego informację o~ekspertach przydzielonych do~tego projektu i~zsumować elementy uzyskanej różnicy. Dokładna definicja tego pojęcia znajduje się w rozdziale zawierającym dowód poprawności (definicja \ref{defn:missing}).\\
 
-\begin{tcolorbox}[title=Przykład --- obliczanie liczby braków.]
+\begin{tcolorbox}[title=Przykład --- obliczanie liczby braków]
 Niech wektorem opisującym zapotrzebowanie pewnego projektu na ekspertów będzie:
 $$[4, 0, 0, 3, 0]$$
 Załóżmy, że do tego projektu zostali przypisani eksperci opisani przez wektory:
@@ -180,6 +180,166 @@ opis jednego z~takich algorytmów znajduje się w następnej sekcji.
 
 \section{Algorytm}
 \label{sec:algorithm}
+W poniższym rozdziale precyzyjnie sformułowano algorytm pozwalający na rozwiązanie dowolnego zadania w postawionym problemie. Pseudokod został podzielony na fragmenty, z którego każdy będzie rozwiązywał pewien podproblem, w celu ułatwienia opisu głównej części algorytmu.
+
+\subsection{Konstrukcja sieci podstawowej}
+Niektóre podproblemy opisane w dalszej części rozdziału będą wymagać sieci reprezentowanej przez graf skierowany, który można utworzyć na podstawie danych z zadania.\\
+
+\noindent
+Proponowany graf będzie posiadał $|E|+|S|+|P|+2$ wierzchołków, które utworzą w nim pięć wartsw. Wyróżnione zostaną dwa wierzchołki --- źródło \texttt{s} i ujście \texttt{t} sieci, z którego każdy będzie jedynym w swojej warstwie. Pozostałe trzy warstwy pomiędzy nimi będą zawierać wierzchołki reprezentujące odpowiednio ekspertów, umiejętności i projekty. Poniżej znajduje się pseudokod pozwalający na stworzenie takiego grafu.\\
+
+\begin{tcolorbox}[title=Konstrukcja sieci podstawowej]
+\begin{verbatim}
+G <- graf skierowany o liczbie wierzchołków równej |E|+|S|+|P|+2
+dla każdego wierzchołka e reprezentującego eksperta w G:
+    dodaj krawędź (s, e) do G
+    G.c[s, e] <- 1
+dla każdego wierzchołka e reprezentującego eksperta w G:
+    dla każdej umiejętności u posiadanej przez eksperta e:
+        dodaj krawędź (e, u) do G
+        G.c[e, u] <- 1
+dla każdego wierzchołka p reprezentującego projekt w G:
+    dla każdej umiejętności u wymaganej przez projekt p:
+        dodaj krawędź (u, p) do G
+        G.c[e, u] <- liczba wymaganych ekspertów z u
+dla każdego wierzchołka p reprezentującego projekt w G:
+    dodaj krawędź (p, t) do G
+    G.c[p, t] <- suma przepustowości krawędzi wchodzących do p
+\end{verbatim}
+\end{tcolorbox}
+
+\subsection{Konstrukcja sieci rezydualnej}
+W celu konstruowania w sieci ścieżek rozszerzających niezbędne jest utworzenie pomocniczej sieci rezydualnej. Przepustowość krawędzi w tej sieci zależy od wartości przepływu na krawędziach oryginalnej sieci.\\
+
+\noindent
+Niech dana będzie krawędź $uv$ i przepływ $f$. Wówczas w sieci rezydualnej istnieją krawędzie:
+\begin{itemize}
+	\item $uv$ o przepustowości $c(uv) - f(uv)$,
+	\item $vu$ o przepustowości $f(uv)$.
+\end{itemize}
+
+\noindent
+Sieć rezydualna będzie aktualizowana po każdym zwiększeniu przepływu wzdłuż ścieżki powiększającej. Na początku działania algorytmu (przy zerowym przepływie) będzie ona taka sama, jak wyjściowa sieć. Wobec tego, wystarczy stworzyć sieć opisaną w poprzednim punkcie i rozszerzyć ją w sposób następujący:\\
+
+\begin{tcolorbox}[title=Rozszerzenie konstrukcji sieci podstawowej]
+\begin{verbatim}
+dla każdej krawędzi (u, v) w G:
+    dodaj krawędź (v, u) do G
+    G.c[v, u] <- 0
+\end{verbatim}
+\end{tcolorbox}
+
+\subsection{Wyszukiwanie ścieżek}
+Do funkcjonowania algorytmu potrzebna jest podprocedura wyszukująca ścieżki między dwoma wierzchołkami grafu, co można dość prosto zaimplementować poprzez modyfikację przeszukiwania w głąb (ang. depth-first search, DFS). Poniżej znajduje się pseudokod żądanej podprocedury, wyszukującej ścieżki w grafie \texttt{G} od wierzchołka \texttt{u} do \texttt{w}.\\
+
+\begin{tcolorbox}[title=Wyszukiwanie ścieżek w grafie]
+\begin{verbatim}
+findPath(G, u, w):
+    L <- pusta lista
+    dodaj u na koniec L
+    jeśli depthFirstSearch(G, L, w):
+        zwróć constructPath(G, L)
+    zwróć pustą listę
+
+depthFirstSearch(G, L, w):
+    u <- ostatni element listy L
+    jeśli u = w:
+        zwróć prawdę
+    dla każdej krawędzi (u, v) w G:
+        jeśli v nie należy do L:
+            dodaj v na koniec L
+            jeśli depthFirstSearch(G, L, w):
+                zwróć prawdę
+            usuń v z L
+    zwróć fałsz
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Powyższe wyszukiwanie używa pomocniczej funkcji budującej ścieżkę na podstawie listy wierzchołków \texttt{L}, która zdefiniowana jest następująco:\\
+
+\begin{tcolorbox}[title=Budowanie ścieżki na podstawie wierzchołków]
+\begin{verbatim}
+constructPath(L):
+    E <- pusta lista
+    u <- pierwszy element listy L
+    dla każdego wierzchołka v poza pierwszym z L:
+        dodaj krawędź (u, v) na koniec E
+        u <- v
+    zwróć E
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Zaproponowany algorytm wyszukiwania jest algorytmem z powrotami. W zapisie założono, że lista L jest przekazywana przez referencję i modyfikowana we wszystkich wywołaniach rekurencyjnych.\\
+
+\noindent
+W algorytmie Edmondsa-Karpa do wyszukiwania ścieżek wykorzystywane jest przeszukiwanie wszerz. W przypadku skonstruowanego na potrzeby zadania grafu wszystkie ścieżki mają jednak tę samą długość, a ponadto DFS znajdzie ścieżkę z mniejszą złożonością pamięciową.
+
+\subsection{Wyznaczanie przepływu maksymalnego}
+Poniżej znajduje się zapis algorytmu wyznaczającego przepływ maksymalny zgodnie z zasadą opisaną przez Forda i Fulkersona. \texttt{G\_res} jest w tym przypadku siecią rezydualną wyznaczoną na podstawie sieci podstawowej skonstruowanej w pierwszym podrozdziale.\\
+
+\begin{tcolorbox}[title=Wyznaczanie przepływu maksymalnego]
+\begin{verbatim}
+maxFlow(G_res):
+    f <- przepływ zerowy
+    powtarzaj
+        L <- findPath(G_res, s, t)
+        df <- inf
+        dla każdej krawędzi (u, v) z L:
+            jeśli G_res.c[u, v] < df:
+                df <- G_res.c[u, v]
+        dla każdej krawędzi (u, v) z L:
+            f[u, v] += df
+            G_res.c[u, v] -= df
+            G_res.c[v, u] += df
+    dopóki lista L jest niepusta
+    zwróć f
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Algorytm ten jednak nie rozwiązuje zadania wyjściowego. Optymalną wartość braków i przyporządkowanie ekspertów do zadań należy wyznaczyć na podstawie uzyskanego przepływu.
+
+\subsection{Konstrukcja rozwiązania}
+Poniższa konstrukcja przyporządkowania ekspertów do projektów korzysta z sieci podstawowej \texttt{G} (nie z sieci rezydualnej \texttt{G\_res}) i z wyznaczonego przepływu \texttt{f}.\\
+
+\begin{tcolorbox}[title=Wzynaczanie przydziału]
+\begin{verbatim}
+constructAssignment(G, f):
+    skills <- słownik pustych kolejek dla poszczególnych umiejętności
+    L <- pusta lista
+    dla każdego wierzchołka e reprezentującego eksperta w G:
+        dla każdej krawędzi (e, u) w G:
+            jeśli f[e, u] = 1:
+                skills[u].push(e)
+    dla każdego wierzchołka u reprezentującego umiejętność w G:
+        dla każdej krawędzi (u, p) w G:
+            dopóki f[u, p] > 0:
+                e <- skills[u].pop()
+                dodaj krotkę (e, u, p) na koniec L
+                f[u, p] -= 1
+    zwróć L
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Poniższa funkcja oblicza finalną wartość braków w wyznaczonym wyżej przyporządkowaniu \texttt{L}.\\
+
+\begin{tcolorbox}[title=Wzynaczanie braków]
+\begin{verbatim}
+calcLosses(G, L):
+    need <- 0
+    dla każdej krawędzi (p, t) wchodzącej do ujścia t:
+        need += G.c[p, t]
+    flow <- liczba elementów w liście L
+    zwróć (need - flow)
+\end{verbatim}
+\end{tcolorbox}
 
 \section{Dowód poprawności}
 \label{sec:correctnessproof}
