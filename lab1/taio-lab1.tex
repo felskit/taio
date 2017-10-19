@@ -56,15 +56,69 @@ Lista zmian:\\[.5\baselineskip]
 \newpage
 
 \section{Opis problemu}
+\label{sec:description}
+
+\section{Problem znajdowania maksymalnego przepływu}
+\label{sec:maxflow}
+Okazuje się, że problem opisany w~sekcji~\ref{sec:description} można uogólnić
+do~znanego problemu znajdowania maksymalnego przepływu w~sieciach. W~tej sekcji
+zdefiniowane są podstawowe pojęcia potrzebne do~opisu tego problemu.
+
+\begin{defn}
+\textbf{Siecią} nazywamy czwórkę uporządkowaną $S = (G,c,s,t)$, gdzie:
+\begin{itemize}
+	\item $G = (V,E)$ jest grafem skierowanym,
+	\item $c : E \to \mathbb{N}$ to tzw. funkcja przepustowości,
+	\item $s,t \in V, s \neq t$ są dwoma wyróżnionymi wierzchołkami grafu $G$
+	--- kolejno źródłem i ujściem sieci.
+\end{itemize}
+\end{defn}
+
+\begin{defn}
+\textbf{Przepływem} w~sieci $S$ nazywamy funkcję $f : E \to \mathbb{N}$
+spełniającą następujące warunki:
+\begin{enumerate}
+	\item $\forall_{e \in E} \quad 0 \leqslant f(e) \leqslant c(e)$,
+	\item $\displaystyle(\forall v \in V - \{ s,t \})
+	\sum_{u : \; uv \in E} f(uv) = \sum_{u : \; vu \in E} f(vu)$ 
+	--- tzw. prawo Kirchhoffa.
+\end{defn}
+
+W~ogólniejszym przypadku funkcje przepustowości i~przepływu mogą mieć wartości
+nieujemne rzeczywiste, lecz założenie o~całkowitości zapewnia, że~algorytmy
+wyznaczające maksymalny przepływ zawsze zakończą działanie.
+
+Prawo Kirchhoffa stanowi, że~suma wartości przepływu na~krawędziach wchodzących
+do~danego wierzchołka musi być równa sumie wartości przepływu na~krawędziach
+wychodzących z~tego wierzchołka.
+
+\begin{defn}
+\textbf{Wartością przepływu} $f$ w~sieci $S$ nazywamy liczbę
+$$ W(f) = \sum_{u: \; su \in E} f(su) - \sum_{u: \; us \in E} f(us) $$
+\end{defn}
+
+Powyższe definicje wystarczą, aby~zdefiniować problem maksymalnego przepływu.
+
+\begin{defn}[Problem maksymalnego przepływu]
+Dana jest sieć $S = (G,c,s,t)$. Szukamy przepływu $f$ o~maksymalnej wartości
+$W(f)$, zwanego również \textbf{przepływem maksymalnym}.
+\end{defn}
+
+Zagadnienie znajdowania maksymalnego przepływu jest rozwiązywalne przez
+wiele zachłannych algorytmów opartych na metodzie Forda-Fulkersona,
+polegającej na~znajdowaniu ścieżek w~tzw. sieci rezydualnej. Szczegółowy
+opis jednego z~takich algorytmów znajduje się w następnej sekcji.
 
 \section{Algorytm}
+\label{sec:algorithm}
 
 \section{Dowód poprawności}
+\label{sec:correctnessproof}
 
-W~tym rozdziale wykażemy związek między postawionym problemem a~zagadnieniem
+W~tej sekcji wykażemy związek między postawionym problemem a~zagadnieniem
 wyznaczania przepływu maksymalnego oraz równoważność rozwiązań obu zadań.
 
-Na początek zdefiniujmy w~sposób formalny pojęcia użyte w~zadaniu.
+Na początek zdefiniujmy w~sposób formalny pojęcia użyte w~oryginalnym zadaniu.
 Załóżmy, że dane są następujące zbiory:
 
 \begin{itemize}
