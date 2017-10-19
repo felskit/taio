@@ -186,7 +186,7 @@ W poniższym rozdziale precyzyjnie sformułowano algorytm pozwalający na rozwi�
 Niektóre podproblemy opisane w dalszej części rozdziału będą wymagać sieci reprezentowanej przez graf skierowany, który można utworzyć na podstawie danych z zadania.\\
 
 \noindent
-Proponowany graf będzie posiadał $|E|+|S|+|P|+2$ wierzchołków, które utworzą w nim pięć wartsw. Wyróżnione zostaną dwa wierzchołki --- źródło \texttt{s} i ujście \texttt{t} sieci, z którego każdy będzie jedynym w swojej warstwie. Pozostałe trzy warstwy pomiędzy nimi będą zawierać wierzchołki reprezentujące odpowiednio ekspertów, umiejętności i projekty. Poniżej znajduje się pseudokod pozwalający na stworzenie takiego grafu.\\
+Proponowany graf \texttt{G} będzie posiadał $|E|+|S|+|P|+2$ wierzchołków, które utworzą w nim pięć wartsw. Wyróżnione zostaną dwa wierzchołki --- źródło \texttt{s} i ujście \texttt{t} sieci, z którego każdy będzie jedynym w swojej warstwie. Pozostałe trzy warstwy pomiędzy nimi będą zawierać wierzchołki reprezentujące odpowiednio ekspertów, umiejętności i projekty. Poniżej znajduje się pseudokod pozwalający na stworzenie takiego grafu.\\
 
 \begin{tcolorbox}[title=Konstrukcja sieci podstawowej]
 \begin{verbatim}
@@ -245,7 +245,7 @@ depthFirstSearch(G, L, w):
     u <- ostatni element listy L
     jeśli u = w:
         zwróć prawdę
-    dla każdej krawędzi (u, v) w G:
+    dla każdej krawędzi (u, v) wychodzącej z u w G:
         jeśli v nie należy do L:
             dodaj v na koniec L
             jeśli depthFirstSearch(G, L, w):
@@ -313,11 +313,11 @@ constructAssignment(G, f):
     skills <- słownik pustych kolejek dla poszczególnych umiejętności
     L <- pusta lista
     dla każdego wierzchołka e reprezentującego eksperta w G:
-        dla każdej krawędzi (e, u) w G:
+        dla każdej krawędzi (e, u) wychodzącej z e w G:
             jeśli f[e, u] = 1:
                 skills[u].push(e)
     dla każdego wierzchołka u reprezentującego umiejętność w G:
-        dla każdej krawędzi (u, p) w G:
+        dla każdej krawędzi (u, p) wychodzącej z u w G:
             dopóki f[u, p] > 0:
                 e <- skills[u].pop()
                 dodaj krotkę (e, u, p) na koniec L
@@ -334,7 +334,7 @@ Poniższa funkcja oblicza finalną wartość braków w wyznaczonym wyżej przypo
 \begin{verbatim}
 calcLosses(G, L):
     need <- 0
-    dla każdej krawędzi (p, t) wchodzącej do ujścia t:
+    dla każdej krawędzi (p, t) wchodzącej do ujścia t w G:
         need += G.c[p, t]
     flow <- liczba elementów w liście L
     zwróć (need - flow)
