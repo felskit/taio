@@ -26,7 +26,9 @@
 \DeclareMathOperator{\ability}{ability}
 \DeclareMathOperator{\need}{need}
 \DeclareMathOperator{\assign}{assign}
+\DeclareMathOperator{\assigned}{assigned}
 \DeclareMathOperator{\missing}{missing}
+\DeclareMathOperator{\dist}{dist}
 
 \renewcommand{\lstlistingname}{Przykład}
 \lstset{
@@ -440,28 +442,37 @@ wtedy i~tylko wtedy, gdy w~projekcie $p$ liczba potrzebnych ekspertów
 w~dziedzinie umiejętności $u$ wynosi $n$.
 \end{defn}
 
+\noindent
+Zauważmy, że funkcje umiejętności i~zapotrzebowania projektu są~tożsame
+z~wektorami wejściowymi zadania problemu (odpowiadają wzięciu odpowiedniej
+ich współrzędnej).
+
 \begin{defn}
-\textbf{Przyporządkowaniem eksperta} nazywamy funkcję
-$$ \assign : E \to P \times U $$
-gdzie dla projektu $p \in P$ i~umiejętności $u \in U$ zachodzi
-$\assign(e) = (p,u)$ wtedy i~tylko wtedy, gdy:
+\label{defn:assign}
+\textbf{Przyporządkowaniem eksperta} nazywamy relację
+$$ \assign \subsetneq E \times U \times P $$
+gdzie projekt $p \in P$, umiejętność $u \in U$ oraz ekspert $e \in E$ są
+ze~sobą w relacji $\assign$ wtedy i tylko wtedy, gdy
 \begin{itemize}
 	\item ekspert $e$ posiada umiejętność $u$ (tj. $\ability(e,u) = 1$),
 	\item ekspert $e$ został przyporządkowany do pracy w~projekcie $p$
 	w~dziedzinie umiejętności $u$.
 \end{itemize}
+Każdy ekspert $e \in E$ może być w~relacji z~co~najwyżej jedną parą postaci
+$(u,p)$, gdzie $u \in U, p \in P$.
+
+\noindent
 Ponadto, dla każdego projektu $p$ i umiejętności $u$ musi zachodzić
-$$ \left| \assign^{-1}[p,u] \right| \leq \need(p,u) $$
-gdzie $\assign^{-1}[p,u]$ jest przeciwobrazem funkcji $\assign$ dla argumentów
-$p,s$.
+$$\assigned(p,u) \overset{\text{def}}{=} \left| \left\lbrace e \in E : (e,u,p)
+\in \assign \right\rbrace \right| \leq \need(p,u)$$
 \end{defn}
 
 \begin{defn}
 \label{defn:missing}
 \textbf{Liczbą braków w projekcie $p$} dla danego przyporządkowania $\assign$
 nazywamy liczbę
-$$ \missing(p,\assign) = \sum_{u \in U} \left( \need(p,s) -
-\left| \assign^{-1}[p,u] \right| \right) $$
+$$ \missing(p,\assign) = \sum_{u \in U} \left( \need(p,u) - 
+\assigned(p, u)\right) $$
 \end{defn}
 
 \begin{defn}
@@ -479,6 +490,7 @@ Na~podstawie powyższych definicji skonstruujemy teraz sieć, której użyjemy
 do~wyznaczenia rozwiązań problemu.
 
 \begin{defn}
+\label{defn:assignnetwork}
 \textbf{Siecią przydziałów} nazwiemy sieć $S = \left(G,c,s,t\right)$, gdzie:
 \begin{itemize}
 	\item $G = \left(V_G,E_G\right)$ jest grafem skierowanym takim, że:
@@ -506,24 +518,16 @@ do~wyznaczenia rozwiązań problemu.
 \end{itemize}
 \end{defn}
 
-\begin{lem}
-Dla dowolnego przyporządkowania $\assign$ mamy
-$$ M(\assign) \geq \left( \sum_{p \in P} \sum_{s \in S} \need(p,s) \right)
-- |E| $$
-\end{lem}
-
-\begin{proof}
-Mamy
-\begin{align*}
-M(\assign) &= \sum_{p \in P} \missing(p, \assign) = \\
-&= \sum_{p \in P} \left( \sum_{s \in S} \need(p,s) -
-\left| \assign^{-1}[p,s] \right| \right) = \\
-&= \left( \sum_{p \in P} \sum_{s \in S} \need(p,s) \right) -
-\left(\sum_{p \in P} \sum_{s \in S} \left| \assign^{-1}[p,s] \right|\right) = \\
-&\geq \left( \sum_{p \in P} \sum_{s \in S} \need(p,s) \right) - |E|
-\end{align*}
-na mocy rozłączności przeciwobrazów funkcji $\assign$.
-\end{proof}
+\begin{defn}
+\textbf{Odległością} $\dist(u,v)$ wierzchołka $u$ od~wierzchołka $v$ w~grafie
+$G$ nazywamy:
+\begin{itemize}
+	\item liczbę krawędzi w~najkrótszej ścieżce od $u$ do $v$, jeśli 
+	taka istnieje,
+	\item 0, jeśli $u = v$,
+	\item $\infty$, jeśli $u \neq v$ i~nie istnieje ścieżka od~$u$ do~$v$.
+\end{itemize}
+\end{defn}
 
 \begin{thm}
 Przepływ maksymalny w~sieci przydziałów wyznacza przyporządkowanie o~minimalnej
@@ -533,11 +537,52 @@ możliwej wartości parametru $M$.
 \begin{proof}
 Aby dowieść to twierdzenie, wykażemy kolejno, że:
 \begin{enumerate}
-	\item Dowolny przepływ w~sieci przydziałów wyznacza poprawne (niekoniecznie
-	maksymalne) przyporządkowanie ekspertów do~zadań.
+	\item Każde zadanie problemu wyjściowego jest równoważne z~pewną siecią
+	przydziałów $S$.
+	\begin{itemize}
+		\item $(\Rightarrow)$ Niech dane będzie pewne zadanie problemu
+		wyjściowego (tj. dane będą zbiory $E,U,P$ oraz funkcje $\ability$
+		i~$\need$). Wówczas można dla tego zadania skonstruować sieć przydziałów
+		za~pomocą konstrukcji pokazanej w~sekcji \ref{sec:algorithm}
+		i~definicji \ref{defn:assignnetwork}.
+		\item $(\Leftarrow)$ Niech dana będzie pewna sieć przydziałów
+		$S = (G,c,s,t)$. Zauważmy, że~wierzchołki sieci przydziałów dzielą się
+		z~definicji sieci na~pięć zbiorów, określonych przez ich odległość
+		od~źródła:
+		\begin{itemize}
+		\item $\dist(u,v) = 0$ --- singleton $\{s\}$,
+			\item $\dist(u,v) = 1$ --- zbiór ekspertów $E$,
+			\item $\dist(u,v) = 2$ --- zbiór umiejętności $U$,
+			\item $\dist(u,v) = 3$ --- zbiór projektów $P$,
+			\item $\dist(u,v) = 4$ --- singleton $\{t\}$,
+		\end{itemize}
+		co daje nam wyjściowe zbiory $E,U,P$.
+
+		Na podstawie powyższych zbiorów i funkcji przepustowości $c$ można
+		zrekonstruować również funkcje $\ability$ i~$\need$:
+		\begin{itemize}
+			\item Dla każdego $e \in E$ i $u \in U$ funkcję $\ability$ możemy
+			zdefiniować jako
+			$$ \ability(e, u) = \begin{cases}
+				1, & eu \in E_G \\
+				0, & eu \notin E_G
+			\end{cases} $$
+			\item Dla każdego $u \in U$ i $p \in P$ funkcję $\need$ możemy
+			zdefiniować jako
+			$$ \need(p, u) = \begin{cases}
+				c(up), & up \in E_G \\
+				0, & up \notin E_G
+			\end{cases} $$
+		\end{itemize}
+		Z~każdej sieci przydziałów można skonstruować więc zadanie oryginalnego
+		problemu. 
+	\end{itemize}
+	\item Dowolny przepływ w~sieci przydziałów wyznacza ilość wykonanych
+	podzadań przy danym przyporządkowaniu.
 	
 	Niech dany będzie pewien przepływ $f$ w~sieci przydziałów $S$.
-	Przyporządkowanie ekspertów do projektów wyznaczamy w~następujący sposób:
+	Przyporządkowanie ekspertów do projektów $\assign_f$ wyznaczamy
+	w~następujący sposób:
 	\begin{enumerate}
 		\item Pewnego eksperta $e \in E$ przypisujemy do~umiejętności $u \in U$,
 		jeżeli $f(e,u) = 1$.
@@ -546,9 +591,9 @@ Aby dowieść to twierdzenie, wykażemy kolejno, że:
 
 		Zbiór $E_s$ dzielimy na~rozłączne podzbiory $E_{u,p}$ takie, że
 		$|E_{u,p}| = f(u,p)$.
-		\item Dla każdego z uzyskanych podzbiorów $E_{u,p}$, gdzie
-		$u \in U, p \in P$ określamy wartość przyporządkowania $\assign_f$ jako
-		$$ (\forall e \in E_{u,p}) \assign_f(e) = (u,p) $$
+		\item Dla każdego z~uzyskanych podzbiorów $E_{u,p}$, gdzie
+		$u \in U, p \in P$, do~relacji $\assign_f$ dodajemy krotki
+		$$ \{ (e,u,p) : e \in E_{u,p} \} $$
 
 	\end{enumerate}
 	Zauważmy następujące fakty:
@@ -576,15 +621,16 @@ Aby dowieść to twierdzenie, wykażemy kolejno, że:
 		projektów na~ekspertów z~umiejętnością $u$.
 
 		Ponieważ suma przepływów krawędzi wchodzących i~wychodzących jest
-		taka sama, każdego eksperta w~dziedzinie umiejętności $u$
-		można przypisać do~dokładnie jednego projektu, a~więc można wykonać
-		punkt (b) konstrukcji.
+		taka sama, każdego eksperta przydzielonego do $u$ można przypisać
+		do~dokładnie jednego podzadania (do~dokładnie jednego projektu
+		w~dziedzinie umiejętności $u$), a~więc można wykonać punkt (b)
+		konstrukcji.
 		\item Rozważmy dowolne dwa wierzchołki $u \in U, p \in P$ takie, że
 		$up \in E_G$. Z~definicji sieci mamy $c(u,p) = \need(u,p)$,
-		a~z~konstrukcji rozwiązania wynika, że
-		$f(u,p) = \left|\assign_f^{-1}[u,p]\right|$. Stąd na~mocy definicji
+		a~z~konstrukcji rozwiązania wynika, że $f(u,p) = \assigned_f(u,p)$.
+		Stąd na~mocy definicji
 		przepływu mamy
-		$$ \left|\assign_f^{-1}[u,p]\right| = f(u,p) \leq c(u,p) = \need(u,p)$$
+		$$ \assigned_f(u,p) = f(u,p) \leq c(u,p) = \need(u,p)$$
 		\item Rozważmy dowolny wierzchołek $p \in P$. Z~definicji funkcji
 		pojemności, jeśli wszystkie krawędzie wchodzące do~$p$ będą wysycone
 		przepływem (tj. $f(e) = c(e)$), to~przepływ ten można przekazać
@@ -594,42 +640,31 @@ Aby dowieść to twierdzenie, wykażemy kolejno, że:
 		przepływu.
 	\end{itemize}
 	Wyznaczone przyporządkowanie $\assign_f$ spełnia więc wszystkie warunki
-	prawidłowego przyporządkowania ekspertów do projektów.
+	prawidłowego przyporządkowania ekspertów do projektów, a~ilość elementów
+	w~tej relacji odpowiada liczbie wykonanych podzadań.
 
-	\item Skonstruowane z~przepływu maksymalnego przyporządkowanie wyznacza
-	minimalną wartość parametru $M$.
+	\item Przepływ maksymalny wyznacza minimalną wartość parametru M.
 
-	Dowód nie~wprost: Załóżmy, że~przyporządkowanie $\assign_{\max}$
-	skonstruowane na~podstawie przepływu maksymalnego $f_{\max}$ w~sposób
-	opisany w punkcie 1. można rozszerzyć tak, aby zmniejszyć wartość parametru
-	$M$.
+	Na mocy punktu 1., każde zadanie oryginalnego problemu jest równoważne
+	pewnej sieci przydziałów, zaś na~mocy punktu 2 dowolny przepływ w~sieci
+	przydziałów wyznacza ilość wykonanych podzadań. Wobec tego przepływ
+	maksymalny $f_{\max}$ wyznacza maksymalną ilość wykonanych podzadań, równą
+	$\left|\assign_{f_{\max}}\right|$.
 
-	Na mocy lematu mamy
+	Zauważmy, że
 	\begin{align*}
-	\left( \sum_{p \in P} \sum_{u \in U} \need(p,u) \right) -
-	\left(\sum_{p \in P} \sum_{u \in U} \left| \assign_{\max}^{-1} [p,u]\right|\right) 
-	&= M(\assign_{\max}) > \\
-	&> \left( \sum_{p \in P} \sum_{u \in U} \need(p,u) \right) - |E|
+	M(\assign) &= \sum_{p \in P} \missing(p, \assign) = \\
+	&= \sum_{p \in P} \sum_{u \in U} (\need(p,u) - \assigned(p,u)) = \\
+	&= \left( \sum_{p \in P} \sum_{u \in U} \need(p,u) \right) -
+	\left( \sum_{p \in P} \sum_{u \in U} \assigned(p,u) \right) = \\
+	&= \left( \sum_{p \in P} \sum_{u \in U} \need(p,u) \right) - 
+	\left|\assign\right|,
 	\end{align*}
-	a~więc istnieje co~najmniej jeden ekspert $e \in E$, który nie~jest
-	przyporządkowany do~jednego z~projektów.
-	\begin{enumerate}
-		\item Jeżeli $(\forall u \in U) \ability(e,u) = 0$, to eksperta
-		nie~można przyporządkować do~żadnego projektu.
-		\item Załóżmy, że istnieje umiejętność $u \in U$ taka, że
-		$\ability(e,u) = 1$.
-		\begin{enumerate}
-			\item Jeżeli $(\forall p \in P) \need(p,u) =
-			\left|\assign_{\max}^{-1} [p,u]\right|$, to eksperta nie~można
-			przyporządkować do~żadnego projektu.
-			\item Załóżmy, że~istnieje projekt $p$ taki, że
-			$\need(p,u) > \left|\assign_{\max}^{-1} [p,u]\right|$.
-			Wówczas w~sieci rezydualnej dla przepływu $f_{\max}$ istnieje
-			ścieżka rozszerzająca postaci $s e u p t$, wzdłuż której można
-			zwiększyć przepływ o~1. Sprzeczność z~maksymalnością przepływu
-			$f_{\max}$.
-		\end{enumerate}
-	\end{enumerate}
+	gdzie ostatnia równość wynika z~definicji \ref{defn:assign} (przyjęto,
+	że jeden ekspert może być w~relacji z~co~najwyżej jedną parą $(u,p)$).
+	
+	W~związku z~tym maksymalizacja liczności przyporządkowania $\assign$
+	jest równoważna minimalizacji parametru $M$, co kończy dowód.
 \end{enumerate}
 \end{proof}
 
