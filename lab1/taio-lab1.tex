@@ -74,7 +74,7 @@ Niniejszy rozdział poświęcony jest dokładnemu opisaniu podstawowej wersji za
 Dane są zbiory:
 \begin{itemize}
 	\item $E$ - \textbf{ekspertów} realizujących projekty,
-	\item $S$ - \textbf{umiejętności} posiadanych przez ekspertów,
+	\item $U$ - \textbf{umiejętności} posiadanych przez ekspertów,
 	\item $P$ - \textbf{projektów} do zrealizowania.\\
 \end{itemize}
 
@@ -82,7 +82,7 @@ Dane są zbiory:
 Każdemu ekspertowi przypisany jest wektor binarny opisujący posiadane przez niego umiejętności. Przykładowo, jeżeli ekspert posiada umiejętność $i$, to w~wektorze umiejętności odpowiadającemu temu ekspertowi na $i$-tym miejscu znajduje się znak $1$, w~przeciwnym wypadku --- $0$.\\
 
 \begin{tcolorbox}[title=Przykład --- wektory ekspertów]
-Załóżmy, że liczność zbioru umiejętności $S$ jest równa 5. Wówczas ponumerujemy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$. Niech pewien ekspert ze~zbioru $E$ posiada umiejętności 2, 3 i~5. Wówczas wektor opisujący jego umiejętności to:
+Załóżmy, że liczność zbioru umiejętności $U$ jest równa 5. Wówczas ponumerujemy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$. Niech pewien ekspert ze~zbioru $E$ posiada umiejętności 2, 3 i~5. Wówczas wektor opisujący jego umiejętności to:
 $$[0, 1, 1, 0, 1]$$
 \end{tcolorbox}
 
@@ -220,28 +220,28 @@ Niektóre podproblemy opisane w dalszej części rozdziału będą wymagać siec
 			\node(e1) [expert,above=of e2] {$e_1$};
 			\node(e3) [expert,below=of e2] {$e_3$};
 
-			\node(s1) [skill,above right=of e1] {$s_1$};
-			\node(s2) [skill,above right=of e2] {$s_2$};
-			\node(s3) [skill,below right=of e2] {$s_3$};
-			\node(s4) [skill,below right=of e3] {$s_4$};
+			\node(u1) [skill,above right=of e1] {$u_1$};
+			\node(u2) [skill,above right=of e2] {$u_2$};
+			\node(u3) [skill,below right=of e2] {$u_3$};
+			\node(u4) [skill,below right=of e3] {$u_4$};
 
-			\node(p1) [project,right=of s2] {$p_1$};
-			\node(p2) [project,right=of s3] {$p_2$};
+			\node(p1) [project,right=of u2] {$p_1$};
+			\node(p2) [project,right=of u3] {$p_2$};
 
 			\node(t) [vertex] [below right=of p1] {$t_G$};
 
 			\path	(s)  edge node{1} (e1)
 						edge node{1} (e2)
 						edge node{1} (e3)
-					(e1) edge node{1} (s1)
-						edge [bend right=15] node{1} (s3)
-					(e2) edge [bend left=30] node{1} (s2)
-					(e3) edge node{1} (s3)
-						edge node{1} (s4)
-					(s1) edge node{3} (p1)
-					(s3) edge node{2} (p1)
-						edge node{1} (p2)
-					(s4) edge node{5} (p2)
+					(e1) edge node{1} (u1)
+						edge [bend right=15] node{1} (u3)
+					(e2) edge [bend left=30] node{1} (u2)
+					(e3) edge node{1} (u3)
+						 edge node{1} (u4)
+					(u1) edge node{3} (p1)
+					(u3) edge node{2} (p1)
+						 edge node{1} (p2)
+					(u4) edge node{5} (p2)
 					(p1) edge node{5} (t)
 					(p2) edge node{6} (t);
 		\end{tikzpicture}
@@ -251,11 +251,11 @@ Niektóre podproblemy opisane w dalszej części rozdziału będą wymagać siec
 	problemu}
 \end{figure}
 \noindent
-Proponowany graf \texttt{G} będzie posiadał $|E|+|S|+|P|+2$ wierzchołków, które utworzą w nim pięć warstw. Wyróżnione zostaną dwa wierzchołki --- źródło \texttt{s} i ujście \texttt{t} sieci, z którego każdy będzie jedynym w swojej warstwie. Pozostałe trzy warstwy pomiędzy nimi będą zawierać wierzchołki reprezentujące odpowiednio ekspertów, umiejętności i projekty. Poniżej znajduje się pseudokod pozwalający na stworzenie takiego grafu.\\
+Proponowany graf \texttt{G} będzie posiadał $|E|+|U|+|P|+2$ wierzchołków, które utworzą w nim pięć warstw. Wyróżnione zostaną dwa wierzchołki --- źródło \texttt{s} i ujście \texttt{t} sieci, z którego każdy będzie jedynym w swojej warstwie. Pozostałe trzy warstwy pomiędzy nimi będą zawierać wierzchołki reprezentujące odpowiednio ekspertów, umiejętności i projekty. Poniżej znajduje się pseudokod pozwalający na stworzenie takiego grafu.\\
 
 \begin{tcolorbox}[title=Konstrukcja sieci podstawowej]
 \begin{verbatim}
-G <- graf skierowany o liczbie wierzchołków równej |E|+|S|+|P|+2
+G <- graf skierowany o liczbie wierzchołków równej |E|+|U|+|P|+2
 dla każdego wierzchołka e reprezentującego eksperta w G:
     dodaj krawędź (s, e) do G
     G.c[s, e] <- 1
@@ -418,39 +418,39 @@ Załóżmy, że dane są następujące zbiory:
 
 \begin{itemize}
 	\item \textbf{zbiór ekspertów}, oznaczony $E$,
-	\item \textbf{zbiór umiejętności}, oznaczony $S$,
+	\item \textbf{zbiór umiejętności}, oznaczony $U$,
 	\item \textbf{zbiór projektów}, oznaczony $P$.
 \end{itemize}
 
 \begin{defn}
 \textbf{Funkcją umiejętności} nazywamy funkcję
-$$ \ability : E \times S \to \{ 0,1 \} $$
-gdzie dla eksperta $e \in E$ oraz umiejętności $s \in S$ zachodzi
-$\ability(e, s) = 1$ wtedy i~tylko wtedy, gdy ekspert $e$ posiada umiejętność
-$s$, zaś 0 w przeciwnym przypadku.
+$$ \ability : E \times U \to \{ 0,1 \} $$
+gdzie dla eksperta $e \in E$ oraz umiejętności $u \in U$ zachodzi
+$\ability(e, u) = 1$ wtedy i~tylko wtedy, gdy ekspert $e$ posiada umiejętność
+$u$, zaś 0 w przeciwnym przypadku.
 \end{defn}
 
 \begin{defn}
 \textbf{Zapotrzebowaniem projektu} nazywamy funkcję
-$$ \need : P \times S \to \mathbb{N} $$
-gdzie dla projektu $p \in P$ i~umiejętności $s \in S$ zachodzi $\need(p, s) = n$
+$$ \need : P \times U \to \mathbb{N} $$
+gdzie dla projektu $p \in P$ i~umiejętności $u \in U$ zachodzi $\need(p, u) = n$
 wtedy i~tylko wtedy, gdy w~projekcie $p$ liczba potrzebnych ekspertów
-w~dziedzinie umiejętności $s$ wynosi $n$.
+w~dziedzinie umiejętności $u$ wynosi $n$.
 \end{defn}
 
 \begin{defn}
 \textbf{Przyporządkowaniem eksperta} nazywamy funkcję
-$$ \assign : E \to P \times S $$
-gdzie dla projektu $p \in P$ i~umiejętności $s \in S$ zachodzi
-$\assign(e) = (p,s)$ wtedy i~tylko wtedy, gdy:
+$$ \assign : E \to P \times U $$
+gdzie dla projektu $p \in P$ i~umiejętności $u \in U$ zachodzi
+$\assign(e) = (p,u)$ wtedy i~tylko wtedy, gdy:
 \begin{itemize}
-	\item ekspert $e$ posiada umiejętność $s$ (tj. $\ability(e,s) = 1$),
+	\item ekspert $e$ posiada umiejętność $u$ (tj. $\ability(e,u) = 1$),
 	\item ekspert $e$ został przyporządkowany do pracy w~projekcie $p$
-	w~dziedzinie umiejętności $s$.
+	w~dziedzinie umiejętności $u$.
 \end{itemize}
-Ponadto, dla każdego projektu $p$ i umiejętności $s$ musi zachodzić
-$$ \left| \assign^{-1}[p,s] \right| \leq \need(p,s) $$
-gdzie $\assign^{-1}[p,s]$ jest przeciwobrazem funkcji $\assign$ dla argumentów
+Ponadto, dla każdego projektu $p$ i umiejętności $u$ musi zachodzić
+$$ \left| \assign^{-1}[p,u] \right| \leq \need(p,u) $$
+gdzie $\assign^{-1}[p,u]$ jest przeciwobrazem funkcji $\assign$ dla argumentów
 $p,s$.
 \end{defn}
 
@@ -458,8 +458,8 @@ $p,s$.
 \label{defn:missing}
 \textbf{Liczbą braków w projekcie $p$} dla danego przyporządkowania $\assign$
 nazywamy liczbę
-$$ \missing(p,\assign) = \sum_{s \in S} \left( \need(p,s) -
-\left| \assign^{-1}[p,s] \right| \right) $$
+$$ \missing(p,\assign) = \sum_{u \in U} \left( \need(p,s) -
+\left| \assign^{-1}[p,u] \right| \right) $$
 \end{defn}
 
 \begin{defn}
@@ -477,29 +477,29 @@ Na~podstawie powyższych definicji skonstruujemy teraz sieć, której użyjemy
 do~wyznaczenia rozwiązań problemu.
 
 \begin{defn}
-\textbf{Siecią przydziałów} nazwiemy sieć $N = \left(G,c,s_G,t_G\right)$, gdzie:
+\textbf{Siecią przydziałów} nazwiemy sieć $S = \left(G,c,s,t\right)$, gdzie:
 \begin{itemize}
 	\item $G = \left(V_G,E_G\right)$ jest grafem skierowanym takim, że:
 	\begin{itemize}
-		\item $V_G = E \cup S \cup P \cup \left\lbrace s_G,t_G \right\rbrace$,
-		\item $E_G = \left\lbrace (e,s) : \ability(e,s) = 1, e \in E, s \in S
-		\right\rbrace \cup \left\lbrace (s,p) : \need(s,p) > 0, s \in S, p \in P
+		\item $V_G = E \cup U \cup P \cup \left\lbrace s,t \right\rbrace$,
+		\item $E_G = \left\lbrace (e,u) : \ability(e,u) = 1, e \in E, u \in U
+		\right\rbrace \cup \left\lbrace (u,p) : \need(u,p) > 0, u \in U, p \in P
 		\right\rbrace$, tj. krawędziami połączeni są eksperci z~ich opanowanymi
 		umiejętnościami, oraz projekty z~potrzebnymi do~ich realizacji
 		umiejętnościami.
 	\end{itemize}
 	\item $c : E_G \to \mathbb{N}$ jest funkcją pojemności zdefiniowaną
-	następująco:
+	dla krawędzi $e_G$ następująco:
 	\begin{itemize}
-		\item jeżeli $e = s_G u, u \in E$, to $c(e) = 1$,
-		\item jeżeli $e = es, e \in E, s \in S$, to $c(e) = \ability(e,s) = 1$,
-		\item jeżeli $e = sp, s \in S, p \in P$, to $c(e) = \need(p,s)$,
-		\item jeżeli $e = pt_G, p \in P$, to
-		$$c(e) = \sum_{sp \in E_G} c(up)$$
+		\item jeżeli $e_G = se, e \in E$, to $c(e_G) = 1$,
+		\item jeżeli $e_G = eu, e \in E, u \in U$, to $c(e_G) = \ability(e,u) = 1$,
+		\item jeżeli $e_G = up, u \in U, p \in P$, to $c(e_G) = \need(p,u)$,
+		\item jeżeli $e_G = pt, p \in P$, to
+		$$c(e_G) = \sum_{sp \in E_G} c(up)$$
 		(tj. pojemność tej krawędzi jest równa sumie pojemności krawędzi
 		wchodzących do wierzchołka $p$).
 	\end{itemize}
-	\item $s_G,t_G$ są wyróżnionymi wierzchołkami z $V_G$ --- kolejno źródłem
+	\item $s,t$ są wyróżnionymi wierzchołkami z $V_G$ --- kolejno źródłem
 	i~ujściem.
 \end{itemize}
 \end{defn}
@@ -534,21 +534,19 @@ Aby dowieść to twierdzenie, wykażemy kolejno, że:
 	\item Dowolny przepływ w~sieci przydziałów wyznacza poprawne (niekoniecznie
 	maksymalne) przyporządkowanie ekspertów do~zadań.
 	
-	Niech dany będzie pewien przepływ $f$ w~sieci przydziałów $N$.
+	Niech dany będzie pewien przepływ $f$ w~sieci przydziałów $S$.
 	Przyporządkowanie ekspertów do projektów wyznaczamy w~następujący sposób:
 	\begin{enumerate}
-		\item Pewnego eksperta $e \in E$ przypisujemy do~umiejętności $s \in S$,
-		jeżeli $f(e,s) = 1$.
-		%\item Pewnemu projektowi $p \in P$ w~dziedzinie umiejętności $s \in S$
-		%przypisujemy dokładnie $f(s,p)$ ekspertów.
-		\item Niech dana będzie pewna umiejętność $s \in S$. Oznaczmy zbiór
-		ekspertów przypisanych do~tej umiejętności w punkcie (a) jako $E_s$.
+		\item Pewnego eksperta $e \in E$ przypisujemy do~umiejętności $u \in U$,
+		jeżeli $f(e,u) = 1$.
+		\item Niech dana będzie pewna umiejętność $u \in U$. Oznaczmy zbiór
+		ekspertów przypisanych do~tej umiejętności w punkcie (a) jako $E_u$.
 
-		Zbiór $E_s$ dzielimy na~rozłączne podzbiory $E_{s,p}$ takie, że
-		$|E_{s,p}| = f(s,p)$.
-		\item Dla każdego z uzyskanych podzbiorów $E_{s,p}$, gdzie
-		$s \in S, p \in P$ określamy wartość przyporządkowania $\assign_f$ jako
-		$$ (\forall e \in E_{s,p}) \assign_f(e) = (s,p) $$
+		Zbiór $E_s$ dzielimy na~rozłączne podzbiory $E_{u,p}$ takie, że
+		$|E_{u,p}| = f(u,p)$.
+		\item Dla każdego z uzyskanych podzbiorów $E_{u,p}$, gdzie
+		$u \in U, p \in P$ określamy wartość przyporządkowania $\assign_f$ jako
+		$$ (\forall e \in E_{u,p}) \assign_f(e) = (u,p) $$
 
 	\end{enumerate}
 	Zauważmy następujące fakty:
@@ -557,40 +555,40 @@ Aby dowieść to twierdzenie, wykażemy kolejno, że:
 		
 		Z~definicji zbioru krawędzi sieci i~funkcji przepustowości,
 		do~wierzchołka tego wchodzi dokładnie jedna krawędź o~pojemności 1,
-		a~wychodzi z~niego co~najwyżej $|S|$ krawędzi o~pojemności 1.
+		a~wychodzi z~niego co~najwyżej $|U|$ krawędzi o~pojemności 1.
 
 		Stąd w~przepływie $f$ tylko jedna z~krawędzi wychodzących może mieć
 		przepływ 1, a~więc każdy ekspert może być przyporządkowany
 		do~co~najwyżej jednej umiejętności.
-		\item Rozważmy dowolny wierzchołek $s \in S$ odpowiadający pewnej
+		\item Rozważmy dowolny wierzchołek $u \in U$ odpowiadający pewnej
 		umiejętności.
 
 		Z~własności przepływu mamy
-		$$ \sum_{us \in E_G} f(us) = \sum_{sv \in E_G} f(sv) $$
+		$$ \sum_{wu \in E_G} f(wu) = \sum_{uv \in E_G} f(uv) $$
 		Wiedząc, że~wszystkie krawędzie wchodzące do~$s$ wychodzą ze~zbioru $E$,
 		oraz że~wszystkie krawędzie wychodzące z~$s$ wchodzą do~zbioru $P$, mamy
-		$$ \sum_{e \in E} f(es) = \sum_{p \in P} f(sp) $$
+		$$ \sum_{e \in E} f(eu) = \sum_{p \in P} f(up) $$
 		Krawędzie o~niezerowym przepływie wchodzące do~$e$ reprezentują
 		ekspertów przydzielonych do~danej umiejętności, zaś krawędzie
 		o~niezerowym przepływie wychodzące z~$e$ reprezentują zapotrzebowanie
-		projektów na~ekspertów z~umiejętnością $s$.
+		projektów na~ekspertów z~umiejętnością $u$.
 
 		Ponieważ suma przepływów krawędzi wchodzących i~wychodzących jest
-		taka sama, każdego eksperta w~dziedzinie umiejętności $s$
+		taka sama, każdego eksperta w~dziedzinie umiejętności $u$
 		można przypisać do~dokładnie jednego projektu, a~więc można wykonać
 		punkt (b) konstrukcji.
-		\item Rozważmy dowolne dwa wierzchołki $s \in S, p \in P$ takie, że
-		$sp \in E_G$. Z~definicji sieci mamy $c(s,p) = \need(s,p)$,
+		\item Rozważmy dowolne dwa wierzchołki $u \in U, p \in P$ takie, że
+		$up \in E_G$. Z~definicji sieci mamy $c(u,p) = \need(u,p)$,
 		a~z~konstrukcji rozwiązania wynika, że
-		$f(s,p) = \left|\assign_f^{-1}[s,p]\right|$. Stąd na~mocy definicji
+		$f(u,p) = \left|\assign_f^{-1}[u,p]\right|$. Stąd na~mocy definicji
 		przepływu mamy
-		$$ \left|\assign_f^{-1}[s,p]\right| = f(s,p) \leq c(s,p) = \need(s,p)$$
+		$$ \left|\assign_f^{-1}[u,p]\right| = f(u,p) \leq c(u,p) = \need(u,p)$$
 		\item Rozważmy dowolny wierzchołek $p \in P$. Z~definicji funkcji
 		pojemności, jeśli wszystkie krawędzie wchodzące do~$p$ będą wysycone
 		przepływem (tj. $f(e) = c(e)$), to~przepływ ten można przekazać
-		w~całości do ujścia krawędzią $pt_G$, bo
-		$$ c(pt_G) = \sum_{up \in E_G} c(up) $$
-		Stąd pojemność krawędzi $pt_G$ nie ogranicza wartości maksymalnego
+		w~całości do ujścia krawędzią $pt$, bo
+		$$ c(pt) = \sum_{up \in E_G} c(up) $$
+		Stąd pojemność krawędzi $pt$ nie ogranicza wartości maksymalnego
 		przepływu.
 	\end{itemize}
 	Wyznaczone przyporządkowanie $\assign_f$ spełnia więc wszystkie warunki
@@ -606,26 +604,26 @@ Aby dowieść to twierdzenie, wykażemy kolejno, że:
 
 	Na mocy lematu mamy
 	\begin{align*}
-	\left( \sum_{p \in P} \sum_{s \in S} \need(p,s) \right) -
-	\left(\sum_{p \in P} \sum_{s \in S} \left| \assign_{\max}^{-1} [p,s]\right|\right) 
+	\left( \sum_{p \in P} \sum_{u \in U} \need(p,u) \right) -
+	\left(\sum_{p \in P} \sum_{u \in U} \left| \assign_{\max}^{-1} [p,u]\right|\right) 
 	&= M(\assign_{\max}) > \\
-	&> \left( \sum_{p \in P} \sum_{s \in S} \need(p,s) \right) - |E|
+	&> \left( \sum_{p \in P} \sum_{u \in U} \need(p,u) \right) - |E|
 	\end{align*}
 	a~więc istnieje co~najmniej jeden ekspert $e \in E$, który nie~jest
 	przyporządkowany do~jednego z~projektów.
 	\begin{enumerate}
-		\item Jeżeli $(\forall s \in S) \ability(e,s) = 0$, to eksperta
+		\item Jeżeli $(\forall u \in U) \ability(e,u) = 0$, to eksperta
 		nie~można przyporządkować do~żadnego projektu.
-		\item Załóżmy, że istnieje umiejętność $s \in S$ taka, że
-		$\ability(e,s) = 1$.
+		\item Załóżmy, że istnieje umiejętność $u \in U$ taka, że
+		$\ability(e,u) = 1$.
 		\begin{enumerate}
-			\item Jeżeli $(\forall p \in P) \need(p,s) =
-			\left|\assign_{\max}^{-1} [p,s]\right|$, to eksperta nie~można
+			\item Jeżeli $(\forall p \in P) \need(p,u) =
+			\left|\assign_{\max}^{-1} [p,u]\right|$, to eksperta nie~można
 			przyporządkować do~żadnego projektu.
 			\item Załóżmy, że~istnieje projekt $p$ taki, że
-			$\need(p,s) > \left|\assign_{\max}^{-1} [p,s]\right|$.
+			$\need(p,u) > \left|\assign_{\max}^{-1} [p,u]\right|$.
 			Wówczas w~sieci rezydualnej dla przepływu $f_{\max}$ istnieje
-			ścieżka rozszerzająca postaci $s_G e s p t_G$, wzdłuż której można
+			ścieżka rozszerzająca postaci $s e u p t$, wzdłuż której można
 			zwiększyć przepływ o~1. Sprzeczność z~maksymalnością przepływu
 			$f_{\max}$.
 		\end{enumerate}
