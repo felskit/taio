@@ -8,12 +8,15 @@
 \usepackage{tabularx}
 \usepackage{multirow}
 \usepackage{float}
+\usepackage{subcaption}
 \usepackage{listings}
 \usepackage{tcolorbox}
 \usepackage[hidelinks]{hyperref}
 \usepackage[polish]{babel}
 \usepackage[useregional=numeric]{datetime2}
 \usepackage[a4paper,margin=1in]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{shapes,snakes,positioning}
 
 \newtheorem{lem}{Lemat}
 \newtheorem{thm}{Twierdzenie}
@@ -184,9 +187,71 @@ W poniższym rozdziale precyzyjnie sformułowano algorytm pozwalający na rozwi�
 
 \subsection{Konstrukcja sieci podstawowej}
 Niektóre podproblemy opisane w dalszej części rozdziału będą wymagać sieci reprezentowanej przez graf skierowany, który można utworzyć na podstawie danych z zadania.\\
+\begin{figure}[t!]
+	\centering
+	\begin{subfigure}{0.3\textwidth}
+		\begin{verbatim}
+3 // Liczba ekspertów
+4 // Liczba umiejętności
+2 // Liczba projektów
+// Wektory ekspertów
+[1, 0, 1, 0]
+[0, 1, 0, 0]
+[0, 0, 1, 1]
+// Zapotrzebowanie
+// projektów
+[3, 0, 2, 0]
+[0, 0, 1, 5]
+		\end{verbatim}
+		\caption{Przykładowy format pliku wejściowego dla programu}
+	\end{subfigure}
+	\quad
+	\begin{subfigure}{0.6\textwidth}
+		\begin{tikzpicture}[->,node distance=0.5cm and 1.5cm,thick]
+			\tikzstyle{every node} = [fill=white]
+			\tikzstyle{vertex}	   = [circle,draw=black]
+			\tikzstyle{expert}     = [diamond,draw=red,text=red]
+			\tikzstyle{skill}      = [rectangle,draw=teal,text=teal,minimum height=0.7cm,minimum width=0.7cm]
+			\tikzstyle{project}    = [circle,draw=blue,text=blue]
 
+			\node(s) [vertex] {$s_G$};
+
+			\node(e2) [expert,right=of s] {$e_2$};
+			\node(e1) [expert,above=of e2] {$e_1$};
+			\node(e3) [expert,below=of e2] {$e_3$};
+
+			\node(s1) [skill,above right=of e1] {$s_1$};
+			\node(s2) [skill,above right=of e2] {$s_2$};
+			\node(s3) [skill,below right=of e2] {$s_3$};
+			\node(s4) [skill,below right=of e3] {$s_4$};
+
+			\node(p1) [project,right=of s2] {$p_1$};
+			\node(p2) [project,right=of s3] {$p_2$};
+
+			\node(t) [vertex] [below right=of p1] {$t_G$};
+
+			\path	(s)  edge node{1} (e1)
+						edge node{1} (e2)
+						edge node{1} (e3)
+					(e1) edge node{1} (s1)
+						edge [bend right=15] node{1} (s3)
+					(e2) edge [bend left=30] node{1} (s2)
+					(e3) edge node{1} (s3)
+						edge node{1} (s4)
+					(s1) edge node{3} (p1)
+					(s3) edge node{2} (p1)
+						edge node{1} (p2)
+					(s4) edge node{5} (p2)
+					(p1) edge node{5} (t)
+					(p2) edge node{6} (t);
+		\end{tikzpicture}
+		\caption{Wygląd sieci skonstruowanej na~podstawie dostarczonych danych}
+	\end{subfigure}
+	\caption{Przykład konstrukcji sieci na~podstawie określonego zadania
+	problemu}
+\end{figure}
 \noindent
-Proponowany graf \texttt{G} będzie posiadał $|E|+|S|+|P|+2$ wierzchołków, które utworzą w nim pięć wartsw. Wyróżnione zostaną dwa wierzchołki --- źródło \texttt{s} i ujście \texttt{t} sieci, z którego każdy będzie jedynym w swojej warstwie. Pozostałe trzy warstwy pomiędzy nimi będą zawierać wierzchołki reprezentujące odpowiednio ekspertów, umiejętności i projekty. Poniżej znajduje się pseudokod pozwalający na stworzenie takiego grafu.\\
+Proponowany graf \texttt{G} będzie posiadał $|E|+|S|+|P|+2$ wierzchołków, które utworzą w nim pięć warstw. Wyróżnione zostaną dwa wierzchołki --- źródło \texttt{s} i ujście \texttt{t} sieci, z którego każdy będzie jedynym w swojej warstwie. Pozostałe trzy warstwy pomiędzy nimi będą zawierać wierzchołki reprezentujące odpowiednio ekspertów, umiejętności i projekty. Poniżej znajduje się pseudokod pozwalający na stworzenie takiego grafu.\\
 
 \begin{tcolorbox}[title=Konstrukcja sieci podstawowej]
 \begin{verbatim}
