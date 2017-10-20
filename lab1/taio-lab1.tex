@@ -190,8 +190,9 @@ opis jednego z~takich algorytmów znajduje się w następnej sekcji.
 W poniższym rozdziale precyzyjnie sformułowano algorytm pozwalający na rozwiązanie dowolnego zadania w postawionym problemie. Pseudokod został podzielony na fragmenty, z którego każdy będzie rozwiązywał pewien podproblem, w celu ułatwienia opisu głównej części algorytmu.
 
 \subsection{Konstrukcja sieci podstawowej}
-Niektóre podproblemy opisane w dalszej części rozdziału będą wymagać sieci reprezentowanej przez graf skierowany, który można utworzyć na podstawie danych z zadania.\\
-\begin{figure}[t!]
+Niektóre podproblemy opisane w dalszej części rozdziału będą wymagać sieci reprezentowanej przez graf skierowany, który można utworzyć na podstawie danych z zadania.
+
+\begin{figure}[H]
 	\centering
 	\begin{subfigure}{0.3\textwidth}
 		\begin{verbatim}
@@ -206,8 +207,9 @@ Niektóre podproblemy opisane w dalszej części rozdziału będą wymagać siec
 // projektów
 [3, 0, 2, 0]
 [0, 0, 1, 5]
+
 		\end{verbatim}
-		\caption{Przykładowy format pliku wejściowego dla programu}
+		\caption{Przykładowy format pliku wejściowego programu}
 	\end{subfigure}
 	\quad
 	\begin{subfigure}{0.6\textwidth}
@@ -254,6 +256,7 @@ Niektóre podproblemy opisane w dalszej części rozdziału będą wymagać siec
 	\caption{Przykład skonstruowanej sieci na~podstawie określonego zadania
 	problemu}
 \end{figure}
+
 \noindent
 Proponowany graf \texttt{G} będzie posiadał $|E|+|U|+|P|+2$ wierzchołków, które utworzą w nim pięć warstw. Wyróżnione zostaną dwa wierzchołki --- źródło \texttt{s} i ujście \texttt{t} sieci, z którego każdy będzie jedynym w swojej warstwie. Pozostałe trzy warstwy pomiędzy nimi będą zawierać wierzchołki reprezentujące odpowiednio ekspertów, umiejętności i projekty. Poniżej znajduje się pseudokod pozwalający na stworzenie takiego grafu.\\
 
@@ -489,6 +492,7 @@ zależnym od~końcowego przyporządkowania.\\
 Na~podstawie powyższych definicji skonstruujemy teraz sieć, której użyjemy
 do~wyznaczenia rozwiązań problemu.
 
+\newpage
 \begin{defn}
 \label{defn:assignnetwork}
 \textbf{Siecią przydziałów} nazwiemy sieć $S = \left(G,c,s,t\right)$, gdzie:
