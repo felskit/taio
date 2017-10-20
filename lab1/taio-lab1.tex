@@ -49,6 +49,7 @@
 	{\large \today \par}
 \end{titlepage}
 
+\begin{comment}
 \noindent
 Lista zmian:\\[.5\baselineskip]
 \begin{tabularx}{\textwidth}{|l|l|X|l|}
@@ -58,6 +59,7 @@ Lista zmian:\\[.5\baselineskip]
 	15.10.2017 & Tymon Felski & Stworzenie szablonu dokumentu & 1.0 \\
 	\hline
 \end{tabularx}
+\end{comment}
 
 \newpage
 \tableofcontents
@@ -215,11 +217,11 @@ W celu konstruowania w sieci ścieżek rozszerzających niezbędne jest utworzen
 Niech dana będzie krawędź $uv$ i przepływ $f$. Wówczas w sieci rezydualnej istnieją krawędzie:
 \begin{itemize}
 	\item $uv$ o przepustowości $c(uv) - f(uv)$,
-	\item $vu$ o przepustowości $f(uv)$.
+	\item $vu$ o przepustowości $f(uv)$.\\
 \end{itemize}
 
 \noindent
-Sieć rezydualna będzie aktualizowana po każdym zwiększeniu przepływu wzdłuż ścieżki powiększającej. Na początku działania algorytmu (przy zerowym przepływie) będzie ona taka sama, jak wyjściowa sieć. Wobec tego, wystarczy stworzyć sieć opisaną w poprzednim punkcie i rozszerzyć ją w sposób następujący:\\
+Sieć rezydualna będzie aktualizowana po każdym zwiększeniu przepływu wzdłuż ścieżki powiększającej. Na początku działania algorytmu (przy zerowym przepływie) będzie ona wyglądać prawie tak samo, jak wyjściowa sieć. Wystarczy stworzyć sieć opisaną w poprzednim punkcie i rozszerzyć ją w sposób następujący:\\
 
 \begin{tcolorbox}[title=Rozszerzenie konstrukcji sieci podstawowej]
 \begin{verbatim}
