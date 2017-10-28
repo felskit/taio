@@ -48,7 +48,7 @@ class Parser:
     def parse_experts(self, file, data):
         for i in range(data.expert_count):
             vector = self.parse_expert(file, data.skill_count)
-            data.add_project(vector)
+            data.add_expert(vector)
 
     def parse_project(self, file, skill_count):
         vector = self.parse_comma_delimited_numbers(file, skill_count)
@@ -59,7 +59,7 @@ class Parser:
     def parse_projects(self, file, data):
         for i in range(data.project_count):
             vector = self.parse_project(file, data.skill_count)
-            data.add_expert(vector)
+            data.add_project(vector)
 
     def parse(self, file):
         data = self.parse_counts(file)

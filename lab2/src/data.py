@@ -13,3 +13,8 @@ class ProblemData:
 
     def add_project(self, vector):
         self.projects.append(vector)
+
+
+class ProblemResult:
+    def __init__(self, experts_to_skills):
+        self.expert_to_skill = experts_to_skills
