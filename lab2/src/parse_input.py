@@ -1,6 +1,6 @@
 import sys
 
-from lab2.data import ProblemData
+from .data import ProblemData
 
 
 class ParseError(Exception):
