@@ -19,14 +19,24 @@ class Solver:
 
     def solve(self):
         _, flow_graph = self.graph.maximum_flow(self.s, self.t)
-
         result = []
+        skills = {}
+        for skill_id in range(self.skills_count):
+            skills[skill_id] = []
+
         for expert_id in range(self.expert_count):
-            skill = -1
             for skill_id in range(self.skills_count):
                 if flow_graph.get_flow_value(self._v_expert(expert_id), self._v_skill(skill_id)) == 1:
-                    skill = skill_id
-            result.append(skill)
+                    skills[skill_id].append(expert_id)
+                    break
+
+        for skill_id in range(self.skills_count):
+            for project_id in range(self.project_count):
+                flow_value = flow_graph.get_flow_value(self._v_skill(skill_id), self._v_project(project_id))
+                while flow_value > 0:
+                    expert_id = skills[skill_id].pop()
+                    result.append((expert_id, skill_id, project_id))
+                    flow_value -= 1
 
         return ProblemResult(result)
 
@@ -63,4 +73,3 @@ class Solver:
 
     def _v_project(self, project_id):
         return project_id + self.skills_count + self.expert_count + 1
-
