@@ -7,7 +7,7 @@ from src.utils.solver import Solver
 class SolverTest(unittest.TestCase):
     def test_basic_graph(self):
         input_data = self._setup_input([2, 3, 2], [[1, 0], [1, 0], [0, 0]], [[2, 1], [1, 2]])
-        expected = [0, 0, -1]
+        expected = [(1, 0, 0), (0, 0, 0)]
 
         result = Solver(input_data).solve()
 
