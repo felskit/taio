@@ -1,6 +1,6 @@
 import sys
 
-from .data import ProblemData
+from src.classes.data import ProblemData
 
 
 class ParseError(Exception):

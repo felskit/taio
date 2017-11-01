@@ -1,5 +1,5 @@
-from .graph import Graph
-from .data import ProblemResult
+from src.classes.data import ProblemResult
+from src.classes.graph import Graph
 
 
 class Solver:
@@ -19,10 +19,8 @@ class Solver:
 
     def solve(self):
         _, flow_graph = self.graph.maximum_flow(self.s, self.t)
+        skills = dict((skill_id, []) for skill_id in range(self.skills_count))
         result = []
-        skills = {}
-        for skill_id in range(self.skills_count):
-            skills[skill_id] = []
 
         for expert_id in range(self.expert_count):
             for skill_id in range(self.skills_count):

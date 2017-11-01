@@ -1,8 +1,8 @@
 import argparse
 import sys
 
-from .parse_input import Parser, ParseError
-from .solver import Solver
+from src.utils.parser import Parser, ParseError
+from src.utils.solver import Solver
 
 
 def init_parser():

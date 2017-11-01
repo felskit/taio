@@ -1,6 +1,7 @@
 import unittest
-from src.data import ProblemData
-from src.solver import Solver
+
+from src.classes.data import ProblemData
+from src.utils.solver import Solver
 
 
 class SolverTest(unittest.TestCase):

@@ -1,4 +1,5 @@
 import networkx as nx
+from src.algorithms.maxflow import edmonds_karp
 
 
 class Graph:
@@ -12,7 +13,8 @@ class Graph:
         return self._internal_graph[item]
 
     def maximum_flow(self, s, t):
-        max_flow, graph = nx.maximum_flow(self._internal_graph, s, t, flow_func=nx.algorithms.flow.edmonds_karp)
+        max_flow, graph = edmonds_karp(self._internal_graph, s, t)
+
         return max_flow, Graph(graph)
 
     def add_edge(self, v_from, v_to, capacity):
