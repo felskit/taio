@@ -14,7 +14,6 @@ class Graph:
 
     def maximum_flow(self, s, t):
         max_flow, graph = edmonds_karp(self._internal_graph, s, t)
-
         return max_flow, Graph(graph)
 
     def add_edge(self, v_from, v_to, capacity):

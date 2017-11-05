@@ -4,8 +4,8 @@ import networkx as nx
 def edmonds_karp(G, s, t):
     R = build_residual_network(G)
     for u in R:
-        for e in R[u].values():
-            e['flow'] = 0
+        for v in R[u]:
+            R[u][v]['flow'] = 0
     flow_value = 0
 
     while True:
