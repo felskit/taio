@@ -7,11 +7,13 @@ from src.utils.solver import Solver
 class SolverTest(unittest.TestCase):
     def test_basic_graph(self):
         input_data = self._setup_input([2, 3, 2], [[1, 0], [1, 0], [0, 0]], [[2, 1], [1, 2]])
-        expected = [(1, 0, 0), (0, 0, 0)]
+        expected_shortage = 4
+        expected_assignment = [(1, 0, 0), (0, 0, 0)]
 
         result = Solver(input_data).solve()
 
-        self.assertEqual(result.expert_to_skill, expected)
+        self.assertEqual(result.shortage, expected_shortage)
+        self.assertEqual(result.assignment, expected_assignment)
 
     def _setup_input(self, counts, experts, projects):
         input_data = ProblemData(counts)

@@ -28,7 +28,7 @@ def main():
         exit(1)
     print(input_data.experts)
     print(input_data.projects)
-    print(Solver(input_data).solve().expert_to_skill)
+    print(Solver(input_data).solve())
 
 
 if __name__ == '__main__':

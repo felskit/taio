@@ -16,5 +16,9 @@ class ProblemData:
 
 
 class ProblemResult:
-    def __init__(self, experts_to_skills):
-        self.expert_to_skill = experts_to_skills
+    def __init__(self, shortage, assignment):
+        self.shortage = shortage
+        self.assignment = assignment
+
+    def __str__(self):
+        return "Shortage: " + str(self.shortage) + "\nAssignment: " + str(self.assignment)

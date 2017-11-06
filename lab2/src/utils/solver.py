@@ -18,9 +18,9 @@ class Solver:
         self._build_graph()
 
     def solve(self):
-        _, flow_graph = self.graph.maximum_flow(self.s, self.t)
+        max_flow_value, flow_graph = self.graph.maximum_flow(self.s, self.t)
         skills = dict((skill_id, []) for skill_id in range(self.skills_count))
-        result = []
+        assignment = []
 
         for expert_id in range(self.expert_count):
             for skill_id in range(self.skills_count):
@@ -33,10 +33,15 @@ class Solver:
                 flow_value = flow_graph.get_flow_value(self._v_skill(skill_id), self._v_project(project_id))
                 while flow_value > 0:
                     expert_id = skills[skill_id].pop()
-                    result.append((expert_id, skill_id, project_id))
+                    assignment.append((expert_id, skill_id, project_id))
                     flow_value -= 1
 
-        return ProblemResult(result)
+        shortage = self.calculate_shortage(max_flow_value)
+        return ProblemResult(shortage, assignment)
+
+    def calculate_shortage(self, max_flow_value):
+        demand = sum(sum(x) for x in self.projects)
+        return demand - max_flow_value
 
     def _build_graph(self):
         self.graph = Graph()
