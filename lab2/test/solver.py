@@ -44,13 +44,13 @@ class SolverTest(unittest.TestCase):
         # given
         experts = []
         projects = [[3, 2, 1], [1, 2, 3]]
-        input_data = self._setup_input([3, 0, 2], experts, projects)
+        input_data = self._setup_input([3, len(experts), len(projects)], experts, projects)
         # when
         result = Solver(input_data).solve()
         # then
-        # TODO: shortage
         self.assertEqual(len(result.assignment), 0)
         self.assertCorrect(result.assignment, projects)
+        self.assertEqual(result.shortage, 12)
 
     def test_no_projects(self):
         """Input data specifies no projects."""
@@ -59,8 +59,15 @@ class SolverTest(unittest.TestCase):
 
     def test_experts_zeroes_only(self):
         """Expert vectors only contain zeroes."""
-        # TODO: BD
-        pass
+        experts = [[0] * 4] * 3
+        projects = [[1] * 4, [2] * 4, [3] * 4]
+        input_data = self._setup_input([4, len(experts), len(projects)], experts, projects)
+        # when
+        result = Solver(input_data).solve()
+        # then
+        self.assertEqual(len(result.assignment), 0)
+        self.assertCorrect(result.assignment, projects)
+        self.assertEqual(result.shortage, 24)
 
     def test_project_zeroes_only(self):
         """Project vectors only contain zeroes."""
@@ -69,8 +76,15 @@ class SolverTest(unittest.TestCase):
 
     def test_ideal_assignment(self):
         """Every expert can be assigned a subtask. All projects are completed with no shortages."""
-        # TODO: BD
-        pass
+        experts = [[1] * 5] * 20
+        projects = [[1] * 5, [3] * 5]
+        input_data = self._setup_input([5, len(experts), len(projects)], experts, projects)
+        # when
+        result = Solver(input_data).solve()
+        # then
+        self.assertEqual(len(result.assignment), 20)
+        self.assertCorrect(result.assignment, projects)
+        self.assertEqual(result.shortage, 0)
 
     def test_project_bottleneck(self):
         """Project requirements are the bottleneck - there are more experts able to do the work than subtasks."""
@@ -79,8 +93,18 @@ class SolverTest(unittest.TestCase):
 
     def test_expert_bottleneck(self):
         """Expert supply is the bottleneck - there are more subtasks to do than available experts."""
-        # TODO: BD
-        pass
+        # given
+        experts = [[1, 0, 1, 0]] * 3 + [[0, 1, 0, 1]] * 5 + [[0, 1, 1, 0]] * 2
+        projects = [[1, 1, 1, 1]] * 7
+        print(experts)
+        print(projects)
+        input_data = self._setup_input([4, len(experts), len(projects)], experts, projects)
+        # when
+        result = Solver(input_data).solve()
+        # then
+        self.assertEqual(len(result.assignment), 10)
+        self.assertCorrect(result.assignment, projects)
+        self.assertEqual(result.shortage, 18)
 
     def test_big_graph(self):
         """Tests the algorithm on a big input graph."""
