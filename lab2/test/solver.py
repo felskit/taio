@@ -5,6 +5,29 @@ from src.utils.solver import Solver
 
 
 class SolverTest(unittest.TestCase):
+
+    @staticmethod
+    def _setup_input(counts, experts, projects):
+        input_data = ProblemData(counts)
+        input_data.experts = experts
+        input_data.projects = projects
+        return input_data
+
+    def assertCorrect(self, assignment, projects):
+        expert_set = set()
+        assignments = [[0] * len(project) for project in projects]
+        for expert, skill, project in assignment:
+            if expert in expert_set:
+                raise self.failureException('Expert {} was assigned to two subtasks'.format(expert))
+            else:
+                expert_set.add(expert)
+            assignments[project][skill] += 1
+            if assignments[project][skill] > projects[project][skill]:
+                raise self.failureException('Overassigned project {} in skill {}\n'
+                                            'Project assignment: {}\n'
+                                            'Project requirements: {}'
+                                            .format(project, skill, assignments[project], projects[project]))
+
     def test_basic_graph(self):
         input_data = self._setup_input([2, 3, 2], [[1, 0], [1, 0], [0, 0]], [[2, 1], [1, 2]])
         expected_shortage = 4
@@ -14,9 +37,52 @@ class SolverTest(unittest.TestCase):
 
         self.assertEqual(result.shortage, expected_shortage)
         self.assertEqual(result.assignment, expected_assignment)
+        self.assertCorrect(result.assignment, [[2, 1], [1, 2]])
 
-    def _setup_input(self, counts, experts, projects):
-        input_data = ProblemData(counts)
-        input_data.experts = experts
-        input_data.projects = projects
-        return input_data
+    def test_no_experts(self):
+        """Input data specifies no experts."""
+        # given
+        experts = []
+        projects = [[3, 2, 1], [1, 2, 3]]
+        input_data = self._setup_input([3, 0, 2], experts, projects)
+        # when
+        result = Solver(input_data).solve()
+        # then
+        # TODO: shortage
+        self.assertEqual(len(result.assignment), 0)
+        self.assertCorrect(result.assignment, projects)
+
+    def test_no_projects(self):
+        """Input data specifies no projects."""
+        # TODO: TF
+        pass
+
+    def test_experts_zeroes_only(self):
+        """Expert vectors only contain zeroes."""
+        # TODO: BD
+        pass
+
+    def test_project_zeroes_only(self):
+        """Project vectors only contain zeroes."""
+        # TODO: TF
+        pass
+
+    def test_ideal_assignment(self):
+        """Every expert can be assigned a subtask. All projects are completed with no shortages."""
+        # TODO: BD
+        pass
+
+    def test_project_bottleneck(self):
+        """Project requirements are the bottleneck - there are more experts able to do the work than subtasks."""
+        # TODO: TF
+        pass
+
+    def test_expert_bottleneck(self):
+        """Expert supply is the bottleneck - there are more subtasks to do than available experts."""
+        # TODO: BD
+        pass
+
+    def test_big_graph(self):
+        """Tests the algorithm on a big input graph."""
+        # TODO: TF
+        pass

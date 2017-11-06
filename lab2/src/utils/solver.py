@@ -45,6 +45,7 @@ class Solver:
 
     def _build_graph(self):
         self.graph = Graph()
+        self.graph.add_nodes([self.s, self.t])
         self._add_experts_to_graph()
         self._add_experts_with_skills()
         self._assign_skills_to_projects()

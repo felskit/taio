@@ -12,6 +12,10 @@ class Graph:
     def __getitem__(self, item):
         return self._internal_graph[item]
 
+    def add_nodes(self, list):
+        for node in list:
+            self._internal_graph.add_node(node)
+
     def maximum_flow(self, s, t):
         max_flow, graph = edmonds_karp(self._internal_graph, s, t)
         return max_flow, Graph(graph)
