@@ -5,7 +5,6 @@ from src.utils.solver import Solver
 
 
 class SolverTest(unittest.TestCase):
-
     @staticmethod
     def _setup_input(counts, experts, projects):
         input_data = ProblemData(counts)
@@ -28,16 +27,18 @@ class SolverTest(unittest.TestCase):
                                             'Project requirements: {}'
                                             .format(project, skill, assignments[project], projects[project]))
 
-    # def test_basic_graph(self):
-    #     input_data = self._setup_input([2, 3, 2], [[1, 0], [1, 0], [0, 0]], [[2, 1], [1, 2]])
-    #     expected_shortage = 4
-    #     expected_assignment = [(1, 0, 0), (0, 0, 0)]
-    #
-    #     result = Solver(input_data).solve()
-    #
-    #     self.assertEqual(result.shortage, expected_shortage)
-    #     self.assertEqual(result.assignment, expected_assignment)
-    #     self.assertCorrect(result.assignment, [[2, 1], [1, 2]])
+    def test_basic_graph(self):
+        """Input data specifies basic graph with unequivocal assignment."""
+        # given
+        experts = [[1, 0], [1, 0], [0, 0]]
+        projects = [[2, 1], [1, 2]]
+        input_data = self._setup_input([2, len(experts), len(projects)], experts, projects)
+        # when
+        result = Solver(input_data).solve()
+        # then
+        self.assertEqual(result.shortage, 4)
+        self.assertEqual(result.assignment, [(1, 0, 0), (0, 0, 0)])
+        self.assertCorrect(result.assignment, projects)
 
     def test_no_experts(self):
         """Input data specifies no experts."""
@@ -48,9 +49,9 @@ class SolverTest(unittest.TestCase):
         # when
         result = Solver(input_data).solve()
         # then
+        self.assertEqual(result.shortage, 12)
         self.assertEqual(len(result.assignment), 0)
         self.assertCorrect(result.assignment, projects)
-        self.assertEqual(result.shortage, 12)
 
     def test_no_projects(self):
         """Input data specifies no projects."""
@@ -73,9 +74,9 @@ class SolverTest(unittest.TestCase):
         # when
         result = Solver(input_data).solve()
         # then
+        self.assertEqual(result.shortage, 24)
         self.assertEqual(len(result.assignment), 0)
         self.assertCorrect(result.assignment, projects)
-        self.assertEqual(result.shortage, 24)
 
     def test_project_zeroes_only(self):
         """Project vectors only contain zeroes."""
@@ -98,9 +99,9 @@ class SolverTest(unittest.TestCase):
         # when
         result = Solver(input_data).solve()
         # then
+        self.assertEqual(result.shortage, 0)
         self.assertEqual(len(result.assignment), 20)
         self.assertCorrect(result.assignment, projects)
-        self.assertEqual(result.shortage, 0)
 
     def test_project_bottleneck(self):
         """Project requirements are the bottleneck - there are more experts able to do the work than subtasks."""
@@ -124,11 +125,11 @@ class SolverTest(unittest.TestCase):
         # when
         result = Solver(input_data).solve()
         # then
+        self.assertEqual(result.shortage, 18)
         self.assertEqual(len(result.assignment), 10)
         self.assertCorrect(result.assignment, projects)
-        self.assertEqual(result.shortage, 18)
 
     def test_big_graph(self):
         """Tests the algorithm on a big input graph."""
-        # TODO: TF
+        # TODO: does this even make sense?
         pass

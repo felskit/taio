@@ -39,9 +39,9 @@ class Solver:
         shortage = self.calculate_shortage(max_flow_value)
         return ProblemResult(shortage, assignment)
 
-    def calculate_shortage(self, max_flow_value):
+    def calculate_shortage(self, supply):
         demand = sum(sum(x) for x in self.projects)
-        return demand - max_flow_value
+        return demand - supply
 
     def _build_graph(self):
         self.graph = Graph()
