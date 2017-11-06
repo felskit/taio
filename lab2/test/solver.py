@@ -96,8 +96,6 @@ class SolverTest(unittest.TestCase):
         # given
         experts = [[1, 0, 1, 0]] * 3 + [[0, 1, 0, 1]] * 5 + [[0, 1, 1, 0]] * 2
         projects = [[1, 1, 1, 1]] * 7
-        print(experts)
-        print(projects)
         input_data = self._setup_input([4, len(experts), len(projects)], experts, projects)
         # when
         result = Solver(input_data).solve()
