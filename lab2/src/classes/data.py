@@ -21,4 +21,4 @@ class ProblemResult:
         self.assignment = assignment
 
     def __str__(self):
-        return "Shortage: " + str(self.shortage) + "\nAssignment: " + str(self.assignment)
+        return 'Shortage: {}\nAssignment: {}'.format(str(self.shortage), str(self.assignment))

@@ -47,13 +47,16 @@ def copy_digraph(G):
 
 def find_augmenting_path(G, s, t):
     q = [[s]]
+    visited = [False] * len(G.nodes)
+    visited[s] = True
     while q:
         vertex_path = q.pop(0)
         u = vertex_path[-1]
         if u == t:
             return construct_path(vertex_path)
         for u, v, attr in G.edges(u, data=True):
-            if attr.get('capacity', float('inf')) > 0:
+            if (not visited[v]) and attr.get('capacity', float('inf')) > 0:
+                visited[v] = True
                 new_vertex_path = list(vertex_path)
                 new_vertex_path.append(v)
                 q.append(new_vertex_path)
