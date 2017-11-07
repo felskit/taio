@@ -1,4 +1,5 @@
 import networkx as nx
+from queue import deque
 
 
 def edmonds_karp(G, s, t):
@@ -46,15 +47,15 @@ def copy_digraph(G):
 
 
 def find_augmenting_path(G, s, t):
-    q = [[s]]
+    q = deque([[s]])
     visited = [False] * len(G.nodes)
     visited[s] = True
     while q:
-        vertex_path = q.pop(0)
+        vertex_path = q.popleft()
         u = vertex_path[-1]
         if u == t:
             return construct_path(vertex_path)
-        for u, v, attr in G.edges(u, data=True):
+        for _, v, attr in G.edges(u, data=True):
             if (not visited[v]) and attr.get('capacity', float('inf')) > 0:
                 visited[v] = True
                 new_vertex_path = list(vertex_path)
