@@ -1,4 +1,6 @@
 import unittest
+import random
+import time
 
 from src.classes.data import ProblemData
 from src.utils.solver import Solver
@@ -131,5 +133,20 @@ class SolverTest(unittest.TestCase):
 
     def test_big_graph(self):
         """Tests the algorithm on a big input graph."""
-        # TODO: does this even make sense?
-        pass
+        def rand_int_vect_of_size_n(maxval, n):
+            return [random.randint(0, maxval) for _ in range(n)]
+
+        projects_count = 100 * 2
+        experts_count = 100 * 2
+        skills_count = 100 * 2
+        experts = [rand_int_vect_of_size_n(1, skills_count) for _ in range(experts_count)]
+        projects = [rand_int_vect_of_size_n(skills_count, skills_count) for _ in range(projects_count)]
+
+        solver = Solver(self._setup_input([projects_count, experts_count, projects_count], experts, projects))
+        # self.time_me(solver, "3 x 1000 test")
+
+    @staticmethod
+    def time_me(solver, name):
+        start = time.time()
+        solver.solve()
+        print("{} took {} s".format(name, time.time() - start))
