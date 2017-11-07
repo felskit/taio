@@ -1,9 +1,7 @@
-import re
+import os
 import shutil
 import tempfile
 import unittest
-
-import os
 
 from src.utils.parser import Parser, ParseError
 
@@ -18,7 +16,7 @@ class ParserTest(unittest.TestCase):
     def _write_to_file(self, contents):
         self.test_file.write(contents)
         self.test_file.seek(0)
-        
+
     def assertRaisesParseError(self, regex):
         self.assertRaisesRegex(
             ParseError,

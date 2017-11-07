@@ -14,6 +14,16 @@ class SolverTest(unittest.TestCase):
         input_data.projects = projects
         return input_data
 
+    @staticmethod
+    def _rand_int_vector_of_size_n(max_val, n):
+        return [random.randint(0, max_val) for _ in range(n)]
+
+    @staticmethod
+    def _time_me(solver, name):
+        start = time.time()
+        solver.solve()
+        print("{} took {} s".format(name, time.time() - start))
+
     def assertCorrect(self, assignment, projects):
         expert_set = set()
         assignments = [[0] * len(project) for project in projects]
@@ -68,8 +78,21 @@ class SolverTest(unittest.TestCase):
         self.assertEqual(len(result.assignment), 0)
         self.assertCorrect(result.assignment, projects)
 
+    def test_no_experts_no_projects(self):
+        """Input data specifies no experts and no projects."""
+        # given
+        experts = []
+        projects = []
+        input_data = self._setup_input([3, len(experts), len(projects)], experts, projects)
+        # when
+        result = Solver(input_data).solve()
+        # then
+        self.assertEqual(result.shortage, 0)
+        self.assertEqual(len(result.assignment), 0)
+        self.assertCorrect(result.assignment, projects)
+
     def test_experts_zeroes_only(self):
-        """Expert vectors only contain zeroes."""
+        """Expert vectors contain zeroes only."""
         experts = [[0] * 4] * 3
         projects = [[1] * 4, [2] * 4, [3] * 4]
         input_data = self._setup_input([4, len(experts), len(projects)], experts, projects)
@@ -81,10 +104,23 @@ class SolverTest(unittest.TestCase):
         self.assertCorrect(result.assignment, projects)
 
     def test_project_zeroes_only(self):
-        """Project vectors only contain zeroes."""
+        """Project vectors contain zeroes only."""
         # given
-        experts = [[1] * 3] * 2
-        projects = [[0] * 3] * 2
+        experts = [[1] * 3] * 3
+        projects = [[0] * 3] * 3
+        input_data = self._setup_input([3, len(experts), len(projects)], experts, projects)
+        # when
+        result = Solver(input_data).solve()
+        # then
+        self.assertEqual(result.shortage, 0)
+        self.assertEqual(len(result.assignment), 0)
+        self.assertCorrect(result.assignment, projects)
+
+    def test_experts_and_project_zeroes_only(self):
+        """Expert and project vectors contain zeroes only."""
+        # given
+        experts = [[0] * 3] * 3
+        projects = [[0] * 3] * 3
         input_data = self._setup_input([3, len(experts), len(projects)], experts, projects)
         # when
         result = Solver(input_data).solve()
@@ -131,22 +167,24 @@ class SolverTest(unittest.TestCase):
         self.assertEqual(len(result.assignment), 10)
         self.assertCorrect(result.assignment, projects)
 
-    def test_big_graph(self):
+    def test_big_graph_100(self):
         """Tests the algorithm on a big input graph."""
-        def rand_int_vect_of_size_n(maxval, n):
-            return [random.randint(0, maxval) for _ in range(n)]
-
-        projects_count = 100 * 2
-        experts_count = 100 * 2
-        skills_count = 100 * 2
-        experts = [rand_int_vect_of_size_n(1, skills_count) for _ in range(experts_count)]
-        projects = [rand_int_vect_of_size_n(skills_count, skills_count) for _ in range(projects_count)]
+        projects_count = 100
+        experts_count = 100
+        skills_count = 100
+        experts = [self._rand_int_vector_of_size_n(1, skills_count)] * experts_count
+        projects = [self._rand_int_vector_of_size_n(skills_count, skills_count)] * projects_count
 
         solver = Solver(self._setup_input([projects_count, experts_count, projects_count], experts, projects))
-        # self.time_me(solver, "3 x 1000 test")
+        self._time_me(solver, "3 x 100 test")
 
-    @staticmethod
-    def time_me(solver, name):
-        start = time.time()
-        solver.solve()
-        print("{} took {} s".format(name, time.time() - start))
+    def test_big_graph_200(self):
+        """Tests the algorithm on a big input graph."""
+        projects_count = 200
+        experts_count = 200
+        skills_count = 200
+        experts = [self._rand_int_vector_of_size_n(1, skills_count)] * experts_count
+        projects = [self._rand_int_vector_of_size_n(skills_count, skills_count)] * projects_count
+
+        solver = Solver(self._setup_input([projects_count, experts_count, projects_count], experts, projects))
+        self._time_me(solver, "3 x 200 test")
