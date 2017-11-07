@@ -12,8 +12,11 @@ class Graph:
     def __getitem__(self, item):
         return self._internal_graph[item]
 
-    def add_nodes(self, list):
-        for node in list:
+    # def add_node(self, node):
+    #     self._internal_graph.add_node(node)
+
+    def add_nodes(self, node_list):
+        for node in node_list:
             self._internal_graph.add_node(node)
 
     def maximum_flow(self, s, t):
