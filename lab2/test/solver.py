@@ -167,24 +167,22 @@ class SolverTest(unittest.TestCase):
         self.assertEqual(len(result.assignment), 10)
         self.assertCorrect(result.assignment, projects)
 
-    def test_big_graph_100(self):
+    def test_performance_big_graph_100(self):
         """Tests the algorithm on a big input graph."""
         projects_count = 100
         experts_count = 100
         skills_count = 100
-        experts = [self._rand_int_vector_of_size_n(1, skills_count)] * experts_count
-        projects = [self._rand_int_vector_of_size_n(skills_count, skills_count)] * projects_count
-
+        experts = [self._rand_int_vector_of_size_n(1, skills_count) for _ in range(experts_count)]
+        projects = [self._rand_int_vector_of_size_n(skills_count, skills_count) for _ in range(projects_count)]
         solver = Solver(self._setup_input([projects_count, experts_count, projects_count], experts, projects))
         self._time_me(solver, "3 x 100 test")
 
-    def test_big_graph_200(self):
+    def test_performance_big_graph_200(self):
         """Tests the algorithm on a big input graph."""
         projects_count = 200
         experts_count = 200
         skills_count = 200
-        experts = [self._rand_int_vector_of_size_n(1, skills_count)] * experts_count
-        projects = [self._rand_int_vector_of_size_n(skills_count, skills_count)] * projects_count
-
+        experts = [self._rand_int_vector_of_size_n(1, skills_count) for _ in range(experts_count)]
+        projects = [self._rand_int_vector_of_size_n(skills_count, skills_count) for _ in range(projects_count)]
         solver = Solver(self._setup_input([projects_count, experts_count, projects_count], experts, projects))
         self._time_me(solver, "3 x 200 test")
