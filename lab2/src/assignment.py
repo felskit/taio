@@ -6,6 +6,12 @@ from src.utils.solver import Solver
 
 
 def init_parser():
+    """
+    Constructs an instance of :class:`argparse.ArgumentParser` configured for the program.
+
+    The returned :class:`argparse.ArgumentParser` accepts one positional string argument, which is the input
+    file name.
+    """
     parser = argparse.ArgumentParser(description='Solves the expert-project assignment problem.')
     parser.add_argument('filename',
                         nargs=1,
@@ -15,6 +21,7 @@ def init_parser():
 
 
 def main():
+    """The main program entry point."""
     arg_parser = init_parser()
     args = arg_parser.parse_args()
     input_parser = Parser()
@@ -26,8 +33,6 @@ def main():
         sys.stderr.write('Error parsing file \'{}\': {}\n'
                          .format(args.filename[0], e))
         exit(1)
-    print(input_data.experts)
-    print(input_data.projects)
     print(Solver(input_data).solve())
 
 

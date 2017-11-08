@@ -7,8 +7,22 @@ from src.utils.solver import Solver
 
 
 class SolverTest(unittest.TestCase):
+    """Tests for the :class:`Solver` class."""
+
     @staticmethod
     def _setup_input(counts, experts, projects):
+        """
+        Method used to setup input data to the solver.
+
+        :param counts: A list containing counts of skills, experts and projects.
+        :type counts: list
+        :param experts: A list of expert skill vectors.
+        :type experts: list
+        :param projects: A list of project requirement vectors.
+        :type projects: list
+        :return: An instance of :class:`ProblemData` to supply to the solver.
+        :rtype: ProblemData
+        """
         input_data = ProblemData(counts)
         input_data.experts = experts
         input_data.projects = projects
@@ -16,10 +30,28 @@ class SolverTest(unittest.TestCase):
 
     @staticmethod
     def _rand_int_vector_of_size_n(max_val, n):
+        """
+        Returns a random vector of integer, of size exactly *n*.
+
+        :param max_val: The maximum value permitted in the vector.
+        :type max_val: int
+        :param n: The length of the random vector.
+        :type n: int
+        :return: A non-negative random vector of length *n*. Entries have a value of at most *max_val*.
+        :rtype: list
+        """
         return [random.randint(0, max_val) for _ in range(n)]
 
     @staticmethod
     def _time_me(solver, name):
+        """
+        Used for timing the solving of a problem instance.
+
+        :param solver: The solver used in the test.
+        :type solver: Solver
+        :param name: The label of the test the timing was performed in.
+        :type name: str
+        """
         start = time.time()
         solver.solve()
         print("{} took {} s".format(name, time.time() - start))

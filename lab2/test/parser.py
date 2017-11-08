@@ -7,17 +7,39 @@ from src.utils.parser import Parser, ParseError
 
 
 class ParserTest(unittest.TestCase):
+    """Tests for the :class:`Parser` class."""
+
     def setUp(self):
+        """
+        Setup method for the tests.
+
+        Creates a temporary directory, places and opens a test file in it to use when testing.
+        """
         self.test_directory = tempfile.mkdtemp()
         file_path = os.path.join(self.test_directory, 'test.txt')
         self.test_file = open(file_path, 'w+')
         self.parser = Parser()
 
     def _write_to_file(self, contents):
+        """
+        Helper class, used to write contents to a temporary file to be passed to the parser.
+
+        After the contents are written, the file stream is rewound to the start to allow reading.
+
+        :param contents: The file contents to be written.
+        :type contents: str
+        """
         self.test_file.write(contents)
         self.test_file.seek(0)
 
     def assertRaisesParseError(self, regex):
+        """
+        Assertion to check for instances of thrown `src.utils.parser.ParseError` exceptions with the messages
+        containing the supplied regular expression.
+
+        :param regex: The regular expression to match against the exception message.
+        :type regex: str
+        """
         self.assertRaisesRegex(
             ParseError,
             regex,
