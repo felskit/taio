@@ -7,7 +7,7 @@ class Graph:
         if internal is None:
             self._internal_graph = nx.DiGraph()
         else:
-            self._internal_graph = internal
+            self._flow_dict = internal
 
     def __getitem__(self, item):
         return self._internal_graph[item]
@@ -27,4 +27,4 @@ class Graph:
         self._internal_graph.add_edge(v_from, v_to, capacity=capacity)
 
     def get_flow_value(self, v_from, v_to):
-        return self._internal_graph[v_from][v_to]
+        return self._flow_dict[v_from][v_to]
