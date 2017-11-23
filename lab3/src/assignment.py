@@ -33,7 +33,7 @@ def main():
         sys.stderr.write('Error parsing file \'{}\': {}\n'
                          .format(args.filename[0], e))
         exit(1)
-    print(GeneticHandler(scheduling_data, 2137).solve())
+    print(GeneticHandler(scheduling_data, 10).solve())
 
 
 if __name__ == '__main__':

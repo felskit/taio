@@ -19,7 +19,7 @@ class GeneticHandler:
         return True
 
     def _find_intervals(self, member):
-        if len(self.scheduling_data.project_count) == 0:  # no projects specified
+        if self.scheduling_data.project_count == 0:  # no projects specified
             return []
 
         events = []
@@ -42,10 +42,10 @@ class GeneticHandler:
         # projects = sorted(projects, key=functools.cmp_to_key(compare))
 
         intervals = []
-        for i_from, i_to in zip(events[:-1], events[2:]):
+        for i_from, i_to in zip(events[:-1], events[1:]):
             i_projects = []
             for i, p_from, p_to in projects:
-                if p_from >= i_from and p_to <= i_to:
+                if i_from < p_to and p_from < i_to:
                     i_projects.append(i)
             intervals.append((i_from, i_to, i_projects))
 
