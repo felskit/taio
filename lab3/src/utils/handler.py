@@ -29,6 +29,7 @@ class GeneticHandler:
             events.extend((p_from, p_to))
             projects.append((i, p_from, p_to))  # index i added in case of sweeping
         events = list(set(events))
+        events.sort()
 
         # might be useful for sweeping
         # import functools
