@@ -107,14 +107,18 @@ class GeneticHandler:
     def _n_point_mutation(self, member, n):
         mutated = list(member)
 
-        # member is empty (no projects)
-        if self.scheduling_data.project_count == 0:
+        # member is empty (no projects) or no way to mutate since only one gene is allowed (0)
+        if self.scheduling_data.project_count == 0 or self.scheduling_data.overall_time_units == 1:
             return mutated
 
-        genes = random.sample(range(0, self.scheduling_data.project_count), n)  # will throw ValueError if n too big
+        mutation = random.sample(range(0, self.scheduling_data.project_count), n)  # will throw ValueError if n too big
+        possible_genes = list(range(0, self.scheduling_data.overall_time_units))
 
-        for gene in genes:
-            mutated[gene] = random.randint(0, self.scheduling_data.overall_time_units - 1)
+        for i in mutation:
+            original_gene = member[i]
+            possible_genes.remove(original_gene)
+            mutated[i] = random.sample(possible_genes, 1)[0]
+            possible_genes.append(original_gene)
 
         return mutated
 
