@@ -19,15 +19,17 @@ class GeneticHandler:
         return True
 
     def _find_intervals(self, member):
-        if len(member) == 0:  # no projects specified
+        if len(self.scheduling_data.project_count) == 0:  # no projects specified
             return []
 
         events = []
         projects = []
+
         for i, p_from in enumerate(member):
             p_to = p_from + self.scheduling_data.projects[i][1]
             events.extend((p_from, p_to))
             projects.append((i, p_from, p_to))  # index i added in case of sweeping
+
         events = list(set(events))
         events.sort()
 
@@ -64,7 +66,7 @@ class GeneticHandler:
 
         return data
 
-    def _solve_scheduling(self, member):
+    def _solve_scheduling(self, member):  # fitness function
         if not self._validate_scheduling(member):
             return -1  # return -1 because scheduling doesn't make sense (means it has to be removed from population)
 
@@ -81,6 +83,40 @@ class GeneticHandler:
             assignments.append(problem_result.assignment)
 
         return total_shortage, assignments, intervals  # intervals may be useful for constructing final assignment? idk
+
+    def _n_point_crossover(self, parent1, parent2, n):
+        offspring1 = list(parent1)
+        offspring2 = list(parent2)
+
+        # parents are empty (no projects) or they have only one gene, so no point in doing crossover
+        if self.scheduling_data.project_count == 0 or self.scheduling_data.project_count == 1:
+            return offspring1, offspring2
+
+        cuts = random.sample(range(1, self.scheduling_data.project_count), n)  # will throw ValueError if n too big
+        cuts.sort()
+
+        if n % 2 == 1:
+            cuts.append(self.scheduling_data.project_count)
+
+        for cut_from, cut_to in zip(cuts[::2], cuts[1::2]):
+            offspring1[cut_from:cut_to] = parent2[cut_from:cut_to]
+            offspring2[cut_from:cut_to] = parent1[cut_from:cut_to]
+
+        return offspring1, offspring2
+
+    def _n_point_mutation(self, member, n):
+        mutated = list(member)
+
+        # member is empty (no projects)
+        if self.scheduling_data.project_count == 0:
+            return mutated
+
+        genes = random.sample(range(0, self.scheduling_data.project_count), n)  # will throw ValueError if n too big
+
+        for gene in genes:
+            mutated[gene] = random.randint(0, self.scheduling_data.overall_time_units - 1)
+
+        return mutated
 
     def solve(self):
         return "Solved."
