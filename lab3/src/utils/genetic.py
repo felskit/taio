@@ -119,7 +119,7 @@ class GeneticSolver:
         offspring2 = list(parent2)
 
         # parents are empty (no projects) or they have only one gene, so no point in doing crossover
-        if self.scheduling_data.project_count == 0 or self.scheduling_data.project_count == 1:
+        if self.scheduling_data.project_count <= 1:
             return tuple(offspring1), tuple(offspring2)
 
         cuts = random.sample(range(1, self.scheduling_data.project_count), n)
@@ -137,7 +137,7 @@ class GeneticSolver:
         mutated = list(member)
 
         # member is empty (no projects) or there's no way to mutate since only one gene is allowed (0)
-        if self.scheduling_data.project_count <= 1:
+        if self.scheduling_data.project_count == 0 or self.scheduling_data.overall_time_units == 1:
             return tuple(mutated)
 
         mutation = random.sample(range(0, self.scheduling_data.project_count), n)
