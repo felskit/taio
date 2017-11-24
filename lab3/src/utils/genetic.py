@@ -8,12 +8,12 @@ from src.utils.solver import Solver
 class GeneticSolver:
     def __init__(self, scheduling_data):
         self.scheduling_data = scheduling_data
-        self.population_count = 3
-        self.max_generation_count = 1000
         self.crossover_chance = 0.67
         self.mutation_chance = 0.34
+        self.max_population_count = 3
+        self.max_generation_count = 1000
         self.max_iterations_without_change = 100
-        self.population = self._init_population_valid()
+        self.population = self._init_population_valid()  # population may be smaller due to randomized duplicates
         self.counts = [
             scheduling_data.skill_count,
             scheduling_data.expert_count,
@@ -23,7 +23,7 @@ class GeneticSolver:
     # initializes population with valid members
     def _init_population_valid(self):
         population = OrderedDict()
-        for _ in range(self.population_count):
+        for _ in range(self.max_population_count):
             member = []
             for i in range(self.scheduling_data.project_count):
                 p_length = self.scheduling_data.projects[i][1]
@@ -39,7 +39,7 @@ class GeneticSolver:
                       for _ in range(self.scheduling_data.project_count)),
                 None
             )
-            for _ in range(self.population_count)
+            for _ in range(self.max_population_count)
         ])
         return population
 
@@ -51,7 +51,7 @@ class GeneticSolver:
                 return False
         return True
 
-    # finds intervals
+    # finds intervals with assigned projects for given member
     def _find_intervals(self, member):
         if self.scheduling_data.project_count == 0:  # no projects specified
             return []
@@ -61,20 +61,13 @@ class GeneticSolver:
 
         for i, p_from in enumerate(member):
             p_to = p_from + self.scheduling_data.projects[i][1]
-            events.extend((p_from, p_to))
-            projects.append((i, p_from, p_to))  # index i added in case of sweeping
+            events.extend([p_from, p_to])
+            projects.append((i, p_from, p_to))
 
         events = list(set(events))
         events.sort()
 
-        # might be useful for sweeping
-        # import functools
-        #
-        # def compare(a, b):
-        #     return a[1] - b[1]
-        #
-        # projects = sorted(projects, key=functools.cmp_to_key(compare))
-
+        # TODO: consider sweeping projects instead of looking over them for each interval
         intervals = []
         for i_from, i_to in zip(events[:-1], events[1:]):
             i_projects = set()
@@ -175,6 +168,7 @@ class GeneticSolver:
             for member, solution in self.population.items():
                 if not solution:
                     self.population[member] = self._solve_scheduling(member)
+                # TODO: refactor condition so that invalid members with -1 are not best
                 if not current_best_solution or current_best_solution[0] < 0 \
                         or current_best_solution[0] > self.population[member][0] >= 0:
                     current_best_member = member
@@ -182,6 +176,7 @@ class GeneticSolver:
             print('Finished.')
 
             # Updating all-time best result
+            # TODO: refactor condition so that invalid members with -1 are not best
             if not best_solution or best_solution[0] < 0 or \
                     current_best_solution and best_solution[0] > current_best_solution[0] > 0:
                 best_member = current_best_member
@@ -192,16 +187,16 @@ class GeneticSolver:
 
             # Stop conditions.
             if best_solution and best_solution[0] == 0:
-                print('Found optimal solution. Finishing algorithm.')
+                print('\nFound optimal solution. Finishing algorithm.')
                 return best_member, best_solution
 
             if best_member and last_change_in_best >= self.max_iterations_without_change:
-                print('Best result has not changed since {} iterations. Finishing algorithm.'
+                print('\nBest result has not changed for {} iterations. Finishing algorithm.'
                       .format(self.max_iterations_without_change))
                 return best_member, best_solution
 
             if generation_counter > self.max_generation_count:
-                print('Reached generation limit. Finishing algorithm.')
+                print('\nReached generation limit. Finishing algorithm.')
                 return best_member, best_solution
 
             self.print_result(best_member, best_solution)
@@ -220,17 +215,18 @@ class GeneticSolver:
             print('Finished.')
 
             if len(invalid) > 0:
-                print('> Removing invalid members... ', end='', flush=True)
+                print('> Removing {} invalid members... '.format(len(invalid)), end='', flush=True)
                 for member in invalid:
                     del self.population[member]
                 print('Finished.')
-            print('> Valid members in population: {}.'.format(len(self.population)))
+            else:
+                print('> No invalid members found.')
 
-            if len(self.population) > self.population_count:
-                print('> Population too big. Selecting {} members from {}... '
-                      .format(self.population_count, len(self.population)), end='', flush=True)
+            if len(self.population) > self.max_population_count:
+                print('> Population exceeded member limit.\n> Selecting {} members from {}... '
+                      .format(self.max_population_count, len(self.population)), end='', flush=True)
                 new_population = OrderedDict()
-                for _ in range(self.population_count):
+                for _ in range(self.max_population_count):
                     chosen_member, chosen_solution = None, None
                     random_value = random.uniform(0, fitness_sum)
                     for member, solution in self.population.items():
@@ -250,8 +246,8 @@ class GeneticSolver:
             for member1, member2 in zip(crossover_members[::2], crossover_members[1::2]):
                 n = random.randint(1, self.scheduling_data.project_count - 1)
                 offspring1, offspring2 = self._n_point_crossover(member1, member2, n)
-                self.population[offspring1] = None
-                self.population[offspring2] = None
+                self.population[offspring1] = None  # TODO: check if offspring1 is not a member already
+                self.population[offspring2] = None  # TODO: check if offspring2 is not a member already
             print('Finished.')
 
             # Mutations.
@@ -260,15 +256,16 @@ class GeneticSolver:
             for member in mutation_members:
                 n = random.randint(1, self.scheduling_data.project_count - 1)
                 mutated = self._n_point_mutation(member, n)
-                self.population[mutated] = None
-            print('Finished.\n')
+                self.population[mutated] = None  # TODO: check if mutated is not a member already
+            print('Finished.')
 
             # Generation counter incrementation.
             generation_counter += 1
 
     @staticmethod
     def print_result(member, solution):
-        print('Total shortage: {}.'.format(solution[0]))
+        # TODO: check if there is a solution to be printed (could be None, None if problem is invalid => print sth else)
+        print('\nTotal shortage: {}.'.format(solution[0]))
         print('Best starting times for projects: {}.'.format(member))
         print('Intervals [t_from, t_to] -> [projects] with assignments (expert, skill, project):')
         for assignment, interval in zip(solution[1], solution[2]):

@@ -34,8 +34,6 @@ def main():
                          .format(args.filename[0], e))
         exit(1)
     result = GeneticSolver(scheduling_data).solve()
-
-    print()
     GeneticSolver.print_result(result[0], result[1])
 
 
