@@ -309,7 +309,7 @@ dla każdej krawędzi (u, v) w G:
 \end{tcolorbox}
 
 \subsubsection{Wyszukiwanie ścieżek}
-Do działania algorytmu potrzebna jest podprocedura wyszukująca ścieżki rozszerzające między dwoma wierzchołkami grafu, co można dość prosto zaimplementować poprzez modyfikację przeszukiwania wszerz (ang. breadth-first search, BFS). Poniżej znajduje się pseudokod żądanej podprocedury, wyszukującej ścieżki w grafie \texttt{G} od wierzchołka \texttt{u} do \texttt{w}.\\
+Do działania algorytmu potrzebna jest podprocedura wyszukująca ścieżki rozszerzające między dwoma wierzchołkami grafu, co można dość prosto zaimplementować poprzez modyfikację przeszukiwania wszerz (ang. breadth-first search, BFS). Poniżej znajduje się pseudokod żądanej podprocedury, wyszukującej ścieżki w grafie \texttt{G} od wierzchołka \texttt{s} do \texttt{t}.\\
 
 \begin{tcolorbox}[title=Wyszukiwanie ścieżek rozszerzających w grafie]
 \begin{verbatim}
@@ -334,11 +334,11 @@ findAugmentingPath(G, s, t):
 
 \vspace{0.5em}
 \noindent
-Powyższe wyszukiwanie używa pomocniczych funkcji \texttt{tracePath} oraz \texttt{constructPath}, które służą odpowiednio do wyznaczenia listy wierzchołków znajdujących się na ścieżce na podstawie słownika \texttt{parent} i zbudowania ścieżki na podstawie listy wierzchołków \texttt{L}. Są one zdefiniowane następująco:\\
+Powyższe wyszukiwanie używa pomocniczych funkcji \texttt{tracePath} oraz \texttt{constructPath}, które służą odpowiednio do wyznaczenia listy wierzchołków znajdujących się na ścieżce z \texttt{s} do \textbf{t} na podstawie słownika \texttt{parent} i zbudowania ścieżki na podstawie listy wierzchołków \texttt{L}. Są one zdefiniowane następująco:\\
 
-\begin{tcolorbox}[title=Budowanie ścieżki na podstawie wierzchołków]
+\begin{tcolorbox}[title=Funkcje pomocniczne do budowania ścieżki]
 \begin{verbatim}
-tracePath(parent, s, t):
+tracePath(s, t, parent):
     L <- pusta lista
     dodaj t na koniec L
     dopóki ostatni element listy L jest różny od s:
@@ -358,9 +358,9 @@ constructPath(L):
 
 \vspace{0.5em}
 \noindent
-Przeszukiwanie wszerz jest sposobem przeglądania grafu zaproponowanym przez Edmondska i Karpa w swoim algorytmie będącym modyfikacją algortmu Forda-Fulkersona.
+Przeszukiwanie wszerz jest sposobem przeglądania grafu zaproponowanym przez Edmondska i Karpa w swoim algorytmie będącym implementacją metody Forda-Fulkersona.
 
-\subsubsection{Wyznaczanie przepływu maksymalnego - TODO FIX (z lab3)}
+\subsubsection{Wyznaczanie przepływu maksymalnego - TODO FIX}
 Poniżej znajduje się zapis algorytmu wyznaczającego przepływ maksymalny zgodnie z zasadą opisaną przez Forda i Fulkersona. \texttt{G\_res} jest w tym przypadku siecią rezydualną wyznaczoną na podstawie sieci podstawowej skonstruowanej w pierwszym podrozdziale.\\
 
 \begin{tcolorbox}[title=Wyznaczanie przepływu maksymalnego]
@@ -384,7 +384,7 @@ maxFlow(G_res):
 
 \vspace{0.5em}
 \noindent
-Algorytm ten jednak nie rozwiązuje zadania wyjściowego. Optymalną wartość braków i przyporządkowanie ekspertów do zadań należy wyznaczyć na podstawie uzyskanego przepływu.
+Algorytm ten jednak nie rozwiązuje zadania wyjściowego. Optymalną wartość braków i przyporządkowanie ekspertów do projektów należy wyznaczyć z uzyskanego przepływu.
 
 \subsubsection{Konstrukcja rozwiązania}
 Poniższa konstrukcja przyporządkowania ekspertów do projektów korzysta z sieci podstawowej \texttt{G} (nie z sieci rezydualnej \texttt{G\_res}) i z wyznaczonego przepływu \texttt{f}.\\
@@ -410,7 +410,7 @@ constructAssignment(G, f):
 
 \vspace{0.5em}
 \noindent
-Poniższa funkcja oblicza finalną wartość braków w wyznaczonym wyżej przyporządkowaniu \texttt{L}.\\
+Poniższa funkcja oblicza ostateczną liczbę braków w wyznaczonym przyporządkowaniu \texttt{L}.\\
 
 \begin{tcolorbox}[title=Wzynaczanie braków]
 \begin{verbatim}
@@ -502,6 +502,7 @@ zależnym od~końcowego przyporządkowania.\\
 Na~podstawie powyższych definicji skonstruujemy teraz sieć, której użyjemy
 do~wyznaczenia rozwiązań problemu.
 
+\newpage
 \begin{defn}
 \label{defn:assignnetwork}
 \textbf{Siecią przydziałów} nazwiemy sieć $S = \left(G,c,s,t\right)$, gdzie:
@@ -550,8 +551,8 @@ możliwej wartości parametru $M$.
 \begin{proof}
 Aby dowieść to twierdzenie, wykażemy kolejno, że:
 \begin{enumerate}
-	\item Każde zadanie problemu wyjściowego jest równoważne z~pewną siecią
-	przydziałów $S$.
+	\item \mbox{Każde zadanie problemu wyjściowego jest równoważne z~pewną siecią
+	przydziałów $S$}.
 	\begin{itemize}
 		\item $(\Rightarrow)$ Niech dane będzie pewne zadanie problemu
 		wyjściowego (tj. dane będą zbiory $E,U,P$ oraz funkcje $\ability$
