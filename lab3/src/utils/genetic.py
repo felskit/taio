@@ -8,19 +8,19 @@ from src.utils.solver import Solver
 class GeneticSolver:
     def __init__(self, scheduling_data):
         self.scheduling_data = scheduling_data
-        self.population_count = 500
-        self.max_generation_count = 100
-        self.crossover_chance = 0.4
-        self.mutation_chance = 0.05
-        self.max_iterations_without_change = 5
-        self.population = self._init_population()
+        self.population_count = 10
+        self.max_generation_count = 1000
+        self.crossover_chance = 0.8
+        self.mutation_chance = 0.1
+        self.max_iterations_without_change = 50
+        self.population = self._init_population_valid()
         self.counts = [
             scheduling_data.skill_count,
             scheduling_data.expert_count,
             scheduling_data.project_count
         ]
 
-    def _init_population(self):
+    def _init_population_valid(self):
         population = OrderedDict()
         for _ in range(self.population_count):
             member = []
@@ -28,6 +28,17 @@ class GeneticSolver:
                 p_length = self.scheduling_data.projects[i][1]
                 member.append(random.randint(0, max(1, self.scheduling_data.overall_time_units - p_length)))
             population[tuple(member)] = None
+        return population
+
+    def _init_population_random(self):
+        population = OrderedDict([
+            (
+                tuple(random.randint(0, self.scheduling_data.overall_time_units - 1)
+                      for _ in range(self.scheduling_data.project_count)),
+                None
+            )
+            for _ in range(self.population_count)
+        ])
         return population
 
     # checks if scheduling even makes sense
