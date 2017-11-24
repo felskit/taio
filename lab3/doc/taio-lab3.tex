@@ -1,0 +1,750 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[T1]{fontenc} 
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage[hidelinks]{hyperref}
+\usepackage[polish]{babel}
+\usepackage[useregional=numeric]{datetime2}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{shapes,snakes,positioning}
+
+\newtheorem{lem}{Lemat}
+\newtheorem{thm}{Twierdzenie}
+\theoremstyle{definition}
+\newtheorem{defn}{Definicja}
+
+\DeclareMathOperator{\ability}{ability}
+\DeclareMathOperator{\need}{need}
+\DeclareMathOperator{\assign}{assign}
+\DeclareMathOperator{\assigned}{assigned}
+\DeclareMathOperator{\missing}{missing}
+\DeclareMathOperator{\dist}{dist}
+
+\renewcommand{\thesection}{\arabic{section}.}
+\renewcommand{\thesubsection}{\thesection\arabic{subsection}.}
+\renewcommand{\thesubsubsection}{\thesubsection\arabic{subsubsection}.}
+
+\renewcommand{\lstlistingname}{Przykład}
+\lstset{
+	captionpos=b
+}
+
+\begin{document}
+
+\begin{titlepage}
+	\centering
+	{\Large Wydział Matematyki i Nauk Informacyjnych\\Politechniki Warszawskiej \par}
+	\vspace{1cm}
+	\includegraphics[width=0.2\textwidth]{res/img/logo.png} \par
+	\vspace{4cm}
+	{\LARGE Teoria Algorytmów i Obliczeń\\Laboratorium - Etap 3 \par}
+	\vspace{0.5cm}
+	{\LARGE Dokumentacja końcowa \par}
+	\vspace{2cm}
+	{\large Adrian Bednarz,\\Bartłomiej Dach,\\Tymon Felski \par}
+	\vspace{2cm}
+	{\large Wersja 1.0 \par}
+	\vspace{0.5cm}
+	{\large \today \par}
+\end{titlepage}
+
+\begin{comment}
+\noindent
+Lista zmian:\\[.5\baselineskip]
+\begin{tabularx}{\textwidth}{|l|l|X|l|}
+	\hline
+	\textbf{Data} & \textbf{Autor} & \textbf{Opis} & \textbf{Wersja} \\
+	\hline
+	24.11.2017 & Tymon Felski & Stworzenie szablonu dokumentu & 1.0 \\
+	\hline
+\end{tabularx}
+\end{comment}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Problem podstawowy}
+Poniższy rozdział zawiera informacje dotyczące podstawowej wersji problemu, które zostały przygotowane w ramach pierwszego etapu laboratorium. Niniejszy problem został szczegółowo opisany, sformułowano algorytm pozwalający na rozwiązanie dowolnego zadania w tym problemie i przedstawiono dowód poprawności. Implementacja tej wersji problemu została stworzona na potrzeby drugiego etapu laboratorium.
+
+\subsection{Opis problemu}
+\label{sec:description}
+Niniejszy rozdział poświęcony jest dokładnemu opisaniu podstawowej wersji zadanego problemu.\\
+
+\noindent
+Dane są zbiory:
+\begin{itemize}
+	\item $E$ - \textbf{ekspertów} realizujących projekty,
+	\item $U$ - \textbf{umiejętności} posiadanych przez ekspertów,
+	\item $P$ - \textbf{projektów} do zrealizowania.\\
+\end{itemize}
+
+\noindent
+Każdemu ekspertowi przypisany jest wektor binarny opisujący posiadane przez niego umiejętności. Przykładowo, jeżeli ekspert posiada umiejętność $i$, to w~wektorze umiejętności odpowiadającemu temu ekspertowi na $i$-tym miejscu znajduje się znak $1$, w~przeciwnym wypadku --- $0$.\\
+
+\begin{tcolorbox}[title=Przykład --- wektory ekspertów]
+Załóżmy, że liczność zbioru umiejętności $U$ jest równa 5. Wówczas ponumerujemy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$. Niech pewien ekspert ze~zbioru $E$ posiada umiejętności 2, 3 i~5. Wówczas wektor opisujący jego umiejętności to:
+$$[0, 1, 1, 0, 1]$$
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Każdemu projektowi przypisany jest wektor liczbowy opisujący zapotrzebowanie na ekspertów posiadających dane umiejętności. Przykładowo, jeżeli do realizacji projektu potrzeba trzech ekspertów posiadających umiejętność $i$, to w wektorze umiejętności odpowiadającemu temu projektowi na $i$-tym miejscu znajduje się liczba $3$.\\
+
+\begin{tcolorbox}[title=Przykład --- wektory zapotrzebowania projektów]
+Utrzymując założenie o~liczności zbioru umiejętności z~poprzedniego przykładu, rozważmy pewien projekt ze~zbioru $P$. Niech jego zapotrzebowanie na~ekspertów posiadających umiejętności 1 i 4 wynosi odpowiednio 4 i 3, a~na~pozostałe --- 0. Wówczas wektor opisujący zapotrzebowanie tego projektu to:
+$$[4, 0, 0, 3, 0]$$
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Wszystkie projekty realizowane są w tym samym oknie czasowym, tzn. prace nad każdym z nich rozpoczynają się w momencie $t_0$ i kończą w późniejszym momencie $t_k$. Oznacza to, że jeżeli dany ekspert zostanie zatrudniony do pracy nad projektem $P_1$, to nie będzie mógł brać udziału w równoległym projekcie $P_2$. Ponadto każdy ekspert podczas pracy nad projektem może wykorzystywać tylko jedną z posiadanych umiejętności i nie może jej zmienić w trakcie trwania prac.\\
+
+\noindent
+Prace nad danym projektem zostaną zakończone nawet jeżeli nie zostanie mu przydzielona wymagana liczba ekspertów posiadających potrzebne umiejętności, określona przez wektor liczbowy odpowiadający temu projektowi. Będzie on natomiast zrealizowany gorzej niż w przypadku, gdyby przypisana została odpowiednia liczba ekspertów. Może się również zdarzyć, że najbardziej optymalne okaże się takie przypisanie ekspertów, że nad pewnym projektem nie będzie pracował nikt.\\
+
+\noindent
+Jeżeli zapotrzebowanie projektu nie zostanie wypełnione w~całości, mamy do~czynienia z~brakami. Poprzez braki rozumiemy różnicę pomiędzy zapotrzebowaniem projektu na ekspertów o danych umiejętnościach a rzeczywistym przydziałem. Aby wyznaczyć braki w danym projekcie, należy odjąć wektor zapotrzebowania projektu na~ekspertów od wektora zawierającego informację o~ekspertach przydzielonych do~tego projektu i~zsumować elementy uzyskanej różnicy. Dokładna definicja tego pojęcia znajduje się w rozdziale zawierającym dowód poprawności (definicja \ref{defn:missing}).\\
+
+\begin{tcolorbox}[title=Przykład --- obliczanie liczby braków]
+Niech wektorem opisującym zapotrzebowanie pewnego projektu na ekspertów będzie:
+$$[4, 0, 0, 3, 0]$$
+Załóżmy, że do tego projektu zostali przypisani eksperci opisani przez wektory:
+\begin{align*}
+[1, 0, 1, 0, 1] & \qquad (\text{wykorzystuje umiejętność }1) \\
+[1, 0, 0, 0, 1] & \qquad (\text{wykorzystuje umiejętność }1) \\
+[1, 1, 0, 1, 0] & \qquad (\text{wykorzystuje umiejętność }4) \\
+[0, 0, 0, 1, 1] & \qquad (\text{wykorzystuje umiejętność }4)
+\end{align*}
+Wówczas przydział ekspertów do tego projektu można opisać wektorem:
+$$[2, 0, 0, 2, 0]$$
+Braki w tym projekcie obliczymy następująco:
+$$\sum([4, 0, 0, 3, 0] - [2, 0, 0, 2, 0]) = \sum([2, 0, 0, 1, 0]) = 3$$
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Naszym celem jest zminimalizowanie braków w obrębie wszystkich projektów (sumy wszystkich braków), czyli znalezienie optymalnego przydziału ekspertów do projektów.
+
+\subsection{Problem znajdowania maksymalnego przepływu}
+\label{sec:maxflow}
+Okazuje się, że problem opisany w~sekcji~\ref{sec:description} można uogólnić
+do~znanego problemu znajdowania maksymalnego przepływu w~sieciach. W~tej sekcji
+zdefiniowane są podstawowe pojęcia potrzebne do~opisu tego problemu.
+
+\begin{defn}
+\textbf{Siecią} nazywamy czwórkę uporządkowaną $S = (G,c,s,t)$, gdzie:
+\begin{itemize}
+	\item $G = (V,E)$ jest grafem skierowanym,
+	\item $c : E \to \mathbb{N}$ to tzw. funkcja przepustowości,
+	\item $s,t \in V, s \neq t$ są dwoma wyróżnionymi wierzchołkami grafu $G$
+	--- kolejno źródłem i ujściem sieci.
+\end{itemize}
+\end{defn}
+
+\begin{defn}
+\textbf{Przepływem} w~sieci $S$ nazywamy funkcję $f : E \to \mathbb{N}$
+spełniającą następujące warunki:
+\begin{enumerate}
+	\item $\forall_{e \in E} \quad 0 \leqslant f(e) \leqslant c(e)$,
+	\item $\displaystyle(\forall v \in V - \{ s,t \})
+	\sum_{u : \; uv \in E} f(uv) = \sum_{u : \; vu \in E} f(vu)$ 
+	--- tzw. prawo Kirchhoffa.
+\end{enumerate}
+\end{defn}
+
+\noindent
+W~ogólniejszym przypadku funkcje przepustowości i~przepływu mogą mieć wartości
+nieujemne rzeczywiste, lecz założenie o~całkowitości zapewnia, że~algorytmy
+wyznaczające maksymalny przepływ zawsze zakończą działanie.\\
+
+\noindent
+Prawo Kirchhoffa stanowi, że~suma wartości przepływu na~krawędziach wchodzących
+do~danego wierzchołka musi być równa sumie wartości przepływu na~krawędziach
+wychodzących z~tego wierzchołka.
+
+\begin{defn}
+\textbf{Wartością przepływu} $f$ w~sieci $S$ nazywamy liczbę
+$$ W(f) = \sum_{u: \; su \in E} f(su) - \sum_{u: \; us \in E} f(us) $$
+\end{defn}
+
+\noindent
+Powyższe definicje wystarczą, aby~zdefiniować problem maksymalnego przepływu.
+
+\begin{defn}[Problem maksymalnego przepływu]
+Dana jest sieć $S = (G,c,s,t)$. Szukamy przepływu $f$ o~maksymalnej wartości
+$W(f)$, zwanego również \textbf{przepływem maksymalnym}.
+\end{defn}
+
+\noindent
+Zagadnienie znajdowania maksymalnego przepływu jest rozwiązywalne przez
+wiele zachłannych algorytmów opartych na metodzie Forda-Fulkersona,
+polegającej na~znajdowaniu ścieżek w~tzw. sieci rezydualnej. Szczegółowy
+opis jednego z~takich algorytmów znajduje się w następnej sekcji.
+
+\subsection{Algorytm}
+\label{sec:algorithm}
+W poniższym rozdziale precyzyjnie sformułowano algorytm pozwalający na rozwiązanie dowolnego zadania w postawionym problemie. Pseudokod został podzielony na fragmenty, z którego każdy będzie rozwiązywał pewien podproblem, w celu ułatwienia opisu głównej części algorytmu.
+
+\subsubsection{Konstrukcja sieci podstawowej}
+Niektóre podproblemy opisane w dalszej części rozdziału będą wymagać sieci reprezentowanej przez graf skierowany, który można utworzyć na podstawie danych z zadania.
+
+\begin{figure}[H]
+	\centering
+	\begin{subfigure}{0.3\textwidth}
+		\begin{verbatim}
+3 // Liczba ekspertów
+4 // Liczba umiejętności
+2 // Liczba projektów
+// Wektory ekspertów
+[1, 0, 1, 0]
+[0, 1, 0, 0]
+[0, 0, 1, 1]
+// Zapotrzebowanie
+// projektów
+[3, 0, 2, 0]
+[0, 0, 1, 5]
+
+		\end{verbatim}
+		\caption{Przykładowy format pliku wejściowego programu}
+	\end{subfigure}
+	\quad
+	\begin{subfigure}{0.6\textwidth}
+		\begin{tikzpicture}[->,node distance=0.5cm and 1.5cm,thick]
+			\tikzstyle{every node} = [fill=white]
+			\tikzstyle{vertex}	   = [circle,draw=black]
+			\tikzstyle{expert}     = [diamond,draw=red,text=red]
+			\tikzstyle{skill}      = [rectangle,draw=teal,text=teal,minimum height=0.7cm,minimum width=0.7cm]
+			\tikzstyle{project}    = [circle,draw=blue,text=blue]
+
+			\node(s) [vertex] {$s_G$};
+
+			\node(e2) [expert,right=of s] {$e_2$};
+			\node(e1) [expert,above=of e2] {$e_1$};
+			\node(e3) [expert,below=of e2] {$e_3$};
+
+			\node(u1) [skill,above right=of e1] {$u_1$};
+			\node(u2) [skill,above right=of e2] {$u_2$};
+			\node(u3) [skill,below right=of e2] {$u_3$};
+			\node(u4) [skill,below right=of e3] {$u_4$};
+
+			\node(p1) [project,right=of u2] {$p_1$};
+			\node(p2) [project,right=of u3] {$p_2$};
+
+			\node(t) [vertex] [below right=of p1] {$t_G$};
+
+			\path	(s)  edge node{1} (e1)
+						edge node{1} (e2)
+						edge node{1} (e3)
+					(e1) edge node{1} (u1)
+						edge [bend right=15] node{1} (u3)
+					(e2) edge [bend left=30] node{1} (u2)
+					(e3) edge node{1} (u3)
+						 edge node{1} (u4)
+					(u1) edge node{3} (p1)
+					(u3) edge node{2} (p1)
+						 edge node{1} (p2)
+					(u4) edge node{5} (p2)
+					(p1) edge node{5} (t)
+					(p2) edge node{6} (t);
+		\end{tikzpicture}
+		\caption{Wygląd sieci skonstruowanej na~podstawie dostarczonych danych}
+	\end{subfigure}
+	\caption{Przykład skonstruowanej sieci na~podstawie określonego zadania
+	problemu}
+\end{figure}
+
+\noindent
+Proponowany graf \texttt{G} będzie posiadał $|E|+|U|+|P|+2$ wierzchołków, które utworzą w nim pięć warstw. Wyróżnione zostaną dwa wierzchołki --- źródło \texttt{s} i ujście \texttt{t} sieci, z którego każdy będzie jedynym w swojej warstwie. Pozostałe trzy warstwy pomiędzy nimi będą zawierać wierzchołki reprezentujące odpowiednio ekspertów, umiejętności i projekty. Poniżej znajduje się pseudokod pozwalający na stworzenie takiego grafu.\\
+
+\begin{tcolorbox}[title=Konstrukcja sieci podstawowej]
+\begin{verbatim}
+G <- graf skierowany o liczbie wierzchołków równej |E|+|U|+|P|+2
+dla każdego wierzchołka e reprezentującego eksperta w G:
+    dodaj krawędź (s, e) do G
+    G.c[s, e] <- 1
+dla każdego wierzchołka e reprezentującego eksperta w G:
+    dla każdej umiejętności u posiadanej przez eksperta e:
+        dodaj krawędź (e, u) do G
+        G.c[e, u] <- 1
+dla każdego wierzchołka p reprezentującego projekt w G:
+    dla każdej umiejętności u wymaganej przez projekt p:
+        dodaj krawędź (u, p) do G
+        G.c[e, u] <- liczba wymaganych ekspertów z u
+dla każdego wierzchołka p reprezentującego projekt w G:
+    dodaj krawędź (p, t) do G
+    G.c[p, t] <- suma przepustowości krawędzi wchodzących do p
+\end{verbatim}
+\end{tcolorbox}
+
+\subsubsection{Konstrukcja sieci rezydualnej}
+W celu konstruowania w sieci ścieżek rozszerzających niezbędne jest utworzenie pomocniczej sieci rezydualnej. Przepustowość krawędzi w tej sieci zależy od wartości przepływu na krawędziach oryginalnej sieci.\\
+
+\noindent
+Niech dana będzie krawędź $uv$ i przepływ $f$. Wówczas w sieci rezydualnej istnieją krawędzie:
+\begin{itemize}
+	\item $uv$ o przepustowości $c(uv) - f(uv)$,
+	\item $vu$ o przepustowości $f(uv)$.\\
+\end{itemize}
+
+\noindent
+Sieć rezydualna będzie aktualizowana po każdym zwiększeniu przepływu wzdłuż ścieżki powiększającej. Na początku działania algorytmu (przy zerowym przepływie) będzie ona wyglądać prawie tak samo, jak wyjściowa sieć. Wystarczy stworzyć sieć opisaną w poprzednim punkcie i rozszerzyć ją w sposób następujący:\\
+
+\begin{tcolorbox}[title=Rozszerzenie konstrukcji sieci podstawowej]
+\begin{verbatim}
+dla każdej krawędzi (u, v) w G:
+    dodaj krawędź (v, u) do G
+    G.c[v, u] <- 0
+\end{verbatim}
+\end{tcolorbox}
+
+\subsubsection{Wyszukiwanie ścieżek}
+Do działania algorytmu potrzebna jest podprocedura wyszukująca ścieżki rozszerzające między dwoma wierzchołkami grafu, co można dość prosto zaimplementować poprzez modyfikację przeszukiwania wszerz (ang. breadth-first search, BFS). Poniżej znajduje się pseudokod żądanej podprocedury, wyszukującej ścieżki w grafie \texttt{G} od wierzchołka \texttt{u} do \texttt{w}.\\
+
+\begin{tcolorbox}[title=Wyszukiwanie ścieżek rozszerzających w grafie]
+\begin{verbatim}
+findAugmentingPath(G, s, t):
+    Q <- pusta kolejka
+    dodaj s na koniec Q
+    visited <- tablica o długości równiej liczbe wierzchołków grafu G
+               ze wszystkimi elementami zainicjowanymi na False
+    visited[s] <- True
+    parent <- pusty słownik
+    dopóki kolejka Q jest niepusta:
+        u <- piewrszy element z kolejki Q
+        jeżeli s = t:
+            zwróć tracePath(parent, s, t)
+        dla każdnej krawędzi (u, v) wychodzącej z u w G:
+            jeżeli visisted[v] = False i G.c[u, v] > 0:
+                visited[v] <- True
+                parent[v] <- u
+                dodaj v na koniec Q
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Powyższe wyszukiwanie używa pomocniczych funkcji \texttt{tracePath} oraz \texttt{constructPath}, które służą odpowiednio do wyznaczenia listy wierzchołków znajdujących się na ścieżce na podstawie słownika \texttt{parent} i zbudowania ścieżki na podstawie listy wierzchołków \texttt{L}. Są one zdefiniowane następująco:\\
+
+\begin{tcolorbox}[title=Budowanie ścieżki na podstawie wierzchołków]
+\begin{verbatim}
+tracePath(parent, s, t):
+    L <- pusta lista
+    dodaj t na koniec L
+    dopóki ostatni element listy L jest różny od s:
+        dodaj parent[ostatni element listy L] na koniec L
+    odwróć kolejność elementów listy L
+    zwróć constructPath(L)
+
+constructPath(L):
+    E <- pusta lista
+    u <- pierwszy element listy L
+    dla każdego wierzchołka v poza pierwszym z L:
+        dodaj krawędź (u, v) na koniec E
+        u <- v
+    zwróć E
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Przeszukiwanie wszerz jest sposobem przeglądania grafu zaproponowanym przez Edmondska i Karpa w swoim algorytmie będącym modyfikacją algortmu Forda-Fulkersona.
+
+\subsubsection{Wyznaczanie przepływu maksymalnego - TODO FIX (z lab3)}
+Poniżej znajduje się zapis algorytmu wyznaczającego przepływ maksymalny zgodnie z zasadą opisaną przez Forda i Fulkersona. \texttt{G\_res} jest w tym przypadku siecią rezydualną wyznaczoną na podstawie sieci podstawowej skonstruowanej w pierwszym podrozdziale.\\
+
+\begin{tcolorbox}[title=Wyznaczanie przepływu maksymalnego]
+\begin{verbatim}
+maxFlow(G_res):
+    f <- przepływ zerowy
+    powtarzaj:
+        L <- findPath(G_res, s, t)
+        df <- inf
+        dla każdej krawędzi (u, v) z L:
+            jeśli G_res.c[u, v] < df:
+                df <- G_res.c[u, v]
+        dla każdej krawędzi (u, v) z L:
+            f[u, v] += df
+            G_res.c[u, v] -= df
+            G_res.c[v, u] += df
+    dopóki lista L jest niepusta
+    zwróć f
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Algorytm ten jednak nie rozwiązuje zadania wyjściowego. Optymalną wartość braków i przyporządkowanie ekspertów do zadań należy wyznaczyć na podstawie uzyskanego przepływu.
+
+\subsubsection{Konstrukcja rozwiązania}
+Poniższa konstrukcja przyporządkowania ekspertów do projektów korzysta z sieci podstawowej \texttt{G} (nie z sieci rezydualnej \texttt{G\_res}) i z wyznaczonego przepływu \texttt{f}.\\
+
+\begin{tcolorbox}[title=Wzynaczanie przydziału]
+\begin{verbatim}
+constructAssignment(G, f):
+    skills <- słownik pustych kolejek dla poszczególnych umiejętności
+    L <- pusta lista
+    dla każdego wierzchołka e reprezentującego eksperta w G:
+        dla każdej krawędzi (e, u) wychodzącej z e w G:
+            jeśli f[e, u] = 1:
+                skills[u].push(e)
+    dla każdego wierzchołka u reprezentującego umiejętność w G:
+        dla każdej krawędzi (u, p) wychodzącej z u w G:
+            dopóki f[u, p] > 0:
+                e <- skills[u].pop()
+                dodaj krotkę (e, u, p) na koniec L
+                f[u, p] -= 1
+    zwróć L
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Poniższa funkcja oblicza finalną wartość braków w wyznaczonym wyżej przyporządkowaniu \texttt{L}.\\
+
+\begin{tcolorbox}[title=Wzynaczanie braków]
+\begin{verbatim}
+calcLosses(G, L):
+    need <- 0
+    dla każdej krawędzi (p, t) wchodzącej do ujścia t w G:
+        need += G.c[p, t]
+    flow <- liczba elementów w liście L
+    zwróć (need - flow)
+\end{verbatim}
+\end{tcolorbox}
+
+\subsection{Dowód poprawności}
+\label{sec:correctnessproof}
+
+W~tej sekcji wykażemy związek między postawionym problemem a~zagadnieniem
+wyznaczania przepływu maksymalnego oraz równoważność rozwiązań obu zadań.\\
+
+\noindent
+Na początek zdefiniujmy w~sposób formalny pojęcia użyte w~oryginalnym zadaniu.
+Załóżmy, że dane są następujące zbiory:
+
+\begin{itemize}
+	\item \textbf{zbiór ekspertów}, oznaczony $E$,
+	\item \textbf{zbiór umiejętności}, oznaczony $U$,
+	\item \textbf{zbiór projektów}, oznaczony $P$.
+\end{itemize}
+
+\begin{defn}
+\textbf{Funkcją umiejętności} nazywamy funkcję
+$$ \ability : E \times U \to \{ 0,1 \} $$
+gdzie dla eksperta $e \in E$ oraz umiejętności $u \in U$ zachodzi
+$\ability(e, u) = 1$ wtedy i~tylko wtedy, gdy ekspert $e$ posiada umiejętność
+$u$, zaś 0 w przeciwnym przypadku.
+\end{defn}
+
+\begin{defn}
+\textbf{Zapotrzebowaniem projektu} nazywamy funkcję
+$$ \need : P \times U \to \mathbb{N} $$
+gdzie dla projektu $p \in P$ i~umiejętności $u \in U$ zachodzi $\need(p, u) = n$
+wtedy i~tylko wtedy, gdy w~projekcie $p$ liczba potrzebnych ekspertów
+w~dziedzinie umiejętności $u$ wynosi $n$.
+\end{defn}
+
+\noindent
+Zauważmy, że funkcje umiejętności i~zapotrzebowania projektu są~tożsame
+z~wektorami wejściowymi zadania problemu (odpowiadają wzięciu odpowiedniej
+ich współrzędnej).
+
+\begin{defn}
+\label{defn:assign}
+\textbf{Przyporządkowaniem eksperta} nazywamy relację
+$$ \assign \subseteq E \times U \times P $$
+gdzie projekt $p \in P$, umiejętność $u \in U$ oraz ekspert $e \in E$ są
+ze~sobą w relacji $\assign$ wtedy i tylko wtedy, gdy
+\begin{itemize}
+	\item ekspert $e$ posiada umiejętność $u$ (tj. $\ability(e,u) = 1$),
+	\item ekspert $e$ został przyporządkowany do pracy w~projekcie $p$
+	w~dziedzinie umiejętności $u$.
+\end{itemize}
+Każdy ekspert $e \in E$ może być w~relacji z~co~najwyżej jedną parą postaci
+$(u,p)$, gdzie $u \in U, p \in P$.
+
+\noindent
+Ponadto, dla każdego projektu $p$ i umiejętności $u$ musi zachodzić
+$$\assigned(p,u) \overset{\text{def}}{=} \left| \left\lbrace e \in E : (e,u,p)
+\in \assign \right\rbrace \right| \leq \need(p,u)$$
+\end{defn}
+
+\begin{defn}
+\label{defn:missing}
+\textbf{Liczbą braków w projekcie $p$} dla danego przyporządkowania $\assign$
+nazywamy liczbę
+$$ \missing(p,\assign) = \sum_{u \in U} \left( \need(p,u) - 
+\assigned(p, u)\right) $$
+\end{defn}
+
+\begin{defn}
+\textbf{Całkowitą liczbą braków} dla danego przyporządkowania $\assign$ nazywamy
+liczbę
+$$ M(\assign) = \sum_{p \in P} \missing(p, \assign) $$
+\end{defn}
+
+\noindent
+Widoczne jest, że $M$ jest parametrem minimalizowanym w~postawionym problemie,
+zależnym od~końcowego przyporządkowania.\\
+
+\noindent
+Na~podstawie powyższych definicji skonstruujemy teraz sieć, której użyjemy
+do~wyznaczenia rozwiązań problemu.
+
+\begin{defn}
+\label{defn:assignnetwork}
+\textbf{Siecią przydziałów} nazwiemy sieć $S = \left(G,c,s,t\right)$, gdzie:
+\begin{itemize}
+	\item $G = \left(V_G,E_G\right)$ jest grafem skierowanym takim, że:
+	\begin{itemize}
+		\item $V_G = E \cup U \cup P \cup \left\lbrace s,t \right\rbrace$,
+		\item $E_G = \left\lbrace (e,u) : \ability(e,u) = 1, e \in E, u \in U
+		\right\rbrace \cup \left\lbrace (u,p) : \need(u,p) > 0, u \in U, p \in P
+		\right\rbrace$, tj. krawędziami połączeni są eksperci z~ich opanowanymi
+		umiejętnościami, oraz projekty z~potrzebnymi do~ich realizacji
+		umiejętnościami.
+	\end{itemize}
+	\item $c : E_G \to \mathbb{N}$ jest funkcją pojemności zdefiniowaną
+	dla krawędzi $e_G$ następująco:
+	\begin{itemize}
+		\item jeżeli $e_G = se, e \in E$, to $c(e_G) = 1$,
+		\item jeżeli $e_G = eu, e \in E, u \in U$, to $c(e_G) = \ability(e,u) = 1$,
+		\item jeżeli $e_G = up, u \in U, p \in P$, to $c(e_G) = \need(p,u)$,
+		\item jeżeli $e_G = pt, p \in P$, to
+		$$c(e_G) = \sum_{sp \in E_G} c(up)$$
+		(tj. pojemność tej krawędzi jest równa sumie pojemności krawędzi
+		wchodzących do wierzchołka $p$).
+	\end{itemize}
+	\item $s,t$ są wyróżnionymi wierzchołkami z $V_G$ --- kolejno źródłem
+	i~ujściem.
+\end{itemize}
+\end{defn}
+
+\begin{defn}
+\textbf{Odległością} $\dist(u,v)$ wierzchołka $u$ od~wierzchołka $v$ w~grafie
+$G$ nazywamy:
+\begin{itemize}
+	\item liczbę krawędzi w~najkrótszej ścieżce od $u$ do $v$, jeśli 
+	taka istnieje,
+	\item 0, jeśli $u = v$,
+	\item $\infty$, jeśli $u \neq v$ i~nie istnieje ścieżka od~$u$ do~$v$.
+\end{itemize}
+\end{defn}
+
+\begin{thm}
+Przepływ maksymalny w~sieci przydziałów wyznacza przyporządkowanie o~minimalnej
+możliwej wartości parametru $M$. 
+\end{thm}
+
+\begin{proof}
+Aby dowieść to twierdzenie, wykażemy kolejno, że:
+\begin{enumerate}
+	\item Każde zadanie problemu wyjściowego jest równoważne z~pewną siecią
+	przydziałów $S$.
+	\begin{itemize}
+		\item $(\Rightarrow)$ Niech dane będzie pewne zadanie problemu
+		wyjściowego (tj. dane będą zbiory $E,U,P$ oraz funkcje $\ability$
+		i~$\need$). Wówczas można dla tego zadania skonstruować sieć przydziałów
+		za~pomocą konstrukcji pokazanej w~sekcji \ref{sec:algorithm}
+		i~definicji \ref{defn:assignnetwork}.
+		\item $(\Leftarrow)$ Niech dana będzie pewna sieć przydziałów
+		$S = (G,c,s,t)$. Zauważmy, że~wierzchołki sieci przydziałów dzielą się
+		z~definicji sieci na~pięć zbiorów, określonych przez ich odległość
+		od~źródła:
+		\begin{itemize}
+		\item $\dist(u,v) = 0$ --- singleton $\{s\}$,
+			\item $\dist(u,v) = 1$ --- zbiór ekspertów $E$,
+			\item $\dist(u,v) = 2$ --- zbiór umiejętności $U$,
+			\item $\dist(u,v) = 3$ --- zbiór projektów $P$,
+			\item $\dist(u,v) = 4$ --- singleton $\{t\}$,
+		\end{itemize}
+		co daje nam wyjściowe zbiory $E,U,P$.
+
+		Na podstawie powyższych zbiorów i funkcji przepustowości $c$ można
+		zrekonstruować również funkcje $\ability$ i~$\need$:
+		\begin{itemize}
+			\item Dla każdego $e \in E$ i $u \in U$ funkcję $\ability$ możemy
+			zdefiniować jako
+			$$ \ability(e, u) = \begin{cases}
+				1, & eu \in E_G \\
+				0, & eu \notin E_G
+			\end{cases} $$
+			\item Dla każdego $u \in U$ i $p \in P$ funkcję $\need$ możemy
+			zdefiniować jako
+			$$ \need(p, u) = \begin{cases}
+				c(up), & up \in E_G \\
+				0, & up \notin E_G
+			\end{cases} $$
+		\end{itemize}
+		Z~każdej sieci przydziałów można skonstruować więc zadanie oryginalnego
+		problemu. 
+	\end{itemize}
+	\item Dowolny przepływ w~sieci przydziałów wyznacza ilość wykonanych
+	podzadań przy danym przyporządkowaniu.
+	
+	Niech dany będzie pewien przepływ $f$ w~sieci przydziałów $S$.
+	Przyporządkowanie ekspertów do projektów $\assign_f$ wyznaczamy
+	w~następujący sposób:
+	\begin{enumerate}
+		\item Pewnego eksperta $e \in E$ przypisujemy do~umiejętności $u \in U$,
+		jeżeli $f(e,u) = 1$.
+		\item Niech dana będzie pewna umiejętność $u \in U$. Oznaczmy zbiór
+		ekspertów przypisanych do~tej umiejętności w punkcie (a) jako $E_u$.
+
+		Zbiór $E_s$ dzielimy na~rozłączne podzbiory $E_{u,p}$ takie, że
+		$|E_{u,p}| = f(u,p)$.
+		\item Dla każdego z~uzyskanych podzbiorów $E_{u,p}$, gdzie
+		$u \in U, p \in P$, do~relacji $\assign_f$ dodajemy krotki
+		$$ \{ (e,u,p) : e \in E_{u,p} \} $$
+
+	\end{enumerate}
+	Zauważmy następujące fakty:
+	\begin{itemize}
+		\item Rozważmy wierzchołek $e \in E$ odpowiadający pewnemu ekspertowi.
+		
+		Z~definicji zbioru krawędzi sieci i~funkcji przepustowości,
+		do~wierzchołka tego wchodzi dokładnie jedna krawędź o~pojemności 1,
+		a~wychodzi z~niego co~najwyżej $|U|$ krawędzi o~pojemności 1.
+
+		Stąd w~przepływie $f$ tylko jedna z~krawędzi wychodzących może mieć
+		przepływ 1, a~więc każdy ekspert może być przyporządkowany
+		do~co~najwyżej jednej umiejętności.
+		\item Rozważmy dowolny wierzchołek $u \in U$ odpowiadający pewnej
+		umiejętności.
+
+		Z~własności przepływu mamy
+		$$ \sum_{wu \in E_G} f(wu) = \sum_{uv \in E_G} f(uv) $$
+		Wiedząc, że~wszystkie krawędzie wchodzące do~$s$ wychodzą ze~zbioru $E$,
+		oraz że~wszystkie krawędzie wychodzące z~$s$ wchodzą do~zbioru $P$, mamy
+		$$ \sum_{e \in E} f(eu) = \sum_{p \in P} f(up) $$
+		Krawędzie o~niezerowym przepływie wchodzące do~$e$ reprezentują
+		ekspertów przydzielonych do~danej umiejętności, zaś krawędzie
+		o~niezerowym przepływie wychodzące z~$e$ reprezentują zapotrzebowanie
+		projektów na~ekspertów z~umiejętnością $u$.
+
+		Ponieważ suma przepływów krawędzi wchodzących i~wychodzących jest
+		taka sama, każdego eksperta przydzielonego do $u$ można przypisać
+		do~dokładnie jednego podzadania (do~dokładnie jednego projektu
+		w~dziedzinie umiejętności $u$), a~więc można wykonać punkt (b)
+		konstrukcji.
+		\item Rozważmy dowolne dwa wierzchołki $u \in U, p \in P$ takie, że
+		$up \in E_G$. Z~definicji sieci mamy $c(u,p) = \need(u,p)$,
+		a~z~konstrukcji rozwiązania wynika, że $f(u,p) = \assigned_f(u,p)$.
+		Stąd na~mocy definicji
+		przepływu mamy
+		$$ \assigned_f(u,p) = f(u,p) \leq c(u,p) = \need(u,p)$$
+		\item Rozważmy dowolny wierzchołek $p \in P$. Z~definicji funkcji
+		pojemności, jeśli wszystkie krawędzie wchodzące do~$p$ będą wysycone
+		przepływem (tj. $f(e) = c(e)$), to~przepływ ten można przekazać
+		w~całości do ujścia krawędzią $pt$, bo
+		$$ c(pt) = \sum_{up \in E_G} c(up) $$
+		Stąd pojemność krawędzi $pt$ nie ogranicza wartości maksymalnego
+		przepływu.
+	\end{itemize}
+	Wyznaczone przyporządkowanie $\assign_f$ spełnia więc wszystkie warunki
+	prawidłowego przyporządkowania ekspertów do projektów, a~ilość elementów
+	w~tej relacji odpowiada liczbie wykonanych podzadań.
+
+	\item Przepływ maksymalny wyznacza minimalną wartość parametru M.
+
+	Na mocy punktu 1., każde zadanie oryginalnego problemu jest równoważne
+	pewnej sieci przydziałów, zaś na~mocy punktu 2 dowolny przepływ w~sieci
+	przydziałów wyznacza ilość wykonanych podzadań. Wobec tego przepływ
+	maksymalny $f_{\max}$ wyznacza maksymalną ilość wykonanych podzadań, równą
+	$\left|\assign_{f_{\max}}\right|$.
+
+	Zauważmy, że
+	\begin{align*}
+	M(\assign) &= \sum_{p \in P} \missing(p, \assign) = \\
+	&= \sum_{p \in P} \sum_{u \in U} (\need(p,u) - \assigned(p,u)) = \\
+	&= \left( \sum_{p \in P} \sum_{u \in U} \need(p,u) \right) -
+	\left( \sum_{p \in P} \sum_{u \in U} \assigned(p,u) \right) = \\
+	&= \left( \sum_{p \in P} \sum_{u \in U} \need(p,u) \right) - 
+	\left|\assign\right|,
+	\end{align*}
+	gdzie ostatnia równość wynika z~definicji \ref{defn:assign} (przyjęto,
+	że jeden ekspert może być w~relacji z~co~najwyżej jedną parą $(u,p)$).
+	
+	W~związku z~tym maksymalizacja liczności przyporządkowania $\assign$
+	jest równoważna minimalizacji parametru $M$, co kończy dowód.
+\end{enumerate}
+\end{proof}
+
+\newpage
+\section{Rozszerzenie problemu}
+
+\subsection{Opis problemu}
+% opisać tak jak podstawową wersję, tzn. jak rozszerzamy podstawę (co doszło), czego szukamy, jakie założenia
+
+\subsection{Algorytmy genetyczne}
+% jakiś wstęp co to za algorytmy (tak jak wcześniej ogólnie o problemie wyznaczania max przepływu)
+% że są to algorytmy, które niekoniecznie dają rozwiązanie dokładnie, tylko przybliżone (ale za to szybciej niż jakiś lamerski brute)
+% !!! ewentualnie można ten rozdzialik pominąć i wpleść to info na początku następnego (o algo)
+
+\subsection{Algorytm}
+% jakiś wstęp, że ze względu na naturę problemu schedulingu (jaka klasa) stosujemy algorytm genetyczny
+% opisać co będzie genami, chromosomami (osobnikami z jednym chromosomem) i populacją
+
+\subsubsection{Generacja populacji początkowej}
+% powiedzieć, że losujemy całkowicie poprawną lub całkowicie randomową populację (nie wiem która funkcja zostanie w kodzie, ale chyba #1)
+
+\subsubsection{Funkcja przystosowania}  % czy to jakoś inaczej się nie nazywa? xd
+% jak sprawdzamy poprawnośc osobnika (badamy czy żaden projekt nie wyjeżdża poza granicę czasową)
+% jak szukamy przedziałów czasowych i wyznaczamy projekty do nich należące (zamiatamy początki i końce)
+% !!! nie wiem czy tutaj już pisać dlaczego tak można, czy może jakiś krótki dowodzik jak w podstawowej wersji
+% wrzucić tutaj od razu info o przerabianiu interwału na ProblemData
+% jak nie przejdzie walidacji to nie odpalamy (zwracamy -1 i potem wyleci w pizdu)
+% powiedzieć, że dla membera szukamy przedziałów, odpalamy solver na każdym i sumujemy łączne braki (uwzględniając długość przedziału)
+% zapisujemy też przyporządkowania, żeby nie liczyć bez sensu drugi raz potem
+
+\subsubsection{Ocena przystosowania populacji}
+% odpalamy fitness function na wszystkich jeszcze niepoliczonych i szukamy najlepszego w generacji
+% potem patrzymy czy nie polepszył on ogólnie najlepszego ze wszystkich generacji
+
+\subsubsection{Warunki stopu}
+% kiedy kończymy (jak opytmalne, bez zmian lub za długo się kręci)
+
+\subsubsection{Kontrola populacji}
+% usuwamy inwalidów z -1, jeśli jacyś są
+% jak populacja się za bardzo rozrośnie, to robimy selekcję tym kołem/ruletką (im mniejsze braki, tym większa szansa że się załapie do nowej generacji)
+
+\subsubsection{Krzyżowanie osobników}
+% jak działa crossover (n punktowy) i ilu jest poddawanych krzyżówce podczas ewolucji (parametr)
+
+\subsubsection{Mutacja osobników}
+% jak działa mutacja (n punktowa) i ilu jest mutowanych podczas ewolucji (parametr)
+
+\subsubsection{Działanie}
+% opis jak te klocki powyżej są zlepione w algorytm (może diagram jak u Felicji)
+% generacja populacji początkowej
+% ewaluacja generacji (przy pomocy fitness function i szukanie besta)
+% sprawdzenie warunków stopu
+% ewolucja:
+% 1. kontrola populacji
+% 2. krzyżowanie
+% 3. mutacja
+% zwiększenie licznika generacji i powrót do ewaluacji generacji
+
+\subsection{Dowód poprawności}
+% !!! nie wiem czy dawać ten rozdział, bo tu by było że możemy dzielić na te przedziały i odpalać podstawę, ale można to w sumie wpleść gdzieś wyżej
+
+\subsection{Oszacowanie złożoności czasowej}
+% ograniczamy problem z góry jako max liczba przedziałów, max rozmiar problemu w każdym przedziale (wszystkie projekty i eksperci), wszystkie gówna pomocnicze, max liczba generacji, max populacja, max liczenie dla każdego w populacji
+% może wspomnieć tutaj jaka złożoność tego podstawowego bo jest tu używany (ale się na tym nie skupiać chyba)
+
+\newpage
+\section{Spis załączonej płyty CD}
+% co na płytce wypalimy (chyba kod lab2, tylko trzeba będzie skopiować poprawione z lab3) i kod lab3
+
+\end{document}

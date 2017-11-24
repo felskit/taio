@@ -98,9 +98,8 @@ def find_augmenting_path(G, s, t):
     q = deque([s])
     visited = [False] * len(G.nodes)
     visited[s] = True
-    parent = {s: None}
+    parent = {}
 
-    # could be refactored to build edges_path instead of building vertex_path (and using construct_path later)
     def trace_path():
         vertex_path = [t]
         while vertex_path[-1] != s:
