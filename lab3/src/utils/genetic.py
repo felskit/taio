@@ -12,20 +12,23 @@ class GeneticSolver:
         self.max_generation_count = 100
         self.crossover_chance = 0.4
         self.mutation_chance = 0.05
-        self.max_iterations_without_change = 10
-        self.population = OrderedDict([  # TODO: make it so that the beginning population is correct
-            (
-                tuple(random.randint(0, scheduling_data.overall_time_units - 1)
-                      for _ in range(scheduling_data.project_count)),
-                None
-            )
-            for _ in range(self.population_count)
-        ])
+        self.max_iterations_without_change = 5
+        self.population = self._init_population()
         self.counts = [
-            self.scheduling_data.skill_count,
-            self.scheduling_data.expert_count,
-            self.scheduling_data.project_count
+            scheduling_data.skill_count,
+            scheduling_data.expert_count,
+            scheduling_data.project_count
         ]
+
+    def _init_population(self):
+        population = OrderedDict()
+        for _ in range(self.population_count):
+            member = []
+            for i in range(self.scheduling_data.project_count):
+                p_length = self.scheduling_data.projects[i][1]
+                member.append(random.randint(0, max(1, self.scheduling_data.overall_time_units - p_length)))
+            population[tuple(member)] = None
+        return population
 
     # checks if scheduling even makes sense
     def _validate_scheduling(self, member):
@@ -65,7 +68,8 @@ class GeneticSolver:
             for i, p_from, p_to in projects:
                 if i_from < p_to and p_from < i_to:
                     i_projects.add(i)
-            intervals.append((i_from, i_to, i_projects))  # TODO: don't even consider intervals w/o projects
+            if len(i_projects) > 0:  # don't even consider intervals w/o projects
+                intervals.append((i_from, i_to, i_projects))
 
         return intervals
 
@@ -112,9 +116,7 @@ class GeneticSolver:
 
         cuts = random.sample(range(1, self.scheduling_data.project_count), n)
         cuts.sort()
-
-        if n % 2 == 1:  # TODO: if potentially not necessary (zip will ignore if n is even)
-            cuts.append(self.scheduling_data.project_count)
+        cuts.append(self.scheduling_data.project_count)
 
         for cut_from, cut_to in zip(cuts[::2], cuts[1::2]):
             offspring1[cut_from:cut_to] = parent2[cut_from:cut_to]
