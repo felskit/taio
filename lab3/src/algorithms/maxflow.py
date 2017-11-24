@@ -34,7 +34,10 @@ def edmonds_karp(G, s, t):
             if R[u][v]['capacity'] < df:
                 df = R[u][v]['capacity']
         for u, v in edges_path:
-            R[u][v]['flow'] += df
+            if (u, v) in G.out_edges(u):
+                R[u][v]['flow'] += df
+            else:
+                R[v][u]['flow'] -= df
             R[u][v]['capacity'] -= df
             R[v][u]['capacity'] += df
         flow_value += df

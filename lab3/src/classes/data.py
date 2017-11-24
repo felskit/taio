@@ -6,8 +6,6 @@ class ProblemData:
         - binary skill vectors of experts,
         - non-negative requirement vectors of projects.
     """
-    experts = []
-    projects = []
 
     def __init__(self, counts):
         """
@@ -25,6 +23,8 @@ class ProblemData:
         self.skill_count = counts[0]
         self.expert_count = counts[1]
         self.project_count = counts[2]
+        self.projects = []
+        self.experts = []
 
     def add_expert(self, vector):
         """
