@@ -8,11 +8,11 @@ from src.utils.solver import Solver
 class GeneticSolver:
     def __init__(self, scheduling_data):
         self.scheduling_data = scheduling_data
-        self.population_count = 10
+        self.population_count = 3
         self.max_generation_count = 1000
-        self.crossover_chance = 0.8
-        self.mutation_chance = 0.1
-        self.max_iterations_without_change = 50
+        self.crossover_chance = 0.67
+        self.mutation_chance = 0.34
+        self.max_iterations_without_change = 100
         self.population = self._init_population_valid()
         self.counts = [
             scheduling_data.skill_count,
@@ -20,6 +20,7 @@ class GeneticSolver:
             scheduling_data.project_count
         ]
 
+    # initializes population with valid members
     def _init_population_valid(self):
         population = OrderedDict()
         for _ in range(self.population_count):
@@ -30,6 +31,7 @@ class GeneticSolver:
             population[tuple(member)] = None
         return population
 
+    # initializes population with random members (possibly invalid)
     def _init_population_random(self):
         population = OrderedDict([
             (
@@ -84,6 +86,7 @@ class GeneticSolver:
 
         return intervals
 
+    # constructs ProblemData object for projects specified by given interval
     def _interval_to_problem_data(self, interval):
         data = ProblemData(self.counts)
 
@@ -117,6 +120,7 @@ class GeneticSolver:
 
         return total_shortage, assignments, intervals
 
+    # performs crossover of two members (n division points) and creates two offsprings
     def _n_point_crossover(self, parent1, parent2, n):
         offspring1 = list(parent1)
         offspring2 = list(parent2)
@@ -135,6 +139,7 @@ class GeneticSolver:
 
         return tuple(offspring1), tuple(offspring2)
 
+    # performs mutation of n genes in given member and creates a new member
     def _n_point_mutation(self, member, n):
         mutated = list(member)
 
@@ -153,6 +158,7 @@ class GeneticSolver:
 
         return tuple(mutated)
 
+    # solving the problem using genetic algorithm
     def solve(self):
         generation_counter = 1
         best_member = None
@@ -220,7 +226,7 @@ class GeneticSolver:
                 print('Finished.')
             print('> Valid members in population: {}.'.format(len(self.population)))
 
-            if len(self.population) >= self.population_count:
+            if len(self.population) > self.population_count:
                 print('> Population too big. Selecting {} members from {}... '
                       .format(self.population_count, len(self.population)), end='', flush=True)
                 new_population = OrderedDict()
