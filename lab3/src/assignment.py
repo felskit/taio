@@ -2,7 +2,7 @@ import argparse
 import sys
 
 from src.utils.parser import Parser, ParseError
-from src.utils.handler import GeneticHandler
+from src.utils.genetic import GeneticSolver
 
 
 def init_parser():
@@ -33,7 +33,10 @@ def main():
         sys.stderr.write('Error parsing file \'{}\': {}\n'
                          .format(args.filename[0], e))
         exit(1)
-    print(GeneticHandler(scheduling_data, 100).solve())
+    result = GeneticSolver(scheduling_data).solve()
+
+    print()
+    GeneticSolver.print_result(result[0], result[1])
 
 
 if __name__ == '__main__':

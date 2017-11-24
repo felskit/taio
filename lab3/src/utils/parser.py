@@ -50,11 +50,11 @@ class Parser:
 
         :param file: A file object to read the line containing the counts from.
         :type file: io.TextIOWrapper
-        :return: An instance of :class:`ProblemData` storing the counts of skills, experts and projects.
-        :rtype: ProblemData
+        :return: An instance of :class:`SchedulingData` storing the counts of skills, experts, projects and time units.
+        :rtype: SchedulingData
         :raise ParseError: A :class:`ParseError` is thrown when:
 
-            - The number of skills is zero or lower.
+            - The number of skills or time units is zero or lower.
             - The number of experts or projects is negative.
         """
         counts = self._parse_comma_delimited_numbers(file, 4)
@@ -91,12 +91,12 @@ class Parser:
 
     def _parse_experts(self, file, data):
         """
-        Reads all experts' skill vectors from a file into a :class:`ProblemData` object.
+        Reads all experts' skill vectors from a file into a :class:`SchedulingData` object.
 
         :param file: A file object to read the skill vectors from.
         :type file: io.TextIOWrapper
-        :param data: A :class:`ProblemData` object to add the skill vectors to.
-        :type data: ProblemData
+        :param data: A :class:`SchedulingData` object to add the skill vectors to.
+        :type data: SchedulingData
         """
         for i in range(data.expert_count):
             vector = self._parse_expert(file, data.skill_count)
@@ -127,8 +127,8 @@ class Parser:
 
         :param file: A file object to read the requirement vectors from.
         :type file: io.TextIOWrapper
-        :param data: A :class:`ProblemData` object to add the requirement vectors to.
-        :type data: ProblemData
+        :param data: A :class:`SchedulingData` object to add the requirement vectors to.
+        :type data: SchedulingData
         """
         for i in range(data.project_count):
             vector = self._parse_project(file, data.skill_count)
@@ -136,12 +136,12 @@ class Parser:
 
     def parse(self, file):
         """
-        Parses the contents of an input file for a problem into a :class:`ProblemData` object.
+        Parses the contents of an input file for a problem into a :class:`SchedulingData` object.
 
         :param file: An opened file object to parse.
         :type file: io.TextIOWrapper
-        :return: A :class:`ProblemData` object with problem instance info.
-        :rtype: ProblemData
+        :return: A :class:`SchedulingData` object with problem instance info.
+        :rtype: SchedulingData
         """
         data = self._parse_counts(file)
         self._parse_experts(file, data)
