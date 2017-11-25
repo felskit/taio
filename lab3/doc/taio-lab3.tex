@@ -358,15 +358,15 @@ constructPath(L):
 
 \vspace{0.5em}
 \noindent
-Przeszukiwanie wszerz jest sposobem przeglądania grafu zaproponowanym przez Edmondska i Karpa w swoim algorytmie będącym implementacją metody Forda-Fulkersona.
+Przeszukiwanie wszerz jest używane do konstrukcji ścieżek powiększających w algorytmie Edmondsa-Karpa, stosującym metodę Forda-Fulkersona wyznaczania przepływu maksymalnego.
 
-\subsubsection{Wyznaczanie przepływu maksymalnego - TODO FIX}
+\subsubsection{Wyznaczanie przepływu maksymalnego}
 Poniżej znajduje się zapis algorytmu wyznaczającego przepływ maksymalny zgodnie z zasadą opisaną przez Forda i Fulkersona. \texttt{G\_res} jest w tym przypadku siecią rezydualną wyznaczoną na podstawie sieci podstawowej skonstruowanej w pierwszym podrozdziale.\\
 
 \begin{tcolorbox}[title=Wyznaczanie przepływu maksymalnego]
 \begin{verbatim}
 maxFlow(G_res):
-    f <- przepływ zerowy
+    f <- 0
     powtarzaj:
         L <- findPath(G_res, s, t)
         df <- inf
@@ -374,9 +374,9 @@ maxFlow(G_res):
             jeśli G_res.c[u, v] < df:
                 df <- G_res.c[u, v]
         dla każdej krawędzi (u, v) z L:
-            f[u, v] += df
             G_res.c[u, v] -= df
             G_res.c[v, u] += df
+            f += df
     dopóki lista L jest niepusta
     zwróć f
 \end{verbatim}
@@ -389,7 +389,7 @@ Algorytm ten jednak nie rozwiązuje zadania wyjściowego. Optymalną wartość b
 \subsubsection{Konstrukcja rozwiązania}
 Poniższa konstrukcja przyporządkowania ekspertów do projektów korzysta z sieci podstawowej \texttt{G} (nie z sieci rezydualnej \texttt{G\_res}) i z wyznaczonego przepływu \texttt{f}.\\
 
-\begin{tcolorbox}[title=Wzynaczanie przydziału]
+\begin{tcolorbox}[title=Wyznaczanie przydziału]
 \begin{verbatim}
 constructAssignment(G, f):
     skills <- słownik pustych kolejek dla poszczególnych umiejętności
@@ -412,7 +412,7 @@ constructAssignment(G, f):
 \noindent
 Poniższa funkcja oblicza ostateczną liczbę braków w wyznaczonym przyporządkowaniu \texttt{L}.\\
 
-\begin{tcolorbox}[title=Wzynaczanie braków]
+\begin{tcolorbox}[title=Wyznaczanie braków]
 \begin{verbatim}
 calcLosses(G, L):
     need <- 0
