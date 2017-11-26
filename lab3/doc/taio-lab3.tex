@@ -334,7 +334,7 @@ findAugmentingPath(G, s, t):
 
 \vspace{0.5em}
 \noindent
-Powyższe wyszukiwanie używa pomocniczych funkcji \texttt{tracePath} oraz \texttt{constructPath}, które służą odpowiednio do wyznaczenia listy wierzchołków znajdujących się na ścieżce z \texttt{s} do \textbf{t} na podstawie słownika \texttt{parent} i zbudowania ścieżki na podstawie listy wierzchołków \texttt{L}. Są one zdefiniowane następująco:\\
+Powyższe wyszukiwanie używa pomocniczych funkcji \texttt{tracePath} oraz \texttt{constructPath}, które służą odpowiednio do wyznaczenia listy wierzchołków znajdujących się na ścieżce z~\texttt{s} do \textbf{t} na podstawie słownika \texttt{parent} i zbudowania ścieżki na podstawie listy wierzchołków \texttt{L}. Są one zdefiniowane następująco:\\
 
 \begin{tcolorbox}[title=Funkcje pomocniczne do budowania ścieżki]
 \begin{verbatim}
@@ -358,10 +358,10 @@ constructPath(L):
 
 \vspace{0.5em}
 \noindent
-Przeszukiwanie wszerz jest używane do konstrukcji ścieżek powiększających w algorytmie Edmondsa-Karpa, stosującym metodę Forda-Fulkersona wyznaczania przepływu maksymalnego.
+Przeszukiwanie wszerz jest sposobem konstrukcji ścieżek powiększających wykorzystywanym w algorytmie Edmondsa-Karpa, będącym implementacją metody Forda-Fulkersona.
 
 \subsubsection{Wyznaczanie przepływu maksymalnego}
-Poniżej znajduje się zapis algorytmu wyznaczającego przepływ maksymalny zgodnie z zasadą opisaną przez Forda i Fulkersona. \texttt{G\_res} jest w tym przypadku siecią rezydualną wyznaczoną na podstawie sieci podstawowej skonstruowanej w pierwszym podrozdziale.\\
+Poniżej znajduje się zapis algorytmu wyznaczającego przepływ maksymalny zgodnie z~zasadą opisaną przez Forda i Fulkersona. \texttt{G\_res} jest w tym przypadku siecią rezydualną wyznaczoną na podstawie sieci podstawowej skonstruowanej w pierwszym podrozdziale.\\
 
 \begin{tcolorbox}[title=Wyznaczanie przepływu maksymalnego]
 \begin{verbatim}
@@ -376,7 +376,7 @@ maxFlow(G_res):
         dla każdej krawędzi (u, v) z L:
             G_res.c[u, v] -= df
             G_res.c[v, u] += df
-            f += df
+        f += df
     dopóki lista L jest niepusta
     zwróć f
 \end{verbatim}
@@ -745,7 +745,7 @@ Aby dowieść to twierdzenie, wykażemy kolejno, że:
 % może wspomnieć tutaj jaka złożoność tego podstawowego bo jest tu używany (ale się na tym nie skupiać chyba)
 
 \newpage
-\section{Spis załączonej płyty CD}
+\section{Spis zawartości załączonej płyty CD}
 % co na płytce wypalimy (chyba kod lab2, tylko trzeba będzie skopiować poprawione z lab3) i kod lab3
 
 \end{document}
