@@ -684,9 +684,42 @@ Aby dowieść to twierdzenie, wykażemy kolejno, że:
 
 \newpage
 \section{Rozszerzenie problemu}
+Niniejszy rozdział dotyczy rozszerzenia podstawowego problemu, które zostało przygotowane i zaimplementowane na porzeby trzeciego etapu laboratorium. Opisano sposób rozszerzenia problemu i przedstawiono algorytm, który pozwoli na rozwiązanie dowolnego zadania w tym problemie. Oszacowano także złożoność czasową wspomnianego algorytmu.
 
 \subsection{Opis problemu}
-% opisać tak jak podstawową wersję, tzn. jak rozszerzamy podstawę (co doszło), czego szukamy, jakie założenia
+Wybrane rozszerzenie problemu wprowadza czas jako czynnik wpływający na przyporządkowanie ekspertów do projektów. Zbiory ekspertów $E$, umiejętności $U$ i projektów $P$ z poprzedniej definicji pozostają bez zmian. Nowym elementem jest założenie, że~każdy projekt trwa określoną liczbę kolejnych jednostek czasu (tzn. proces wytwórczy nie może zostać podzielony), a czas na wykonanie wszystkich projektów jest z góry określony i~wszystkie muszą się w nim zmieścić.\\
+
+\begin{tcolorbox}[title=Przykład --- czas na wykonanie projektów]
+Jeżeli parametr określający liczbę jednostek czasu dostępnych na realizację projektów wynosi 5, to wszystkie projekty muszą zaczynać się nie wcześniej niż w chwili czasu 0 i kończyć nie później niż w chwili czasu 5.
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Definicja wektora przypisanego ekspertowi ze zbioru $E$ pozostaje bez zmian -- nadal jest to wektor binarny opisujący umiejętności danego eksperta. Zmianie uległa definicja wektora odpowiadającego projektowi ze zbioru $P$. Jest on wciąż wektorem liczbowym, jednak jego ostatni element mówi o liczbie jednostek czasu potrzebnych na wykonanie danego projektu.\\
+
+\begin{tcolorbox}[title=Przykład --- wektor projektu]
+Załóżmy, że liczność zbioru umiejętności $U$ jest równa 5. Wówczas ponumerujemy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$. Rozważmy pewien projekt ze~zbioru $P$. Niech jego zapotrzebowanie na~ekspertów posiadających umiejętności 1 i 3 wynosi odpowiednio 2 i 5, a~na~pozostałe --- 0. Ponadto długość procesu wytwórczego tego projektu została oszacowana na 3 jednostki czasu. Wówczas wektor opisujący zapotrzebowanie tego projektu to:
+$$[2, 0, 5, 0, 0, 3]$$
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Ważnym jest, że jednostki czasu są niepodzielne i zarówno ogólny czas przeznaczony na~wykonanie wszystkich projektów, jak i czas realizacji poszczególnych projektów musi wynosić przynajmniej jedną jednostkę czasu.\\
+
+\noindent
+Ekspert zatrudniony do pracy nad projektem $P_1$ w jednostce czasu od chwili $t_k$ do chwili $t_{k+1}$ nie będzie mógł brać udziału w równoległym projekcie $P_2$ w tej jednostce czasu. Ponadto każdy ekspert podczas pracy nad projektem może nadal wykorzystywać tylko jedną z posiadanych umiejętności i nie może jej zmienić w trakcie trwania jednostki czasu. Jest możliwa natomiast zmiana projektu i/lub umiejętności po upływie danej jednostki czasu. Wspomniany ekspert mógłby w jednostce czasu od chwili $t_{k+1}$ do chwili $t_{k+2}$ dalej pracować nad projektem $P_1$ wykorzystując tę samą lub inną umiejętność albo zmienić projekt na $P_2$ i pracować na wcześniej wspomnianych zasadach.\\
+
+\noindent
+Definicja braków i założenia ich dotyczące są nadal podtrzymywane. Różnica w rozszerzonym problemie dotyczy ich interpretacji, ponieważ braki i przyporządkowania rozpatrujemy teraz w danej jednostce czasu. Oznacza to, że zarówno braki jak i przyporządkowania ekspertów do danego projektu mogą się różnić na przestrzeni czasu, a ostateczna liczba braków jest równa sumie wszystkich braków w czasie trwania procesu wytwórczego projektu.\\
+
+\begin{tcolorbox}[title=Przykład --- obliczanie ostatecznej liczby braków]
+Załóżmy, że pewien projekt ze zbioru $P$ jest realizowany przez 3 jednostki czasu. Każdej jednostce czasu odpowiada pewne przyporządkowanie ekspertów do tego projektu i określają one braki odpowiednio 21, 3 i 7. Wówczas ostateczna liczba braków w tym projekcie jest zdefiniowana przez liczbę będącą sumą braków w poszczególnych jednostkach czasu, czyli:
+$$21 + 3 + 7 = 31$$
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Naszym celem jest zminimalizowanie braków w obrębie wszystkich projektów na przestrzeni wszystkich jednostek czasu, czyli znalezienie takiego planu projektów (chwil czasu, w których projekty mają się rozpoczynać), aby możliwe było optymalne przydzielenie ekspertów do projektów.
 
 \subsection{Algorytmy genetyczne}
 % jakiś wstęp co to za algorytmy (tak jak wcześniej ogólnie o problemie wyznaczania max przepływu)

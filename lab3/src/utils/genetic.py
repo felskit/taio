@@ -225,7 +225,7 @@ class GeneticSolver:
                 print('> No invalid members found.')
 
             if len(self.population) == 0:
-                print('> There are no more members in the population. Stopping.')
+                print('\nThere are no more members in the population. Stopping.')
                 return best_member, best_solution
 
             if len(self.population) > self.max_population_count:
