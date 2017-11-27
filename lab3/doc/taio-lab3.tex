@@ -30,6 +30,9 @@
 \DeclareMathOperator{\missing}{missing}
 \DeclareMathOperator{\dist}{dist}
 
+\DeclareMathOperator{\cross}{cross}
+\DeclareMathOperator{\mut}{mut}
+
 \renewcommand{\thesection}{\arabic{section}.}
 \renewcommand{\thesubsection}{\thesection\arabic{subsection}.}
 \renewcommand{\thesubsubsection}{\thesubsection\arabic{subsubsection}.}
@@ -726,6 +729,71 @@ Naszym celem jest zminimalizowanie braków w obrębie wszystkich projektów na p
 % że są to algorytmy, które niekoniecznie dają rozwiązanie dokładnie, tylko przybliżone (ale za to szybciej niż jakiś lamerski brute)
 % !!! ewentualnie można ten rozdzialik pominąć i wpleść to info na początku następnego (o algo)
 
+\textbf{Algorytmami genetycznymi} nazywamy metaheurystyki opierające się na ideach genetyki oraz selekcji naturalnej.
+Algorytmy te swoje główne zastosowanie znajdują w~problemach optymalizacyjnych i~są formą optymalizacji stochastycznej (tj. opartej na losowości).\\
+
+\noindent
+Najczęściej w~problemach rozwiązywanych tego typu metodami nie jest znana postać ogólna rozwiązań optymalnych lub bliskich optymalnemu oraz przeszukiwana przestrzeń rozwiązań jest duża, lecz obliczenie jakości pewnego rozwiązania jest obliczeniowo mało kosztowne. \cite{luke2013}\\
+
+\noindent
+Algorytmy genetyczne nie gwarantują odnalezienia rozwiązania optymalnego, lecz zastosowane do~odpowiednich problemów przynoszą rozwiązania bliskie optymalnemu w~czasie o~wiele krótszym niż w~przypadku pełnego przeszukania przestrzeni rozwiązań.\\
+
+\noindent
+Podstawowymi pojęciami w~tym rodzaju algorytmów są: osobnik i populacja.
+
+\begin{defn}
+\textbf{Osobnikiem (chromosomem)} nazywamy $k$-elementowy wektor $o \in \mathbb{N}^k$.
+\end{defn}
+\begin{defn}
+\textbf{Genem} nazywamy pewien element wektora $o$.
+\end{defn}
+\begin{defn}
+\textbf{Populacją} nazywamy skończony zbiór osobników $P \subseteq \mathbb{N}^k$.
+\end{defn}
+
+\noindent
+W~kontekście rozwiązywanego problemu, celem osobnika jest reprezentowanie pojedynczego potencjalnego rozwiązania. Rozważany wektor musi więc zawierać wystarczająco dużo danych (genów), aby dało się na~jego podstawie dokonać jednoznacznej konstrukcji rozwiązania, które później zostanie poddane ocenie.\\
+
+\noindent
+Podstawą do~wyboru, które rozwiązania przetrwają wraz ze~wzrostem populacji jest tzw. funkcja przystosowania (ang. \emph{fitness function}).
+
+\begin{defn}
+\textbf{Funkcją przystosowania} nazywamy funkcję
+$ f : \mathbb{N}^k \to \mathbb{N} $,
+określającą przystosowanie pojedynczego osobnika populacji.
+\end{defn}
+
+\noindent
+Zazwyczaj powyższa funkcja jest maksymalizowana (im większa jej wartość, tym lepsze rozwiązanie).
+
+\noindent
+Dodatkowo, w~celu wprowadzenia (pozytywnych lub negatywnych) zaburzeń w~populacji, definiowane są~dwa operatory genetyczne:
+\begin{defn}
+\textbf{Funkcją krzyżowania} nazywamy funkcję $ \cross : \mathbb{N}^k \times \mathbb{N}^k \to \mathbb{N}^k \times \mathbb{N}^k $.
+\end{defn}
+\begin{defn}
+\textbf{Funkcją mutacji} nazywamy funkcję $ \mut : \mathbb{N}^k \to \mathbb{N}^k $.
+\end{defn}
+\noindent
+Definicja operacji krzyżowania i mutacji może zależeć od~wybranego problemu, lecz w~zdecydowanej większości przypadków operacja krzyżowania jest implementowana jako podział obu osobników wyjściowych (rodziców) na~identyczne fragmenty, a~następnie produkcję nowych dwóch osobników (dzieci) poprzez wymianę parzystych lub nieparzystych fragmentów wektorów rodziców.
+Najczęstszą implementacją mutacji jest zaś losowa zmiana części elementów osobnika-rodzica.\\
+
+\noindent
+Po wprowadzeniu powyższych definicji, możliwe jest wyrażenie szkieletu algorytmu w~postaci pseudokodu.
+\begin{tcolorbox}[title=Schemat algorytmu genetycznego]
+\begin{verbatim}
+genetic_algorithm:
+    wylosuj populację początkową
+    powtarzaj:
+        oblicz funkcję przystosowania dla osobników w populacji
+        jeśli osiągnięto warunek zatrzymania:
+            zwróć najlepiej przystosowanego osobnika
+        wybierz chromosomy do kolejnej generacji
+        zastosuj operatory krzyżowania i mutacji
+        utwórz kolejną generację populacji
+\end{verbatim}
+\end{tcolorbox}
+
 \subsection{Algorytm}
 % jakiś wstęp, że ze względu na naturę problemu schedulingu (jaka klasa) stosujemy algorytm genetyczny
 % opisać co będzie genami, chromosomami (osobnikami z jednym chromosomem) i populacją
@@ -780,5 +848,16 @@ Naszym celem jest zminimalizowanie braków w obrębie wszystkich projektów na p
 \newpage
 \section{Spis zawartości załączonej płyty CD}
 % co na płytce wypalimy (chyba kod lab2, tylko trzeba będzie skopiować poprawione z lab3) i kod lab3
+
+\newpage
+\begin{thebibliography}{9}
+\bibitem{luke2013}
+	Sean Luke,
+	\emph{Essentials of Metaheuristics},
+	Lulu,
+	second edition,
+	2013,
+	dostępne bezpłatnie pod adresem \url{http://cs.gmu.edu/~sean/book/metaheuristics/}.
+\end{thebibliography}
 
 \end{document}
