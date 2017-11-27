@@ -96,7 +96,7 @@ Dane są zbiory:
 Każdemu ekspertowi przypisany jest wektor binarny opisujący posiadane przez niego umiejętności. Przykładowo, jeżeli ekspert posiada umiejętność $i$, to w~wektorze umiejętności odpowiadającemu temu ekspertowi na $i$-tym miejscu znajduje się znak $1$, w~przeciwnym wypadku --- $0$.\\
 
 \begin{tcolorbox}[title=Przykład --- wektory ekspertów]
-Załóżmy, że liczność zbioru umiejętności $U$ jest równa 5. Wówczas ponumerujemy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$. Niech pewien ekspert ze~zbioru $E$ posiada umiejętności 2, 3 i~5. Wówczas wektor opisujący jego umiejętności to:
+Załóżmy, że liczność zbioru umiejętności $U$ jest równa 5. Ponumeryjmy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$. Niech pewien ekspert ze~zbioru $E$ posiada umiejętności 2, 3 i~5. Wówczas wektor opisujący jego umiejętności to:
 $$[0, 1, 1, 0, 1]$$
 \end{tcolorbox}
 
@@ -701,7 +701,7 @@ Jeżeli parametr określający liczbę jednostek czasu dostępnych na realizacj�
 Definicja wektora przypisanego ekspertowi ze zbioru $E$ pozostaje bez zmian -- nadal jest to wektor binarny opisujący umiejętności danego eksperta. Zmianie uległa definicja wektora odpowiadającego projektowi ze zbioru $P$. Jest on wciąż wektorem liczbowym, jednak jego ostatni element mówi o liczbie jednostek czasu potrzebnych na wykonanie danego projektu.\\
 
 \begin{tcolorbox}[title=Przykład --- wektor projektu]
-Załóżmy, że liczność zbioru umiejętności $U$ jest równa 5. Wówczas ponumerujemy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$. Rozważmy pewien projekt ze~zbioru $P$. Niech jego zapotrzebowanie na~ekspertów posiadających umiejętności 1 i 3 wynosi odpowiednio 2 i 5, a~na~pozostałe --- 0. Ponadto długość procesu wytwórczego tego projektu została oszacowana na 3 jednostki czasu. Wówczas wektor opisujący zapotrzebowanie tego projektu to:
+Załóżmy, że liczność zbioru umiejętności $U$ jest równa 5. Ponumeryjmy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$. Rozważmy pewien projekt ze~zbioru $P$. Niech jego zapotrzebowanie na~ekspertów posiadających umiejętności 1 i 3 wynosi odpowiednio 2 i 5, a~na~pozostałe --- 0. Ponadto długość procesu wytwórczego tego projektu została oszacowana na 3 jednostki czasu. Wówczas wektor opisujący zapotrzebowanie tego projektu to:
 $$[2, 0, 5, 0, 0, 3]$$
 \end{tcolorbox}
 
@@ -713,7 +713,7 @@ Ważnym jest, że jednostki czasu są niepodzielne i zarówno ogólny czas przez
 Ekspert zatrudniony do pracy nad projektem $P_1$ w jednostce czasu od chwili $t_k$ do chwili $t_{k+1}$ nie będzie mógł brać udziału w równoległym projekcie $P_2$ w tej jednostce czasu. Ponadto każdy ekspert podczas pracy nad projektem może nadal wykorzystywać tylko jedną z posiadanych umiejętności i nie może jej zmienić w trakcie trwania jednostki czasu. Jest możliwa natomiast zmiana projektu i/lub umiejętności po upływie danej jednostki czasu. Wspomniany ekspert mógłby w jednostce czasu od chwili $t_{k+1}$ do chwili $t_{k+2}$ dalej pracować nad projektem $P_1$ wykorzystując tę samą lub inną umiejętność albo zmienić projekt na $P_2$ i pracować na wcześniej wspomnianych zasadach.\\
 
 \noindent
-Definicja braków i założenia ich dotyczące są nadal podtrzymywane. Różnica w rozszerzonym problemie dotyczy ich interpretacji, ponieważ braki i przyporządkowania rozpatrujemy teraz w danej jednostce czasu. Oznacza to, że zarówno braki jak i przyporządkowania ekspertów do danego projektu mogą się różnić na przestrzeni czasu, a ostateczna liczba braków jest równa sumie wszystkich braków w czasie trwania procesu wytwórczego projektu.\\
+Definicja braków i jej założenia są nadal podtrzymywane. Różnica w rozszerzonym problemie dotyczy ich interpretacji, ponieważ braki i przyporządkowania rozpatrujemy teraz w danej jednostce czasu. Oznacza to, że zarówno braki jak i przyporządkowania ekspertów do danego projektu mogą się różnić na przestrzeni czasu, a ostateczna liczba braków jest równa sumie wszystkich braków w czasie trwania procesu wytwórczego projektu.\\
 
 \begin{tcolorbox}[title=Przykład --- obliczanie ostatecznej liczby braków]
 Załóżmy, że pewien projekt ze zbioru $P$ jest realizowany przez 3 jednostki czasu. Każdej jednostce czasu odpowiada pewne przyporządkowanie ekspertów do tego projektu i określają one braki odpowiednio 21, 3 i 7. Wówczas ostateczna liczba braków w tym projekcie jest zdefiniowana przez liczbę będącą sumą braków w poszczególnych jednostkach czasu, czyli:
@@ -725,10 +725,6 @@ $$21 + 3 + 7 = 31$$
 Naszym celem jest zminimalizowanie braków w obrębie wszystkich projektów na przestrzeni wszystkich jednostek czasu, czyli znalezienie takiego planu projektów (chwil czasu, w których projekty mają się rozpoczynać), aby możliwe było optymalne przydzielenie ekspertów do projektów.
 
 \subsection{Algorytmy genetyczne}
-% jakiś wstęp co to za algorytmy (tak jak wcześniej ogólnie o problemie wyznaczania max przepływu)
-% że są to algorytmy, które niekoniecznie dają rozwiązanie dokładnie, tylko przybliżone (ale za to szybciej niż jakiś lamerski brute)
-% !!! ewentualnie można ten rozdzialik pominąć i wpleść to info na początku następnego (o algo)
-
 \textbf{Algorytmami genetycznymi} nazywamy metaheurystyki opierające się na ideach genetyki oraz selekcji naturalnej.
 Algorytmy te swoje główne zastosowanie znajdują w~problemach optymalizacyjnych i~są formą optymalizacji stochastycznej (tj. opartej na losowości).\\
 
@@ -739,7 +735,7 @@ Najczęściej w~problemach rozwiązywanych tego typu metodami nie jest znana pos
 Algorytmy genetyczne nie gwarantują odnalezienia rozwiązania optymalnego, lecz zastosowane do~odpowiednich problemów przynoszą rozwiązania bliskie optymalnemu w~czasie o~wiele krótszym niż w~przypadku pełnego przeszukania przestrzeni rozwiązań.\\
 
 \noindent
-Podstawowymi pojęciami w~tym rodzaju algorytmów są: osobnik i populacja.
+Podstawowymi pojęciami w~tym rodzaju algorytmów są: osobnik, gen i populacja.
 
 \begin{defn}
 \textbf{Osobnikiem (chromosomem)} nazywamy $k$-elementowy wektor $o \in \mathbb{N}^k$.
@@ -764,10 +760,10 @@ określającą przystosowanie pojedynczego osobnika populacji.
 \end{defn}
 
 \noindent
-Zazwyczaj powyższa funkcja jest maksymalizowana (im większa jej wartość, tym lepsze rozwiązanie).
+Zazwyczaj powyższa funkcja jest maksymalizowana (im większa jej wartość, tym lepsze rozwiązanie).\\
 
 \noindent
-Dodatkowo, w~celu wprowadzenia (pozytywnych lub negatywnych) zaburzeń w~populacji, definiowane są~dwa operatory genetyczne:
+Dodatkowo, w~celu wprowadzenia (pozytywnych lub negatywnych) zaburzeń w~populacji, definiowane są~dwa operatory genetyczne: krzyżowania i mutacji.
 \begin{defn}
 \textbf{Funkcją krzyżowania} nazywamy funkcję $ \cross : \mathbb{N}^k \times \mathbb{N}^k \to \mathbb{N}^k \times \mathbb{N}^k $.
 \end{defn}
@@ -779,14 +775,14 @@ Definicja operacji krzyżowania i mutacji może zależeć od~wybranego problemu,
 Najczęstszą implementacją mutacji jest zaś losowa zmiana części elementów osobnika-rodzica.\\
 
 \noindent
-Po wprowadzeniu powyższych definicji, możliwe jest wyrażenie szkieletu algorytmu w~postaci pseudokodu.
+Po wprowadzeniu powyższych definicji, możliwe jest wyrażenie szkieletu algorytmu w~postaci pseudokodu.\\
 \begin{tcolorbox}[title=Schemat algorytmu genetycznego]
 \begin{verbatim}
 genetic_algorithm:
     wylosuj populację początkową
     powtarzaj:
         oblicz funkcję przystosowania dla osobników w populacji
-        jeśli osiągnięto warunek zatrzymania:
+        jeżeli osiągnięto warunek zatrzymania:
             zwróć najlepiej przystosowanego osobnika
         wybierz chromosomy do kolejnej generacji
         zastosuj operatory krzyżowania i mutacji
@@ -795,20 +791,20 @@ genetic_algorithm:
 \end{tcolorbox}
 
 \subsection{Algorytm}
-% jakiś wstęp, że ze względu na naturę problemu schedulingu (jaka klasa) stosujemy algorytm genetyczny
+% opisać naturę naszego problemu (scheduling, NP trudny) i że świetnie nadaje się do tego algorytm genetyczny
 % opisać co będzie genami, chromosomami (osobnikami z jednym chromosomem) i populacją
 
 \subsubsection{Generacja populacji początkowej}
-% powiedzieć, że losujemy całkowicie poprawną lub całkowicie randomową populację (nie wiem która funkcja zostanie w kodzie, ale chyba #1)
+% powiedzieć, że losujemy całkowicie poprawną populację (bo funkcja z pełnym randomem raczej na pewno wyleci)
 
-\subsubsection{Funkcja przystosowania}  % czy to jakoś inaczej się nie nazywa? xd
-% jak sprawdzamy poprawnośc osobnika (badamy czy żaden projekt nie wyjeżdża poza granicę czasową)
-% jak szukamy przedziałów czasowych i wyznaczamy projekty do nich należące (zamiatamy początki i końce)
+\subsubsection{Funkcja przystosowania}
+% 1. jak sprawdzamy poprawnośc osobnika (badamy czy żaden projekt nie wyjeżdża poza granicę czasową)
+% 2. jak szukamy przedziałów czasowych i wyznaczamy projekty do nich należące (zamiatamy początki i końce)
 % !!! nie wiem czy tutaj już pisać dlaczego tak można, czy może jakiś krótki dowodzik jak w podstawowej wersji
-% wrzucić tutaj od razu info o przerabianiu interwału na ProblemData
-% jak nie przejdzie walidacji to nie odpalamy (zwracamy -1 i potem wyleci w pizdu)
-% powiedzieć, że dla membera szukamy przedziałów, odpalamy solver na każdym i sumujemy łączne braki (uwzględniając długość przedziału)
-% zapisujemy też przyporządkowania, żeby nie liczyć bez sensu drugi raz potem
+% 3. wrzucić tutaj od razu info o przerabianiu interwału na ProblemData
+% 4. oczywiście jak nie przejdzie walidacji to nie odpalamy nawet punktu 2 (zwracamy -1 i potem wyleci w pizdu)
+% 5. powiedzieć, jak dla membera wygląda cały proces - jakis schemat z powyższych klocków - czyli: walidujemy, szukamy przedziałów, odpalamy solver na każdym i sumujemy łączne braki (uwzględniając długość przedziału)
+% 6. zapisujemy też przyporządkowania, żeby nie liczyć bez sensu drugi raz potem
 
 \subsubsection{Ocena przystosowania populacji}
 % odpalamy fitness function na wszystkich jeszcze niepoliczonych i szukamy najlepszego w generacji
@@ -820,6 +816,7 @@ genetic_algorithm:
 \subsubsection{Kontrola populacji}
 % usuwamy inwalidów z -1, jeśli jacyś są
 % jak populacja się za bardzo rozrośnie, to robimy selekcję tym kołem/ruletką (im mniejsze braki, tym większa szansa że się załapie do nowej generacji)
+% jeżeli jakimś cudem populacja zginie (np. przez złe parametry mutacji) i wszystkie wylecą, to kończymy
 
 \subsubsection{Krzyżowanie osobników}
 % jak działa crossover (n punktowy) i ilu jest poddawanych krzyżówce podczas ewolucji (parametr)
@@ -847,7 +844,7 @@ genetic_algorithm:
 
 \newpage
 \section{Spis zawartości załączonej płyty CD}
-% co na płytce wypalimy (chyba kod lab2, tylko trzeba będzie skopiować poprawione z lab3) i kod lab3
+% co na płytce wypalimy chyba kod lab2 (tylko trzeba będzie skopiować poprawiony z lab3) i kod lab3
 
 \newpage
 \begin{thebibliography}{9}
