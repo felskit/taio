@@ -5,6 +5,7 @@ from src.classes.data import ProblemData
 from src.utils.solver import Solver
 
 
+# TODO: check if there's any randomizing that will throw ValueError if project length > overall time units
 class GeneticSolver:
     def __init__(self, scheduling_data):
         self.scheduling_data = scheduling_data
