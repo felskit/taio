@@ -27,7 +27,7 @@ class GeneticSolver:
             member = []
             for i in range(self.scheduling_data.project_count):
                 p_length = self.scheduling_data.projects[i][1]
-                member.append(random.randint(0, max(1, self.scheduling_data.overall_time_units - p_length)))
+                member.append(random.randint(0, self.scheduling_data.overall_time_units - p_length))
             population[tuple(member)] = None
         return population
 
@@ -167,23 +167,24 @@ class GeneticSolver:
                   .format(generation_counter, len(self.population)), end='', flush=True)
             for member, solution in self.population.items():
                 if not solution:
-                    self.population[member] = self._solve_scheduling(member)
-                # TODO: refactor condition so that invalid members with -1 are not best
-                if not current_best_solution or current_best_solution[0] < 0 \
-                        or current_best_solution[0] > self.population[member][0] >= 0:
-                    current_best_member = member
-                    current_best_solution = self.population[member]
+                    result = self._solve_scheduling(member)
+                    self.population[member] = result
+                if result[0] >= 0:
+                    if (not current_best_solution or current_best_solution[0] < 0) \
+                            or current_best_solution[0] > result[0] >= 0:
+                        current_best_member = member
+                        current_best_solution = result
             print('Finished.')
 
             # Updating all-time best result
-            # TODO: refactor condition so that invalid members with -1 are not best
-            if not best_solution or best_solution[0] < 0 or \
-                    current_best_solution and best_solution[0] > current_best_solution[0] > 0:
-                best_member = current_best_member
-                best_solution = current_best_solution
-                last_change_in_best = 0
-            else:
-                last_change_in_best += 1
+            if current_best_solution and current_best_solution[0] >= 0:
+                if not best_solution or best_solution[0] < 0 or \
+                        current_best_solution and best_solution[0] > current_best_solution[0] > 0:
+                    best_member = current_best_member
+                    best_solution = current_best_solution
+                    last_change_in_best = 0
+                else:
+                    last_change_in_best += 1
 
             # Stop conditions.
             if best_solution and best_solution[0] == 0:
@@ -222,6 +223,10 @@ class GeneticSolver:
             else:
                 print('> No invalid members found.')
 
+            if len(self.population) == 0:
+                print('> There are no more members in the population. Stopping.')
+                return best_member, best_solution
+
             if len(self.population) > self.max_population_count:
                 print('> Population exceeded member limit.\n> Selecting {} members from {}... '
                       .format(self.max_population_count, len(self.population)), end='', flush=True)
@@ -246,8 +251,10 @@ class GeneticSolver:
             for member1, member2 in zip(crossover_members[::2], crossover_members[1::2]):
                 n = random.randint(1, self.scheduling_data.project_count - 1)
                 offspring1, offspring2 = self._n_point_crossover(member1, member2, n)
-                self.population[offspring1] = None  # TODO: check if offspring1 is not a member already
-                self.population[offspring2] = None  # TODO: check if offspring2 is not a member already
+                if offspring1 not in self.population:
+                    self.population[offspring1] = None
+                if offspring2 not in self.population:
+                    self.population[offspring2] = None
             print('Finished.')
 
             # Mutations.
@@ -256,7 +263,8 @@ class GeneticSolver:
             for member in mutation_members:
                 n = random.randint(1, self.scheduling_data.project_count - 1)
                 mutated = self._n_point_mutation(member, n)
-                self.population[mutated] = None  # TODO: check if mutated is not a member already
+                if mutated not in self.population:
+                    self.population[mutated] = None
             print('Finished.')
 
             # Generation counter incrementation.
@@ -264,9 +272,11 @@ class GeneticSolver:
 
     @staticmethod
     def print_result(member, solution):
-        # TODO: check if there is a solution to be printed (could be None, None if problem is invalid => print sth else)
-        print('\nTotal shortage: {}.'.format(solution[0]))
-        print('Best starting times for projects: {}.'.format(member))
-        print('Intervals [t_from, t_to] -> [projects] with assignments (expert, skill, project):')
-        for assignment, interval in zip(solution[1], solution[2]):
-            print('[{},{}] -> {}: {}'.format(interval[0], interval[1], list(interval[2]), assignment))
+        if member and solution:
+            print('\nTotal shortage: {}.'.format(solution[0]))
+            print('Best starting times for projects: {}.'.format(member))
+            print('Intervals [t_from, t_to] -> [projects] with assignments (expert, skill, project):')
+            for assignment, interval in zip(solution[1], solution[2]):
+                print('[{},{}] -> {}: {}'.format(interval[0], interval[1], list(interval[2]), assignment))
+        else:
+            print('\nNo solution found.')

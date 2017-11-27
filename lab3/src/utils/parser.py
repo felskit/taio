@@ -10,7 +10,8 @@ class ParseError(Exception):
 
 class Parser:
     """Class used to read and parse input files provided to the program."""
-    line_no = 0
+    def __init__(self):
+        self.line_no = 0
 
     def _parse_comma_delimited_numbers(self, file, arg_count):
         """
@@ -102,7 +103,7 @@ class Parser:
             vector = self._parse_expert(file, data.skill_count)
             data.add_expert(vector)
 
-    def _parse_project(self, file, skill_count):
+    def _parse_project(self, file, skill_count, time_units):
         """
         Reads a single project's requirements from a file into a list.
 
@@ -110,6 +111,8 @@ class Parser:
         :type file: io.TextIOWrapper
         :param skill_count: The length of the requirements vector, equal to the number of skills in the problem.
         :type skill_count: int
+        :param time_units: The total number of time units available for all projects.
+        :type time_units: int
         :return: A list with non-negative values, containing information about the requirements of a project.
         :rtype: list
         :raise ParseError: A :class:`ParseError` is thrown when the vector read from file contains negative values.
@@ -119,6 +122,9 @@ class Parser:
             raise ParseError('Line {}: Project requirement vector must be non-negative'.format(self.line_no))
         if vector[-1] < 1:
             raise ParseError('Line {}: The number of project time units must be positive'.format(self.line_no))
+        if vector[-1] > time_units:
+            raise ParseError('Line {}: The number of project time units must not be greater than the total '
+                             'number of units (specified to be {} in the first line)'.format(self.line_no, time_units))
         return vector
 
     def _parse_projects(self, file, data):
@@ -131,7 +137,7 @@ class Parser:
         :type data: SchedulingData
         """
         for i in range(data.project_count):
-            vector = self._parse_project(file, data.skill_count)
+            vector = self._parse_project(file, data.skill_count, data.overall_time_units)
             data.add_project((vector[:-1], vector[-1]))
 
     def parse(self, file):
