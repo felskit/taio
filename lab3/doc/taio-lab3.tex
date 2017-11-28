@@ -710,7 +710,7 @@ $$[2, 0, 5, 0, 0, 3]$$
 
 \vspace{0.5em}
 \noindent
-Ważnym jest, że jednostki czasu są niepodzielne i zarówno ogólny czas przeznaczony na~wykonanie wszystkich projektów, jak i czas realizacji poszczególnych projektów musi wynosić przynajmniej jedną jednostkę czasu.\\
+Ważnym jest, że jednostki czasu są niepodzielne i zarówno ogólny czas przeznaczony na~wykonanie wszystkich projektów, jak i czas realizacji poszczególnych projektów musi wynosić przynajmniej jedną jednostkę czasu. Dodatkowo zakładamy również, że~wymagania każdego projektu są~stałe w~każdej jednostce czasu jego trwania.\\
 
 \noindent
 Ekspert zatrudniony do pracy nad projektem $P_1$ w jednostce czasu od chwili $t_k$ do chwili $t_{k+1}$ nie będzie mógł brać udziału w równoległym projekcie $P_2$ w tej jednostce czasu. Ponadto każdy ekspert podczas pracy nad projektem może nadal wykorzystywać tylko jedną z posiadanych umiejętności i nie może jej zmienić w trakcie trwania jednostki czasu. Jest możliwa natomiast zmiana projektu i/lub umiejętności po upływie danej jednostki czasu. Wspomniany ekspert mógłby w jednostce czasu od chwili $t_{k+1}$ do chwili $t_{k+2}$ dalej pracować nad projektem $P_1$ wykorzystując tę samą lub inną umiejętność albo zmienić projekt na $P_2$ i pracować na wcześniej wspomnianych zasadach.\\
@@ -794,16 +794,14 @@ genetic_algorithm:
 \end{tcolorbox}
 
 \subsection{Algorytm}
-% opisać naturę naszego problemu (scheduling, NP trudny) i że świetnie nadaje się do tego algorytm genetyczny
-% opisać co będzie genami, chromosomami (osobnikami z jednym chromosomem) i populacją
-Wybranie uogólnienie problemu jest optymalizacyjnym problemem planowania. Problemy tego typu są~jednym z~klasycznych, występujących w literaturze przypadków zastosowania algorytmów genetycznym (przykładem jest praca \cite{wall1996}).\\
+Wybranie uogólnienie problemu jest optymalizacyjnym problemem planowania. Problemy tego typu są~jednym z~klasycznych, występujących w literaturze przypadków zastosowania algorytmów genetycznych (przykładem jest praca \cite{wall1996}).\\
 
 \noindent
 Pierwszą, podstawową kwestią do~ustalenia przy projektowaniu algorytmu genetycznego jest sposób translacji potencjalnych rozwiązań na chromosomy (osobniki).
 W~przypadku tego problemu liczba genów będzie równa liczbie projektów (mocy zbioru $P$), zaś $i$-ty gen w~pewnym chromosomie $o = (x_1, x_2, \dots, x_{|P|})$ będzie równy indeksowi jednostki czasu, w~której planowane jest rozpoczęcie $i$-tego projektu. \\
 
 \begin{tcolorbox}[title=Przykład --- reprezentacja rozwiązania zadania przez chromosom]
-Załóżmy, że~dany jest następujący rozkład projektów w~oknie czasowym długości~6 przewidzianym na~ich wykonanie:
+Załóżmy, że~dany jest następujący rozkład projektów w~oknie czasowym długości~7 przewidzianym na~ich wykonanie:
 
 \begin{figure}[H]
 	\centering
@@ -811,7 +809,8 @@ Załóżmy, że~dany jest następujący rozkład projektów w~oknie czasowym dł
 		\begin{axis}
 			[
 				xmajorgrids=true,
-				xtick={0,1,2,3,4,5,6},
+				xtick={0,1,2,3,4,5,6,7},
+				xmax=7.8,
 				y=-0.7cm,
 				ytick={1,2,3,4},
 				yticklabels={$p_1$,$p_2$,$p_3$,$p_4$},
@@ -844,6 +843,7 @@ Załóżmy, że~dany jest następujący rozkład projektów w~oknie czasowym dł
 		\end{axis}
 	\end{tikzpicture}
 	\caption{Przykładowy rozkład projektów}
+	\label{fig:scheduling1}
 \end{figure}
 
 Wówczas osobnikiem (chromosomem) odpowiadającym takiemu rozkładowi projektów jest osobnik
@@ -855,23 +855,231 @@ Zauważmy, że za~sprawą tego, że długość poszczególnych jest częścią d
 W~kolejnych iteracjach (generacjach) algorytmu będzie rozważany pewien zbiór chromosomów, zwany też populacją, tożsamych z~potencjalnymi rozwiązaniami problemu, inicjowany losowo i~modyfikowany za~pośrednictwem operatorów genetycznych.
 
 \subsubsection{Generacja populacji początkowej}
-% powiedzieć, że losujemy całkowicie poprawną populację (bo funkcja z pełnym randomem raczej na pewno wyleci)
+W~większości przykładów algorytmy genetyczne rozpoczynają swoje działanie od~inicjacji populacji osobnikami o~cechach losowych.
+Podobny mechanizm został zastosowany w~zaimplementowanym rozwiązaniu --- wartość każdego genu $x_i$ jest losowana ze zbioru $\{0, 1, 2, \dots, D - d_i \}$, gdzie $D$ oznacza długość okna czasowego wyznaczonego dla wszystkich projektów, zaś $d_i$ oznacza długość trwania $i$-tego projektu ze zbioru $P$. \\
+
+\noindent
+Taki sposób inicjacji populacji zapewnia, że~dla~poprawnych danych wejściowych populacja początkowa zawsze będzie składała się z~poprawnych rozwiązań (tj. takich, w~których okres realizacji żadnego projektu nie~wykroczy poza okno
+czasowe).\\
+
+\begin{tcolorbox}[title=Losowanie populacji początkowej]
+\begin{verbatim}
+init_population:
+    population <- []
+    dopóki liczność population jest mniejsza od docelowej:
+        member <- []
+        dla każdego projektu p:
+            g <- losowa liczba całkowita z przedziału [0, D - p.d]
+            dodaj g do member
+        dodaj member do population
+\end{verbatim}
+\end{tcolorbox} 
 
 \subsubsection{Funkcja przystosowania}
-% 1. jak sprawdzamy poprawnośc osobnika (badamy czy żaden projekt nie wyjeżdża poza granicę czasową)
-% 2. jak szukamy przedziałów czasowych i wyznaczamy projekty do nich należące (zamiatamy początki i końce)
-% !!! nie wiem czy tutaj już pisać dlaczego tak można, czy może jakiś krótki dowodzik jak w podstawowej wersji
-% 3. wrzucić tutaj od razu info o przerabianiu interwału na ProblemData
-% 4. oczywiście jak nie przejdzie walidacji to nie odpalamy nawet punktu 2 (zwracamy -1 i potem wyleci w pizdu)
-% 5. powiedzieć, jak dla membera wygląda cały proces - jakis schemat z powyższych klocków - czyli: walidujemy, szukamy przedziałów, odpalamy solver na każdym i sumujemy łączne braki (uwzględniając długość przedziału)
-% 6. zapisujemy też przyporządkowania, żeby nie liczyć bez sensu drugi raz potem
+W~projekcie algorytmu genetycznego niezbędne jest również wskazanie przyjętej funkcji przystosowania.
+Aby w~sposób formalny zdefiniować tą funkcję, należy poszerzyć definicję niektórych pojęć zdefiniowanych dla~podstawowej wersji problemu.
 
-\subsubsection{Ocena przystosowania populacji}
-% odpalamy fitness function na wszystkich jeszcze niepoliczonych i szukamy najlepszego w generacji
-% potem patrzymy czy nie polepszył on ogólnie najlepszego ze wszystkich generacji
+\begin{defn}
+\textbf{Przyporządkowaniem eksperta} nazywamy relację
+$$ \assign \subseteq E \times U \times P \times \{ 1, 2, \dots, D \} $$
+gdzie ekspert $e \in E$, umiejętność $u \in U$, projekt $p \in P$ oraz liczba $k \in \{1, 2, \dots, D\}$ są ze sobą w~relacji wtedy i tylko wtedy, gdy:
+\begin{itemize}
+	\item ekspert $e$ posiada umiejętność $u$ (tj. $\ability(e, u) = 1$),
+	\item ekspert $e$ został przyporządkowany do~pracy w~projekcie $p$ w~dziedzinie umiejętności $u$ w~przedziale czasowym $[t_{k-1}, t_k]$.
+\end{itemize}
+Każdy ekspert $e \in E$ może być w~relacji z~co~najwyżej jedną parą postaci
+$(u,p,k)$, gdzie $u \in U, p \in P, k \in \{1, 2, \dots, D\}$.
+
+\noindent
+Ponadto, dla każdego projektu $p$, umiejętności $u$ i chwili $k$ musi zachodzić
+$$\assigned(p,u,k) \overset{\text{def}}{=} \left| \left\lbrace e \in E : (e,u,p,k)
+\in \assign \right\rbrace \right| \leq \need(p,u)$$
+\end{defn}
+
+\begin{defn}
+\textbf{Liczbą braków} w projekcie $p \in P$ w chwili $k$ dla danego przyporządkowania $\assign$
+nazywamy liczbę
+$$ \missing(p,k,\assign) = \sum_{u \in U} \left( \need(p,u) - 
+\assigned(p, u, k)\right) $$
+gdzie $k \in \{1, 2, \dots, D\}$.
+\end{defn}
+
+\begin{defn}
+\textbf{Liczbą braków} w projekcie $p_i \in P$ dla danego przyporządkowania $\assign$
+nazywamy liczbę
+$$ \missing(p,\assign) = \sum_{t=t_i}^{t_i+d_i} \missing(p,t,\assign) $$
+gdzie $t_i$ jest czasem rozpoczęcia projektu $p_i$, zaś $d_i$ --- czasem trwania tego projektu.
+\end{defn}
+
+\begin{defn}
+\label{defn:totalmissingtime}
+\textbf{Całkowitą liczbą braków} dla danego przyporządkowania $\assign$ nazywamy
+liczbę
+$$ M(\assign) = \sum_{p \in P} \missing(p, \assign) $$
+\end{defn}
+\noindent
+Funkcją przystosowania wybraną w~tym problemie jest właśnie funkcja obliczająca całkowitą ilość braków w~przyporządkowaniu zgodnie z~definicją \ref{defn:totalmissingtime}.
+Pod niektórymi względami jest to nieortodoksyjny wybór, ponieważ celem algorytmu jest minimalizacja tej funkcji, a~nie jej maksymalizacja (jak postępuje wiele klasycznych przykładów algorytmów genetycznych).
+Nie ma to jednak wielkiego wpływu na~wygląd algorytmu --- wystarczy dokonać jedynie kilku przekształceń. \\
+
+\noindent
+Znając już definicję funkcji przystosowania, przyjrzyjmy się metodzie obliczania tej funkcji oraz oceny poszczególnych osobników.
+Proces oceny pojedynczego rozwiązania składa się z~następujących etapów:
+\begin{enumerate}
+	\item sprawdzenie poprawności,
+	\item podział na podproblemy,
+	\item ocena podproblemów,
+	\item wyznaczenie ostatecznej oceny całego problemu.
+\end{enumerate}
+O~ile dany osobnik nie~zostanie usunięty z~populacji na~etapie selekcji, algorytm dokona jego oceny dokładnie raz.
+
+\paragraph{Sprawdzenie poprawności rozwiązania}
+W~procesie tworzenia kolejnych generacji przez algorytm, może się~zdarzyć, że~zastosowanie operatorów genetycznych powoduje powstanie nieprawidłowego osobnika (tj. takiego, który nie reprezentuje prawidłowego rozwiązania zadania). 
+W~rozważanym problemie, jedynym rodzajem takiego błędu może być uzyskanie rozwiązania, w~którym czas zakończenia jednego z~projektów wykracza poza ustaloną długość okna czasowego.\\
+
+\noindent
+Detekcja tego typu rozwiązań opiera się na~ręcznej weryfikacji genów poszczególnych osobników.
+Rozwiązania błędne otrzymują specjalną, sztuczną wartość funkcji przystosowania, równą -1, która jest tak naprawdę flagą ustawioną na~potrzeby późniejszych kroków algorytmu.\\
+
+\begin{tcolorbox}[title=Sprawdzenie poprawności pojedynczego rozwiązania]
+\begin{verbatim}
+validate_scheduling(m):
+    dla każdego genu m[i] w osobniku m:
+        jeśli m[i] + p[i].d > D:
+            zwróć fałsz
+    zwróć prawdę
+\end{verbatim}	
+\end{tcolorbox}
+
+\paragraph{Podział na~podproblemy}
+Wyznaczenie wartości funkcji $M$ dla~pewnego przyporządkowania ułatwiają założenia przyjęte w~definicji rozszerzenia problemu.
+Założenie pozwalające ekspertom na~zmianę projektów po~poszczególnych jednostkach czasu pozwala podzielić ocenę rozwiązania uogólnionego problemu i sprowadzić ją do~oceny podstawowego rozwiązania.\\
+
+\noindent
+Podział odbywa~się na~podstawie czasów rozpoczęcia i~zakończenia każdego z~projektów w~wyznaczonym rozwiązaniu.
+Jeśli rozważymy zbiór zawierający początki i końce każdego projektu (jako liczby) oraz początek i koniec wyznaczonego okna czasowego i posortujemy ten zbiór, możemy na~podstawie posortowanych elementów wyznaczyć przedziały, w~obrębie których nie zmienia się zbiór wykonywanych projektów. \\
+
+\noindent
+Jeżeli przy podziale okaże się, że~istnieją przedziały czasowe, podczas których nie~jest wykonywany żaden projekt, przedziały~te nie~są rozważane, jako, że z~definicji funkcji braków dla projektu każdy projekt ma~w~tym przedziale zerowe braki. \\ 
+
+\begin{tcolorbox}[title=Przykład --- podział oceny rozwiązania na podproblemy]
+Rozważmy rozkład projektów z rysunku \ref{fig:scheduling1}.
+Opisywany w~powyższym akapicie zbiór dla tego rozwiązania ma elementy $\{0, 1, 3, 4, 5, 6, 7\}$ i dzieli oś czasową projektów na~przedziały zaznaczone na~poniższym rysunku liniami pionowymi: 
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}
+			[
+				xmajorgrids=true,
+				xtick={0,1,3,4,5,6,7},
+				xmax=7.8,
+				y=-0.7cm,
+				ytick={1,2,3,4},
+				yticklabels={$p_1$,$p_2$,$p_3$,$p_4$},
+				boxplot/every box/.style={fill=gray}
+			]
+			\addplot [
+			boxplot prepared={
+				upper quartile=1,
+				lower quartile=0,
+			},
+			] coordinates {};
+			\addplot [
+			boxplot prepared={
+				upper quartile=6,
+				lower quartile=3,
+			},
+			] coordinates {};
+			\addplot [
+			boxplot prepared={
+				upper quartile=5,
+				lower quartile=1,
+			},
+			] coordinates {};
+			\addplot [
+			boxplot prepared={
+				upper quartile=5,
+				lower quartile=4,
+			},
+			] coordinates {};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Podział osi czasowej na przedziały}
+\end{figure}
+
+W~każdym z~tych przedziałów każdy z~projektów jest albo wykonywany, albo nie.
+Przedział $[6, 7]$ nie będzie oceniany, ponieważ nie wykonywany jest żaden projekt, a~więc liczba braków w~tym przedziale wynosi~0.
+W~związku z~tym przedziałami zwróconymi przez odpowiednią funkcję będą
+$$ \{ [0,1], [1,3], [3,4], [4,5], [5,6] \} $$
+\end{tcolorbox}
+
+\paragraph{Ocena pojedynczego podproblemu}
+Rozważmy pojedynczy przedział powstały w~wyniku procedury opisanej powyżej.
+Zauważmy, że w~obrębie tego przedziału spełnione są~następujące założenia problemu podstawowego:
+\begin{itemize}
+	\item zapotrzebowanie każdego projektu jest stałe w~czasie,
+	\item wszystkie projekty wykonywane są w~tej samej jednostce czasowej.
+\end{itemize}
+Definicja uogólnienia nie~zapewnia jednak, że spełnione będzie założenie o~tym, że~żaden z~ekspertów nie~zmieni swojego projektu w~trakcie przedziału.
+Okazuje się jednak, że~można to~założenie przyjąć i nadal otrzymać rozwiązanie optymalne pod~względem braków, co~udowodnimy w~sekcji \ref{subsec:correctnessintervals}\\
+
+\noindent
+Wobec tego, aby uzyskać łączną ilość braków dla wszystkich projektów w~danym przedziale, wystarczy stworzyć zadanie problemu podstawowego, w~którym wektorami projektów są wektory z~wejścia (jeśli dany projekt jest wykonywany w~danym przedziale) lub wektory zerowe (w~przeciwnym przypadku).
+W przypadku, gdy długość przedziału jest większa niż 1, wystarczy uzyskaną liczbę braków przemnożyć przez jego długość.\\
+
+\begin{tcolorbox}[title=Ocena podproblemu]
+\begin{verbatim}
+solve_for_interval(I):
+    D <- struktura danych dla problemu podstawowego
+    przepisz dane ekspertów dla problemu rozszerzonego do D
+    dla każdego projektu p:
+        jeżeli p jest wykonywany w przedziale I:
+            dodaj wymagania projektu p do D
+        w przeciwnym przypadku:
+            dodaj zerowy wektor wymagań do D
+    b <- base_problem(D)
+    zwróć b * I.length  
+\end{verbatim}
+\end{tcolorbox}
+
+\paragraph{Ostateczna ocena}
+całego rozwiązania jest równa sumie oceny wyznaczonych podproblemów.\\
+
+\begin{tcolorbox}[title=Ocena pojedynczego rozwiązania]
+\begin{verbatim}
+fitness_function(m):
+    jeśli validate_scheduling(m) == fałsz:
+        zwróć -1
+    I_list <- generate_intervals(m)
+    f <- 0
+    dla każdego przedziału I w I_list:
+        f <- f + solve_for_interval(I)
+    zwróć f
+\end{verbatim}
+\end{tcolorbox}
+\vspace{0.5em}
+\noindent
+Dla uproszczenia w~pseudokodzie pominięto zapamiętywanie wyznaczonego przyporządkowania.
+W~faktycznym programie przyporządkowania pamiętane są jednak razem z~wyznaczoną wartością funkcji przystosowania, aby nie liczyć ich wielokrotnie.
+
+\subsubsection{Wybór najlepszego osobnika z~populacji}
+Wartość funkcji przystosowania obliczana jest na~początku algorytmu dla~całej populacji początkowej oraz w~każdej kolejnej generacji dla~osobników nowo dodanych do~populacji.
+Program wyznacza najlepszego osobnika znajdującego się w~populacji w~obecnej generacji i porównuje go z~najlepszym osobnikiem znalezionym do tej pory. \\
+
+\noindent
+Jeżeli nastąpiła poprawa wyniku, osobnik zapamiętywany jest jako nowy najlepszy.
+Zerowany jest również licznik, który przechowuje informację, ile generacji temu nastąpiła ostatnia zmiana najlepszego rozwiązania. 
 
 \subsubsection{Warunki stopu}
-% kiedy kończymy (jak opytmalne, bez zmian lub za długo się kręci)
+Na~tym etapie głównej pętli algorytmu sprawdzane~są warunki zatrzymania obliczeń.
+Wyszczególnione zostały trzy warunki:
+\begin{itemize}
+	\item znalezione zostało rozwiązanie optymalne, tj. najlepsze znalezione rozwiązanie ma~liczbę braków równą~0,
+	\item upłynęła określona liczba generacji od~ostatniej zmiany najlepszego osobnika,
+	\item upłynęła określona dla~całego algorytmu górna granica liczby generacji.
+\end{itemize}
+W przypadku dwóch ostatnich warunków stopu, liczby generacji są parametrem programu modyfikowalnym z~poziomu kodu źródłowego.
 
 \subsubsection{Kontrola populacji}
 % usuwamy inwalidów z -1, jeśli jacyś są
@@ -896,6 +1104,7 @@ W~kolejnych iteracjach (generacjach) algorytmu będzie rozważany pewien zbiór 
 % zwiększenie licznika generacji i powrót do ewaluacji generacji
 
 \subsection{Dowód poprawności}
+\label{subsec:correctnessintervals}
 % !!! nie wiem czy dawać ten rozdział, bo tu by było że możemy dzielić na te przedziały i odpalać podstawę, ale można to w sumie wpleść gdzieś wyżej
 
 \subsection{Oszacowanie złożoności czasowej}
