@@ -250,7 +250,7 @@ class GeneticSolver:
             crossover_members = random.sample(self.population.keys(), int(len(self.population) * self.crossover_chance))
             print('> Starting crossovers of {} members... '.format(len(crossover_members) // 2 * 2), end='', flush=True)
             for member1, member2 in zip(crossover_members[::2], crossover_members[1::2]):
-                n = random.randint(1, self.scheduling_data.project_count)
+                n = random.randint(1, self.scheduling_data.project_count - 1)
                 offspring1, offspring2 = self._n_point_crossover(member1, member2, n)
                 if offspring1 not in self.population:
                     self.population[offspring1] = None
@@ -262,7 +262,7 @@ class GeneticSolver:
             mutation_members = random.sample(self.population.keys(), int(len(self.population) * self.mutation_chance))
             print('> Starting mutations of {} members... '.format(len(mutation_members)), end='', flush=True)
             for member in mutation_members:
-                n = random.randint(1, self.scheduling_data.project_count + 1)
+                n = random.randint(1, self.scheduling_data.project_count)
                 mutated = self._n_point_mutation(member, n)
                 if mutated not in self.population:
                     self.population[mutated] = None
