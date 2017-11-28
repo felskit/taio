@@ -17,6 +17,9 @@
 \usepackage[a4paper,margin=1in]{geometry}
 \usepackage{tikz}
 \usetikzlibrary{shapes,snakes,positioning}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.8}
+\usepgfplotslibrary{statistics}
 
 \newtheorem{lem}{Lemat}
 \newtheorem{thm}{Twierdzenie}
@@ -96,7 +99,7 @@ Dane są zbiory:
 Każdemu ekspertowi przypisany jest wektor binarny opisujący posiadane przez niego umiejętności. Przykładowo, jeżeli ekspert posiada umiejętność $i$, to w~wektorze umiejętności odpowiadającemu temu ekspertowi na $i$-tym miejscu znajduje się znak $1$, w~przeciwnym wypadku --- $0$.\\
 
 \begin{tcolorbox}[title=Przykład --- wektory ekspertów]
-Załóżmy, że liczność zbioru umiejętności $U$ jest równa 5. Ponumeryjmy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$. Niech pewien ekspert ze~zbioru $E$ posiada umiejętności 2, 3 i~5. Wówczas wektor opisujący jego umiejętności to:
+Załóżmy, że liczność zbioru umiejętności $U$ jest równa 5. Ponumerujmy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$. Niech pewien ekspert ze~zbioru $E$ posiada umiejętności 2, 3 i~5. Wówczas wektor opisujący jego umiejętności to:
 $$[0, 1, 1, 0, 1]$$
 \end{tcolorbox}
 
@@ -701,7 +704,7 @@ Jeżeli parametr określający liczbę jednostek czasu dostępnych na realizacj�
 Definicja wektora przypisanego ekspertowi ze zbioru $E$ pozostaje bez zmian -- nadal jest to wektor binarny opisujący umiejętności danego eksperta. Zmianie uległa definicja wektora odpowiadającego projektowi ze zbioru $P$. Jest on wciąż wektorem liczbowym, jednak jego ostatni element mówi o liczbie jednostek czasu potrzebnych na wykonanie danego projektu.\\
 
 \begin{tcolorbox}[title=Przykład --- wektor projektu]
-Załóżmy, że liczność zbioru umiejętności $U$ jest równa 5. Ponumeryjmy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$. Rozważmy pewien projekt ze~zbioru $P$. Niech jego zapotrzebowanie na~ekspertów posiadających umiejętności 1 i 3 wynosi odpowiednio 2 i 5, a~na~pozostałe --- 0. Ponadto długość procesu wytwórczego tego projektu została oszacowana na 3 jednostki czasu. Wówczas wektor opisujący zapotrzebowanie tego projektu to:
+Załóżmy, że liczność zbioru umiejętności $U$ jest równa 5. Ponumerujmy umiejętności rozważane w~problemie liczbami z zakresu $[1, 5]$. Rozważmy pewien projekt ze~zbioru $P$. Niech jego zapotrzebowanie na~ekspertów posiadających umiejętności 1 i 3 wynosi odpowiednio 2 i 5, a~na~pozostałe --- 0. Ponadto długość procesu wytwórczego tego projektu została oszacowana na 3 jednostki czasu. Wówczas wektor opisujący zapotrzebowanie tego projektu to:
 $$[2, 0, 5, 0, 0, 3]$$
 \end{tcolorbox}
 
@@ -793,6 +796,63 @@ genetic_algorithm:
 \subsection{Algorytm}
 % opisać naturę naszego problemu (scheduling, NP trudny) i że świetnie nadaje się do tego algorytm genetyczny
 % opisać co będzie genami, chromosomami (osobnikami z jednym chromosomem) i populacją
+Wybranie uogólnienie problemu jest optymalizacyjnym problemem planowania. Problemy tego typu są~jednym z~klasycznych, występujących w literaturze przypadków zastosowania algorytmów genetycznym (przykładem jest praca \cite{wall1996}).\\
+
+\noindent
+Pierwszą, podstawową kwestią do~ustalenia przy projektowaniu algorytmu genetycznego jest sposób translacji potencjalnych rozwiązań na chromosomy (osobniki).
+W~przypadku tego problemu liczba genów będzie równa liczbie projektów (mocy zbioru $P$), zaś $i$-ty gen w~pewnym chromosomie $o = (x_1, x_2, \dots, x_{|P|})$ będzie równy indeksowi jednostki czasu, w~której planowane jest rozpoczęcie $i$-tego projektu. \\
+
+\begin{tcolorbox}[title=Przykład --- reprezentacja rozwiązania zadania przez chromosom]
+Załóżmy, że~dany jest następujący rozkład projektów w~oknie czasowym długości~6 przewidzianym na~ich wykonanie:
+
+\begin{figure}[H]
+	\centering
+	\begin{tikzpicture}
+		\begin{axis}
+			[
+				xmajorgrids=true,
+				xtick={0,1,2,3,4,5,6},
+				y=-0.7cm,
+				ytick={1,2,3,4},
+				yticklabels={$p_1$,$p_2$,$p_3$,$p_4$},
+				boxplot/every box/.style={fill=gray}
+			]
+			\addplot [
+			boxplot prepared={
+				upper quartile=1,
+				lower quartile=0,
+			},
+			] coordinates {};
+			\addplot [
+			boxplot prepared={
+				upper quartile=6,
+				lower quartile=3,
+			},
+			] coordinates {};
+			\addplot [
+			boxplot prepared={
+				upper quartile=5,
+				lower quartile=1,
+			},
+			] coordinates {};
+			\addplot [
+			boxplot prepared={
+				upper quartile=5,
+				lower quartile=4,
+			},
+			] coordinates {};
+		\end{axis}
+	\end{tikzpicture}
+	\caption{Przykładowy rozkład projektów}
+\end{figure}
+
+Wówczas osobnikiem (chromosomem) odpowiadającym takiemu rozkładowi projektów jest osobnik
+$$ (0, 3, 1, 4) $$
+Zauważmy, że za~sprawą tego, że długość poszczególnych jest częścią danych wejściowych, możliwe jest zrekonstruowanie kompletnego rozwiązania na~podstawie znajomości tylko czasu rozpoczęcia i~długości projektów.
+\end{tcolorbox}
+\vspace{0.5em}
+\noindent
+W~kolejnych iteracjach (generacjach) algorytmu będzie rozważany pewien zbiór chromosomów, zwany też populacją, tożsamych z~potencjalnymi rozwiązaniami problemu, inicjowany losowo i~modyfikowany za~pośrednictwem operatorów genetycznych.
 
 \subsubsection{Generacja populacji początkowej}
 % powiedzieć, że losujemy całkowicie poprawną populację (bo funkcja z pełnym randomem raczej na pewno wyleci)
@@ -855,6 +915,12 @@ genetic_algorithm:
 	second edition,
 	2013,
 	dostępne bezpłatnie pod adresem \url{http://cs.gmu.edu/~sean/book/metaheuristics/}.
+
+\bibitem{wall1996}
+	Matthew Bartschi Wall,
+	\emph{A Genetic Algorithm for Resource-Constrained Scheduling},
+	Massachusetts Institute of Technology,
+	1996.
 \end{thebibliography}
 
 \end{document}
