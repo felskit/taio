@@ -20,6 +20,7 @@
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.8}
 \usepgfplotslibrary{statistics}
+\usepackage{xcolor}
 
 \newtheorem{lem}{Lemat}
 \newtheorem{thm}{Twierdzenie}
@@ -728,6 +729,7 @@ $$21 + 3 + 7 = 31$$
 Naszym celem jest zminimalizowanie braków w obrębie wszystkich projektów na przestrzeni wszystkich jednostek czasu, czyli znalezienie takiego planu projektów (chwil czasu, w których projekty mają się rozpoczynać), aby możliwe było optymalne przydzielenie ekspertów do projektów.
 
 \subsection{Algorytmy genetyczne}
+\label{subsec:genetic}
 \textbf{Algorytmami genetycznymi} nazywamy metaheurystyki opierające się na ideach genetyki oraz selekcji naturalnej.
 Algorytmy te swoje główne zastosowanie znajdują w~problemach optymalizacyjnych i~są formą optymalizacji stochastycznej (tj. opartej na losowości).\\
 
@@ -879,10 +881,101 @@ W~kolejnych iteracjach (generacjach) algorytmu będzie rozważany pewien zbiór 
 % jeżeli jakimś cudem populacja zginie (np. przez złe parametry mutacji) i wszystkie wylecą, to kończymy
 
 \subsubsection{Krzyżowanie osobników}
-% jak działa crossover (n punktowy) i ilu jest poddawanych krzyżówce podczas ewolucji (parametr)
+Jedną z idei algorytmów genetycznych jest symulacja ewolucji, którą można zaobserwować w przyrodzie. Odbywa się to za pomocą operatorów genetycznych: krzyżowania i mutacji.\\
+
+\noindent
+Pierwsza z operacji -- krzyżowanie dwóch osobników w populacji -- działa tak jak to było opisywane w rozdziale \ref{subsec:genetic} o algorytmach genetycznych. Dwa osobniki dzielone są na \texttt{n+1} odcinków równej długości poprzez ich podział w \texttt{n} punktach. Następuje wymiana fragmentów genów pomiędzy nimi, której wynikiem jest dwóch potomków osobników-rodziców.\\
+
+\noindent
+Poniżej znajduje się pseudokod funkcji realizującej \texttt{n}-punktowe krzyżowanie dwóch osobników \texttt{parent1} oraz \texttt{parent2}, gdzie \texttt{n} jest liczbą z przedziału $[1, \text{ długość osobnika} - 1]$.\\
+
+\begin{tcolorbox}[title=Krzyżowanie dwóch osobników]
+\begin{verbatim}
+n_point_crossover(parent1, parent2, n):
+    offspring1 <- kopia parent1
+    offspring2 <- kopia parent2
+    jeżeli przeprowadzenie krzyżowania nie ma sensu:
+        zwróć offspring1 i offspring2
+    len <- długość osobnika
+    cuts <- tablica n liczb wylosowanych z zakresu [1, len - 1]
+    dodaj len na koniec cuts
+    dla każdej kolejnej pary (cut_from, cut_to) ze zbioru cuts:
+        zamień offspring1[cut_from:cut_to] na parent2[cut_from:cut_to]
+        zamień offspring2[cut_from:cut_to] na parent1[cut_from:cut_to]
+    zwróć offspring1 i offspring2
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Krzyżowanie może nie być wykonane w przypadku, jeżeli nie wyspecyfikowano projektów lub projekt jest tylko jeden, więc osobniki mają długość równą 1 (posiadają jeden gen). Poniżej znajduje się przykład wyniku operacji krzyżowania dla konkretnych osobników.\\
+
+\begin{tcolorbox}[title=Przykład --- operacja krzyżowania]
+Niech dane będą dwa osobniki z populacji:
+\begin{center}
+	\texttt{p1 = [\textcolor{blue}{0}, \textcolor{blue}{1}, \textcolor{blue}{2}, \textcolor{blue}{3}, \textcolor{blue}{4}, \textcolor{blue}{5}]},\\
+	\texttt{p2 = [\textcolor{red}{5}, \textcolor{red}{4}, \textcolor{red}{3}, \textcolor{red}{2}, \textcolor{red}{1}, \textcolor{red}{0}]}.
+\end{center}
+Naszym celem jest ich skrzyżowanie w 3 punktach i uzyskanie dwóch potomków. Załóżmy, że wylosowane trzy indeksy punktów przecięcia to 1, 3 i 4. Wówczas nasza tablica \texttt{cuts} wygląda następująco:
+\begin{center}
+	cuts = [1, 3, 4, 6],
+\end{center}
+ponieważ długość osobnika wynosi w tym przypadku 6. Pary \texttt{(cut\_from, cut\_to)}, czyli granice odcinków wymiany genów, które możemy tutaj wyróżnić to \texttt{(1, 3)} oraz \texttt{(4, 6)}. Jeżeli liczba elementów \texttt{cuts} byłaby nieparzysta, ostatni element zostałby pominięty, ponieważ nie utworzyłby z innym pary.\\
+
+\noindent
+Zgodnie z algorytmem, na dwóch wymienionych odcinkach (przy czym lewy brzeg odcinka jest inkluzywny, a prawy -- ekskluzywny) następuje wymiana genów pomiędzy osobnikami-rodzicami i otrzymujemy dwóch nowych osobników-potomków:
+\begin{center}
+	\texttt{o1 = [\textcolor{blue}{0}, \textcolor{red}{4}, \textcolor{red}{3}, \textcolor{blue}{3}, \textcolor{red}{1}, \textcolor{red}{0}]},\\
+	\texttt{o2 = [\textcolor{red}{5}, \textcolor{blue}{1}, \textcolor{blue}{2}, \textcolor{red}{2}, \textcolor{blue}{4}, \textcolor{blue}{5}]}.
+\end{center}
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Jeżeli nowe osobniki otrzymane w wyniku tej operacji nie występują jeszcze w populacji, są do niej dodawane. Liczba osobników poddanych krzyżowaniu a konkretniej szansa na to, że dany osobnik zostanie wylosowany do krzyżowania jest jednym z parametrów algorytmu genetycznego, który zależy od rozwiązywanego zadania i jego rozmiaru.
 
 \subsubsection{Mutacja osobników}
-% jak działa mutacja (n punktowa) i ilu jest mutowanych podczas ewolucji (parametr)
+Drugim operatorem genetycznym biorącym udział w procesie ewolucji jest mutacja. Pewien osobnik poddawany jest zamianie \texttt{n} losowych genów na inne -- także losowe.\\
+
+\noindent
+Poniżej znajduje się funkcja przeprowadzająca mutację \texttt{n} genów u osobnika \texttt{member} zapisana w formie pseudokodu, gdzie \texttt{n} jest liczbą z przedziału $[1, \text{ długość osobnika}]$.\\
+
+\begin{tcolorbox}[title=Krzyżowanie dwóch osobników]
+\begin{verbatim}
+n_point_mutation(member, n):
+    mutated <- kopia member
+    jeżeli przeprowadzenie mutacji nie ma sensu:
+        zwróć mutated
+    len <- długość osobnika
+    mutation <- tablica n liczb z przedziału [0, len - 1]
+    possible_genes <- zbiór wszystkich możliwych wartości genów
+    dla każdego indeksu genu i z mutation:
+        original_gene <- member[i]
+        usuń original_gene z possible_genes
+        mutated[i] <- losowy element ze zbioru possible_genes
+        dodaj original_gene do possible_genes
+    zwróć mutated
+\end{verbatim}
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Wykonanie mutacji, podobnie jak krzyżowania, może w pewnych przypadkach nie przynieść efektu, więc nie zostanie przeprowadzone (na przykład, jeżeli określona liczba projektów wynosi 0 lub dozwolony jest tylko jeden gen -- zerowy). Poniżej zamieszczono przykład wyniku mutacji konkretnego osobnika populacji.\\
+
+\begin{tcolorbox}[title=Przykład --- operacja krzyżowania]
+Niech dany będzie osobnik z populacji:
+\begin{center}
+	\texttt{m1 = [\textcolor{blue}{0}, \textcolor{blue}{1}, \textcolor{blue}{2}, \textcolor{blue}{3}, \textcolor{blue}{4}, \textcolor{blue}{5}]}.
+\end{center}
+Naszym celem jest przeprowadzenie mutacji w 3 punktach i otrzymanie nowego osobnika. Załóżmy, że wylosowane trzy indeksy punktów mutacji to 1, 3 i 4. Dla każdego genu zostanie wylosowany nowy -- inny niż poprzedni, aby mutacja przyniosła efekt. Niech nowy genami będą odpowiednio 3, 0, 5. Wówczas nowy osobnik będzie postaci:
+\begin{center}
+	\texttt{m2 = [\textcolor{blue}{0}, \textcolor{red}{3}, \textcolor{blue}{2}, \textcolor{red}{0}, \textcolor{red}{5}, \textcolor{blue}{5}]}.
+\end{center}
+\end{tcolorbox}
+
+\vspace{0.5em}
+\noindent
+Podobnie jak w przypadku operacji krzyżowania, nowy osobnik zostanie dodany do populacji tylko, jeżeli jeszcze w niej nie występuje. Szansa na to, że dany osobnik zostanie poddany mutacji jest także parametrem algorytmu genetycznego, który zależy od rozwiązywanego zadania i jego rozmiaru.
 
 \subsubsection{Działanie}
 % opis jak te klocki powyżej są zlepione w algorytm (może diagram jak u Felicji)
