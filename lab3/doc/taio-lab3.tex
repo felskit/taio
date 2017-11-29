@@ -1084,9 +1084,19 @@ Wyszczególnione zostały trzy warunki:
 W przypadku dwóch ostatnich warunków stopu, liczby generacji są parametrem programu modyfikowalnym z~poziomu kodu źródłowego.
 
 \subsubsection{Kontrola populacji}
-% usuwamy inwalidów z -1, jeśli jacyś są
-% jak populacja się za bardzo rozrośnie, to robimy selekcję tym kołem/ruletką (im mniejsze braki, tym większa szansa że się załapie do nowej generacji)
-% jeżeli jakimś cudem populacja zginie (np. przez złe parametry mutacji) i wszystkie wylecą, to kończymy
+W kolejnych iteracjach algorytmu powstają chromosomy nowej populacji. Kluczowym elementem genetyki jest ustalenie ostatecznej postaci następnej generacji bazując na osobnikach już istniejących. W zależności od wartości funkcji przystosowania osobnik ma więsze lub mniejsze szanse na znalezienie się w kolejnym pokoleniu. Istnieje wiele podejść umożliwiających wybór takich osobników. Jednym z nich jest metoda koła ruletki.
+
+\subsubsection*{Metoda koła ruletki}
+Polega na wielokrotnym losowaniu chromosomu z dotychczasoweje populacji uwzględniając fakt, że nie każdy osobnik ma jednakową szansę na bycie wylosowanym. Każdy na przypisane prawdopodobieństwo proporcjonalne do wartości funkcji przystosowania. Warto zauważyć, że nie zapewnia to zachowania osobników o najwyższej wartości funkcji przystosowania -- jedynie zwiększa prawdopodobieństwo ich wyboru. \\
+
+\noindent
+Po zastosowaniu przede wszystkim operatora mutacji może okazać się, że nowopowstały osobnik nie jest poprawnym rozwiązaniem. Przykładowo, patrząc na rozpatrywany problem byłby tak, gdyby chwila rozpoczęcia wykonania projektu była zbyt późno tzn. projekt zakończyłby się po upływie ustalonego na wykonanie projektów okna czasu. \\
+
+\noindent 
+W zastosowanym podejściu ustalono, że najlepsze wyniki można uzyskać przy zastosowaniu metody koła ruletki dopiero po przekroczeniu z góry ustalonej wielkości populacji. W innych przypadkach następna populacja jest inicjowana osobnikami populacji poprzedniej. \\
+
+\noindent
+W szczególnych przypadkach po zastosowaniu operatorów mutacji i krzyżowania mogłoby dojść do sytuacji, gdzie wszystkie osobniki nie odpowiadałyby poprawnej definicji problemu. Taka sytuacja może wyniknąć m. in. ze złego wyboru parametrów mutacji. Jeśli tak się stanie to algorytm kończy swoje działanie.
 
 \subsubsection{Krzyżowanie osobników}
 Jedną z idei algorytmów genetycznych jest symulacja ewolucji, którą można zaobserwować w przyrodzie. Odbywa się to za pomocą operatorów genetycznych: krzyżowania i mutacji.\\
