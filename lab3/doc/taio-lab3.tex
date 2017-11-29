@@ -1084,19 +1084,44 @@ Wyszczególnione zostały trzy warunki:
 W przypadku dwóch ostatnich warunków stopu, liczby generacji są parametrem programu modyfikowalnym z~poziomu kodu źródłowego.
 
 \subsubsection{Kontrola populacji}
-W kolejnych iteracjach algorytmu powstają chromosomy nowej populacji. Kluczowym elementem genetyki jest ustalenie ostatecznej postaci następnej generacji bazując na osobnikach już istniejących. W zależności od wartości funkcji przystosowania osobnik ma więsze lub mniejsze szanse na znalezienie się w kolejnym pokoleniu. Istnieje wiele podejść umożliwiających wybór takich osobników. Jednym z nich jest metoda koła ruletki.
+W kolejnych iteracjach algorytmu powstają chromosomy nowej populacji. Kluczowym zjawiskiem występującym w genetyce jest ustalenie stworzenie nowej generacji bazując na osobnikach już istniejących. W świecie algorytmów genetycznych sprowadza się to do
+\begin{enumerate}
+	\item Wyboru kandydatów biorących udział w stworzeniu nowej populacji
+	\item Zastosowania operatorów genetycznych do osobników aktualnej populacji
+	\item Ograniczenia rozmiaru nowopowstałej populacji
+\end{enumerate}
+W zależności od wartości funkcji przystosowania osobnik ma więsze lub mniejsze szanse na udział w tworzeniu kolejnego pokolenia. Istnieje wiele podejść umożliwiających wybór osobników, jednym z nich jest \textbf{metoda koła ruletki}.
 
 \subsubsection*{Metoda koła ruletki}
-Polega na wielokrotnym losowaniu chromosomu z dotychczasoweje populacji uwzględniając fakt, że nie każdy osobnik ma jednakową szansę na bycie wylosowanym. Każdy na przypisane prawdopodobieństwo proporcjonalne do wartości funkcji przystosowania. Warto zauważyć, że nie zapewnia to zachowania osobników o najwyższej wartości funkcji przystosowania -- jedynie zwiększa prawdopodobieństwo ich wyboru. \\
+Polega na wielokrotnym losowaniu chromosomu z dotychczasowej populacji uwzględniając fakt, że nie każdy osobnik ma jednakową szansę na bycie wylosowanym. Każdy z nich ma przypisane prawdopodobieństwo bycia wybranym proporcjonalne do wartości funkcji przystosowania. Warto zauważyć, że nie zapewnia to zachowania osobników o najwyższej wartości funkcji przystosowania -- jedynie zwiększa prawdopodobieństwo ich wyboru. Poniżej znajduje się pseuedokod dla tej operacji \\
 
-\noindent
-Po zastosowaniu przede wszystkim operatora mutacji może okazać się, że nowopowstały osobnik nie jest poprawnym rozwiązaniem. Przykładowo, patrząc na rozpatrywany problem byłby tak, gdyby chwila rozpoczęcia wykonania projektu była zbyt późno tzn. projekt zakończyłby się po upływie ustalonego na wykonanie projektów okna czasu. \\
+\begin{tcolorbox}[title=Metoda koła ruletki -- pseudokod]
+\begin{verbatim}
+roulette(population, new_population_size):
+    fitness_values <- []
+    dla osobnika x populacji population:
+        fitness_value <- ustal wartośc funkcji przynależności dla 
+            osobnika x
+        dodaj fitness_value na koniec fitness_values
+    probabilities <- fitness_values / max(fitness_values)
+    indices <- wybierz indeksy new_population_size elementów wektora 
+        probabilities zgodnie z określonymi w nim wartościami
+        prawdopodobieństwa
+    new_population = []
+    dla indeksu i w indices:
+        dodaj osobnika population[i] do new_population
+    zwróc new_population
+\end{verbatim}
+\end{tcolorbox}
+
+\subsubsection*{Uwagi}
+Po zastosowaniu przede wszystkim operatora mutacji może okazać się, że nowopowstały osobnik nie jest poprawnym rozwiązaniem. Przykładowo, patrząc na rozpatrywany problem byłby tak, gdyby chwila rozpoczęcia wykonania projektu wypadłaby zbyt późno tzn. projekt mógłby zakończyć się po upływie ustalonego na wykonanie wszystkich projektów okna czasu. \\
 
 \noindent 
 W zastosowanym podejściu ustalono, że najlepsze wyniki można uzyskać przy zastosowaniu metody koła ruletki dopiero po przekroczeniu z góry ustalonej wielkości populacji. W innych przypadkach następna populacja jest inicjowana osobnikami populacji poprzedniej. \\
 
 \noindent
-W szczególnych przypadkach po zastosowaniu operatorów mutacji i krzyżowania mogłoby dojść do sytuacji, gdzie wszystkie osobniki nie odpowiadałyby poprawnej definicji problemu. Taka sytuacja może wyniknąć m. in. ze złego wyboru parametrów mutacji. Jeśli tak się stanie to algorytm kończy swoje działanie.
+W szczególnych przypadkach po zastosowaniu operatorów mutacji i krzyżowania mogłoby dojść do sytuacji, gdzie wszystkie osobniki nie odpowiadałyby poprawnej definicji problemu. Taka sytuacja może wyniknąć m.in. ze złego wyboru parametrów mutacji. Jeśli tak się stanie to algorytm zakończcy działanie.
 
 \subsubsection{Krzyżowanie osobników}
 Jedną z idei algorytmów genetycznych jest symulacja ewolucji, którą można zaobserwować w przyrodzie. Odbywa się to za pomocą operatorów genetycznych: krzyżowania i mutacji.\\
@@ -1209,8 +1234,17 @@ Naszym celem jest przeprowadzenie mutacji w 3 punktach i otrzymanie nowego osobn
 % !!! nie wiem czy dawać ten rozdział, bo tu by było że możemy dzielić na te przedziały i odpalać podstawę, ale można to w sumie wpleść gdzieś wyżej
 
 \subsection{Oszacowanie złożoności czasowej}
-% ograniczamy problem z góry jako max liczba przedziałów, max rozmiar problemu w każdym przedziale (wszystkie projekty i eksperci), wszystkie gówna pomocnicze, max liczba generacji, max populacja, max liczenie dla każdego w populacji
-% może wspomnieć tutaj jaka złożoność tego podstawowego bo jest tu używany (ale się na tym nie skupiać chyba)
+Określając złożoność algorytmu musimy wykonać kilka spostrzeżeń:
+\begin{enumerate}
+	\item Ilość iteracji wykonania algorytmu genetycznego jest z góry ograniczona ustalonym parametrem - nazwijmy go $MAX_{IT}$. Pozostałe warunki stopu jedynie zmniejszają tą wartość.
+	\item Operacja krzyżowania wykonuje się w czasie $O(T)$, podobnie jak operacja mutacji.
+	\item Dla stałej $MAX_{POP}$ określającej największy rozmiar populacji, wybór osobników przy zastosowaniu metody koła ruletki odbędzie się w czasie $O(MAX_{POP})$. Pesymistycznie trzeba założyć, że metoda ta będzie stosowana w każdej iteracji algorytmu.
+	\item Złożoność funkcji rozwiązującej podproblem dla danego przedziału jest równa złożoności rozwiązania podstawowego czyli $O((|E| + |S| + |P|)^3)$
+	\item Z poprzedniego punktu wynika, że czas wyznaczenia wartości funkcji przystosowania dla chromosomu jest rzędu $O(T * (|E| + |S| + |P|)^3)$
+	\item Wyznaczenie elementu o najwyższej wartości funkcji przystosowania zajmie \\$O(MAX_{POP})$.
+\end{enumerate}
+Zatem w każdej iteracji najbardziej kosztownym obliczeniem będzie wyznaczenie wartości funkcji przystosowania dla każdego elementu nowej populacji. Czas wykonania tej operacji jest co najwyżej rzędu $O(MAX_{POP} * T * (|E| + |S| + |P|)^3)$ a czas wykonania całego algorytmu
+$$O(MAX_{IT} * MAX_{POP} * T * (|E| + |S| + |P|)^3)$$
 
 \newpage
 \section{Spis zawartości załączonej płyty CD}
