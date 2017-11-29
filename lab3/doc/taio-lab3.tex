@@ -1220,31 +1220,53 @@ Naszym celem jest przeprowadzenie mutacji w 3 punktach i otrzymanie nowego osobn
 
 \subsubsection{Działanie}
 % opis jak te klocki powyżej są zlepione w algorytm (może diagram jak u Felicji)
-% generacja populacji początkowej
-% ewaluacja generacji (przy pomocy fitness function i szukanie besta)
-% sprawdzenie warunków stopu
-% ewolucja:
-% 1. kontrola populacji
-% 2. krzyżowanie
-% 3. mutacja
-% zwiększenie licznika generacji i powrót do ewaluacji generacji
+Ogólny zarys algorytmu wygląda następująco
+\begin{tcolorbox}[title=Pseudokod algorytmu]
+\begin{verbatim}
+solution(max_pop, max_it, max_it_without_change, E, S, P, D):
+    population <- wygeneruj populację początkową przy pomocy 
+                  init_population
+    best, best_fitness <- None, INF
+    it_without_change <- -1
+    powtarzaj max_it razy:
+        it_without_change += 1
+        fitness_values <- []
+        dla osobnika x populacji population:
+            fitness_value <- oblicz wartość funkcji fitness_function 
+                             dla x
+            dodaj fitness_value na koniec fitness_values
+            jeśli fitness_value > 0 && best_fitness < fitness_value:
+                best, best_fitness <- x, fitness_value
+                it_without_change <- 0
+        jeśli best_fitness == 0 lub 
+              it_without_change == max_it_without_change:
+           zwróc best
+        jeśli len(population) > max_pop:
+            population <- roulette(population, max_pop)
+        population <- zastosuj krzyżowanie do populacji
+        population <- zastosuj mutację do populacji
+    zwróc best
+\end{verbatim}
+\end{tcolorbox}
+\noindent
+Zaprezentowany ogólny opis algorytmu stanowi punkt odniesienia dla analizy złożoności w sekcji \ref{complexity}
 
 \subsection{Dowód poprawności}
 \label{subsec:correctnessintervals}
 % !!! nie wiem czy dawać ten rozdział, bo tu by było że możemy dzielić na te przedziały i odpalać podstawę, ale można to w sumie wpleść gdzieś wyżej
 
-\subsection{Oszacowanie złożoności czasowej}
+\subsection{Oszacowanie złożoności czasowej} \label{complexity}
 Określając złożoność algorytmu musimy wykonać kilka spostrzeżeń:
 \begin{enumerate}
 	\item Ilość iteracji wykonania algorytmu genetycznego jest z góry ograniczona ustalonym parametrem - nazwijmy go $MAX_{IT}$. Pozostałe warunki stopu jedynie zmniejszają tą wartość.
-	\item Operacja krzyżowania wykonuje się w czasie $O(T)$, podobnie jak operacja mutacji.
+	\item Operacja krzyżowania wykonuje się w czasie $O(D)$, podobnie jak operacja mutacji.
 	\item Dla stałej $MAX_{POP}$ określającej największy rozmiar populacji, wybór osobników przy zastosowaniu metody koła ruletki odbędzie się w czasie $O(MAX_{POP})$. Pesymistycznie trzeba założyć, że metoda ta będzie stosowana w każdej iteracji algorytmu.
 	\item Złożoność funkcji rozwiązującej podproblem dla danego przedziału jest równa złożoności rozwiązania podstawowego czyli $O((|E| + |S| + |P|)^3)$
-	\item Z poprzedniego punktu wynika, że czas wyznaczenia wartości funkcji przystosowania dla chromosomu jest rzędu $O(T * (|E| + |S| + |P|)^3)$
+	\item Z poprzedniego punktu wynika, że czas wyznaczenia wartości funkcji przystosowania dla chromosomu jest rzędu $O(D * (|E| + |S| + |P|)^3)$
 	\item Wyznaczenie elementu o najwyższej wartości funkcji przystosowania zajmie \\$O(MAX_{POP})$.
 \end{enumerate}
-Zatem w każdej iteracji najbardziej kosztownym obliczeniem będzie wyznaczenie wartości funkcji przystosowania dla każdego elementu nowej populacji. Czas wykonania tej operacji jest co najwyżej rzędu $O(MAX_{POP} * T * (|E| + |S| + |P|)^3)$ a czas wykonania całego algorytmu
-$$O(MAX_{IT} * MAX_{POP} * T * (|E| + |S| + |P|)^3)$$
+Zatem w każdej iteracji najbardziej kosztownym obliczeniem będzie wyznaczenie wartości funkcji przystosowania dla każdego elementu nowej populacji. Czas wykonania tej operacji jest co najwyżej rzędu $O(MAX_{POP} * D * (|E| + |S| + |P|)^3)$ a czas wykonania całego algorytmu
+$$O(MAX_{IT} * MAX_{POP} * D * (|E| + |S| + |P|)^3)$$
 
 \newpage
 \section{Spis zawartości załączonej płyty CD}
