@@ -58,7 +58,7 @@
 		\filldraw [draw=folderborder, top color=folderbg!50, bottom color=folderbg] (-1.15*\Size,-\Size) rectangle (1.15*\Size,\Size);
 	},
 	file/.pic={%
-		\filldraw [draw=folderborder, top color=folderbg!5, bottom color=folderbg!10] (-\Size,.4*\Size+5pt) coordinate (a) |- (\Size,-1.2*\Size) coordinate (b) -- ++(0,1.6*\Size) coordinate (c) -- ++(-5pt,5pt) coordinate (d) -- cycle (d) |- (c) ;
+		\filldraw [draw=folderborder, top color=folderbg!5, bottom color=folderbg!10] (-\Size,.4*\Size+5pt) coordinate (a) |- (\Size,-0.8*\Size) coordinate (b) -- ++(0,1.2*\Size) coordinate (c) -- ++(-5pt,5pt) coordinate (d) -- cycle (d) |- (c) ;
 	},
 }
 \forestset{%
@@ -67,6 +67,7 @@
 		for tree={%
 			folder,
 			font=\ttfamily,
+			inner ysep=0.1\Size,
 			grow'=0,
 		},
 		before typesetting nodes={%
@@ -1463,7 +1464,7 @@ Zgodnie z wymaganiami przedmiotu, podczas oddawania ostatniego etapu projektu do
 \noindent
 W skład rzeczy zamieszczonych na dołączonej płycie CD wchodzi:
 \begin{itemize}
-	\item wersja elektroniczna niniejszej dokumentacji w pliku \texttt{dokumentacja.tex} znajdująca się w katalogu \texttt{/doc},
+	\item wersja elektroniczna niniejszej dokumentacji w pliku \texttt{dokumentacja.pdf} znajdująca się w katalogu \texttt{/doc},
 	\item kod źródłowy programu rozwiązującego podstawową wersję problemu (wraz z przykładowym wejściem) znajdujący się w katalogu \texttt{/src/lab2},
 	\item kod źródłowy programu rozwiązującego rozszerzoną wersję problemu (wraz z przykładowym wejściem) znajdujący się w katalogu \texttt{/src/lab3}.
 \end{itemize}
@@ -1482,7 +1483,6 @@ $ python3 main.py
 \end{verbatim}
 wywołanym katalogu \texttt{/src/lab2} lub \texttt{/src/lab3}.\\
 
-\newpage
 \noindent
 Poniższy schemat ilustruje strukturę zawartości płyty CD.\\
 \begin{center}
