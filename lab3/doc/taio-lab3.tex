@@ -889,13 +889,16 @@ gdzie ekspert $e \in E$, umiejętność $u \in U$, projekt $p \in P$ oraz liczba
 	\item ekspert $e$ posiada umiejętność $u$ (tj. $\ability(e, u) = 1$),
 	\item ekspert $e$ został przyporządkowany do~pracy w~projekcie $p$ w~dziedzinie umiejętności $u$ w~przedziale czasowym $[t_{k-1}, t_k]$.
 \end{itemize}
-Każdy ekspert $e \in E$ może być w~relacji z~co~najwyżej jedną parą postaci
+Każdy ekspert $e \in E$ może być w~relacji z~co~najwyżej jedną trójką postaci
 $(u,p,k)$, gdzie $u \in U, p \in P, k \in \{1, 2, \dots, D\}$.
 
 \noindent
 Ponadto, dla każdego projektu $p$, umiejętności $u$ i chwili $k$ musi zachodzić
 $$\assigned(p,u,k) \overset{\text{def}}{=} \left| \left\lbrace e \in E : (e,u,p,k)
 \in \assign \right\rbrace \right| \leq \need(p,u)$$
+oraz dla każdej czwórki $(e, u, p_i, k) \in \assign$ musi zachodzić
+$$ t_i \leq k \leq t_i + d_i $$
+gdzie $t_i$ jest czasem rozpoczęcia projektu $p_i$, zaś $d_i$ --- czasem trwania tego projektu.
 \end{defn}
 
 \begin{defn}
@@ -1084,33 +1087,87 @@ Wyszczególnione zostały trzy warunki:
 W przypadku dwóch ostatnich warunków stopu, liczby generacji są parametrem programu modyfikowalnym z~poziomu kodu źródłowego.
 
 \subsubsection{Kontrola populacji}
-W kolejnych iteracjach algorytmu powstają chromosomy nowej populacji. Kluczowym zjawiskiem występującym w genetyce jest ustalenie stworzenie nowej generacji bazując na osobnikach już istniejących. W świecie algorytmów genetycznych sprowadza się to do
+W kolejnych iteracjach algorytmu powstają chromosomy nowej populacji. Kluczowym zjawiskiem występującym w genetyce jest stworzenie nowej generacji bazując na osobnikach już istniejących. W świecie algorytmów genetycznych sprowadza się to do
 \begin{enumerate}
-	\item Wyboru kandydatów biorących udział w stworzeniu nowej populacji
-	\item Zastosowania operatorów genetycznych do osobników aktualnej populacji
-	\item Ograniczenia rozmiaru nowopowstałej populacji
+	\item wyboru kandydatów biorących udział w stworzeniu nowej populacji,
+	\item zastosowania operatorów genetycznych do osobników aktualnej populacji,
+	\item ograniczenia rozmiaru nowopowstałej populacji.
 \end{enumerate}
 W zależności od wartości funkcji przystosowania osobnik ma więsze lub mniejsze szanse na udział w tworzeniu kolejnego pokolenia. Istnieje wiele podejść umożliwiających wybór osobników, jednym z nich jest \textbf{metoda koła ruletki}.
 
 \subsubsection*{Metoda koła ruletki}
-Polega na wielokrotnym losowaniu chromosomu z dotychczasowej populacji uwzględniając fakt, że nie każdy osobnik ma jednakową szansę na bycie wylosowanym. Każdy z nich ma przypisane prawdopodobieństwo bycia wybranym proporcjonalne do wartości funkcji przystosowania. Warto zauważyć, że nie zapewnia to zachowania osobników o najwyższej wartości funkcji przystosowania -- jedynie zwiększa prawdopodobieństwo ich wyboru. Poniżej znajduje się pseuedokod dla tej operacji \\
+Polega na wielokrotnym losowaniu chromosomu z dotychczasowej populacji uwzględniając fakt, że nie każdy osobnik ma jednakową szansę na bycie wylosowanym. Każdy z~nich ma przypisane prawdopodobieństwo bycia wybranym.
+W~przypadku opracowanego algorytmu jest ono odwrotnie proporcjonalne do wartości funkcji przystosowania (ponieważ funkcja przystosowania jest minimalizowana). Warto zauważyć, że nie zapewnia to zachowania osobników o~najniższej wartości funkcji przystosowania -- jedynie zwiększa prawdopodobieństwo ich wyboru.\\
+
+\begin{tcolorbox}[title=Przykład --- Metoda koła ruletki]
+Załóżmy, że w~populacji znajdują~się trzy rozwiązania danego problemu o~wartościach funkcji przystosowania kolejno
+2, 4 i 5.
+Wówczas proces obliczania prawdopodobieństwa wyboru każdego z~tych rozwiązań na~etapie redukcji populacji przedstawia poniższa tabela:
+\begin{table}[H]
+\centering
+\def\arraystretch{1.5}
+\begin{tabular}{r|ccc|c}
+{} & $x_1$ & $x_2$ & $x_3$ & Suma \\
+\hline
+$\frac{1}{M(x)}$ & $\frac{1}{2}$ & $\frac{1}{4}$ & $\frac{1}{5}$ & $\frac{19}{20}$ \\
+$p(x)$ & $\frac{10}{19}$ & $\frac{5}{19}$ & $\frac{4}{19}$ & $1$
+\end{tabular}
+\caption{Sposób obliczania prawdopodobieństw wyboru osobników}
+\end{table}
+Prawdopodobieństwa te można intuicyjnie zobrazować za~pomocą wykresu kołowego:
+\begin{figure}[H]
+\centering
+\newcommand{\slice}[4]{
+  \pgfmathparse{0.5*#1+0.5*#2}
+  \let\midangle\pgfmathresult
+
+  % slice
+  \draw[thick,fill=black!10] (0,0) -- (#1:1) arc (#1:#2:1) -- cycle;
+
+  % outer label
+  \node[label=\midangle:#4] at (\midangle:1) {};
+
+  % inner label
+  \pgfmathparse{min((#2-#1-10)/110*(-0.3),0)}
+  \let\temp\pgfmathresult
+  \pgfmathparse{max(\temp,-0.5) + 0.8}
+  \let\innerpos\pgfmathresult
+  \node at (\midangle:\innerpos) {#3};
+}
+
+\begin{tikzpicture}[scale=2]
+\newcounter{a}
+\newcounter{b}
+\foreach \p/\t in {10/$x_1$, 5/$x_2$, 4/$x_3$}
+  {
+    \setcounter{a}{\value{b}}
+    \addtocounter{b}{\p}
+    \slice{\thea/19*360}
+          {\theb/19*360}
+          {$\frac{\p}{19}$}{\t}
+  }
+\end{tikzpicture}
+\caption{Wykres kołowy ilustrujący działanie ruletki.
+Stosunek pól poszczególnych wycinków kołowych do~całości pola całego koła reprezentuje prawdopodobieństwo przeżycia osobnika.}
+\end{figure}
+\end{tcolorbox}
 
 \begin{tcolorbox}[title=Metoda koła ruletki -- pseudokod]
 \begin{verbatim}
 roulette(population, new_population_size):
-    fitness_values <- []
+    probabilities <- []
     dla osobnika x populacji population:
         fitness_value <- ustal wartośc funkcji przynależności dla 
             osobnika x
-        dodaj fitness_value na koniec fitness_values
-    probabilities <- fitness_values / max(fitness_values)
+        dodaj 1 / fitness_value na koniec probabilities
+    probabilities <- probabilities / sum(probabilities)
     indices <- wybierz indeksy new_population_size elementów wektora 
         probabilities zgodnie z określonymi w nim wartościami
         prawdopodobieństwa
     new_population = []
     dla indeksu i w indices:
         dodaj osobnika population[i] do new_population
-    zwróc new_population
+    zwróć new_population
 \end{verbatim}
 \end{tcolorbox}
 
@@ -1208,7 +1265,7 @@ Niech dany będzie osobnik z populacji:
 \begin{center}
 	\texttt{m1 = [\textcolor{blue}{0}, \textcolor{blue}{1}, \textcolor{blue}{2}, \textcolor{blue}{3}, \textcolor{blue}{4}, \textcolor{blue}{5}]}.
 \end{center}
-Naszym celem jest przeprowadzenie mutacji w 3 punktach i otrzymanie nowego osobnika. Załóżmy, że wylosowane trzy indeksy punktów mutacji to 1, 3 i 4. Dla każdego genu zostanie wylosowany nowy -- inny niż poprzedni, aby mutacja przyniosła efekt. Niech nowy genami będą odpowiednio 3, 0, 5. Wówczas nowy osobnik będzie postaci:
+Naszym celem jest przeprowadzenie mutacji w 3 punktach i otrzymanie nowego osobnika. Załóżmy, że wylosowane trzy indeksy punktów mutacji to 1, 3 i 4. Dla każdego genu zostanie wylosowany nowy -- inny niż poprzedni, aby mutacja przyniosła efekt. Niech nowymi genami będą odpowiednio 3, 0, 5. Wówczas nowy osobnik będzie postaci:
 \begin{center}
 	\texttt{m2 = [\textcolor{blue}{0}, \textcolor{red}{3}, \textcolor{blue}{2}, \textcolor{red}{0}, \textcolor{red}{5}, \textcolor{blue}{5}]}.
 \end{center}
@@ -1220,7 +1277,7 @@ Naszym celem jest przeprowadzenie mutacji w 3 punktach i otrzymanie nowego osobn
 
 \subsubsection{Działanie}
 % opis jak te klocki powyżej są zlepione w algorytm (może diagram jak u Felicji)
-Ogólny zarys algorytmu wygląda następująco
+Ogólny zarys algorytmu wygląda następująco:
 \begin{tcolorbox}[title=Pseudokod algorytmu]
 \begin{verbatim}
 solution(max_pop, max_it, max_it_without_change, E, S, P, D):
@@ -1253,20 +1310,95 @@ Zaprezentowany ogólny opis algorytmu stanowi punkt odniesienia dla analizy zło
 
 \subsection{Dowód poprawności}
 \label{subsec:correctnessintervals}
-% !!! nie wiem czy dawać ten rozdział, bo tu by było że możemy dzielić na te przedziały i odpalać podstawę, ale można to w sumie wpleść gdzieś wyżej
+Z~uwagi na~fakt, że zaimplementowany algorytm genetyczny ma w~dużej mierze charakter losowy i nie~gwarantuje znalezienia rozwiązania optymalnego, nie jest możliwe przeprowadzenie konwencjonalnego dowodu jego poprawności.
+Jednakże w~przypadku uproszczeń zastosowanych w~rozwiązaniu, szczególnie na~etapie oceny pojedynczego osobnika, należy wykazać, że~ich zastosowanie nie~ma negatywnego wpływu na~całkowite działanie algorytmu.\\
+
+\noindent
+W~tej podsekcji wykażemy dwie własności rozwiązywanego problemu, które pozwalają na~zastosowanie wyżej wymienionych uproszczeń bez~pogorszenia jakości algorytmu.
+
+\begin{defn}
+Niech dane będzie pewne przyporządkowanie $\assign$ dla problemu rozszerzonego oraz wektor $t_1, t_2, \dots, t_{|P|}$ oznaczający czasy rozpoczęcia poszczególnych projektów.
+Wówczas dla dowolnej chwili $t \in \{ 1, 2, \dots, D \}$ przyporządkowanie $\assign_t$ zdefiniowane następująco:
+$$ \assign_t = \{ (e, u, p) : e \in E, u \in U, p \in P, (e, u, p, t) \in \assign \} $$
+nazywamy \textbf{przyporządkowaniem chwilowym}.
+\end{defn}
+
+\begin{thm}
+\label{thm:assignmoment}
+Dla każdego $t \in \{ 1, 2, \dots, D \}$ przyporządkowanie chwilowe $\assign_t$ jest poprawnym rozwiązaniem problemu podstawowego dla~danych wejściowych $\ability_t$, $\need_t$ postaci
+\begin{itemize}
+	\item $(\forall e \in E) (\forall u \in U) \quad \ability_t(e, u) = \ability(e, u)$,
+	\item $(\forall p_i \in P) (\forall u \in U) \quad \need_t(p, u) = \begin{cases}
+		\need(p, u) & \text{jeżeli } t_i \leq t \leq t_i + d_i, \\
+		0 & \text{w przeciwnym przypadku},
+	\end{cases}$
+\end{itemize} 
+gdzie $d_i$ jest długością projektu $p_i$.
+\end{thm}
+
+\noindent
+Powyższe twierdzenie ma na~celu uzasadnienie możliwości użycia algorytmu podstawowego do~oceny pojedynczego osobnika w~algorytmie genetycznym.
+
+\begin{proof}
+Aby udowodnić to twierdzenie, sprawdźmy, czy zaproponowane przyporządkowania spełnia warunki z~definicji \ref{defn:assign} dla problemu podstawowego.
+\begin{itemize}
+	\item Z definicji przyporządkowania, jeśli $(e, u, p, t) \in \assign$, to $\ability(e, u) = 1$.
+	\item Każdy ekspert $e \in E$ mógł być w~relacji z~co~najwyżej jedną trójką $(u, p, t)$, a~więc w~obliczu ustalenia wartości $t$, w~przyporządkowaniu $\assign_f$ może być w~relacji z~co~najwyżej jedną parą $(u, p)$.
+	\item Aby sprawdzić ostatni warunek, musimy rozpatrzyć dwa przypadki:
+	\begin{enumerate}
+		\item Jeśli projekt $p_i$ jest wykonywany w~chwili $t$ (tj. $t_i \leq k \leq t_i + d_i$), to z~definicji przyporządkowania mamy
+		$$ \assigned_f(p_i, u) = \assigned(p_i, u, t) \leq \need(p_i, u) $$
+		\item Jeśli projekt $p_i$ nie jest wykonywany w~chwili $t$, to w~przyporządkowaniu $\assign$ nie może istnieć żadna czwórka postaci $(e, u, p_i, t)$, $e \in E, u \in U$, a więc
+		$$ \assigned_f(p_i, u) = \assigned(p_i, u, t) = 0 \leq \need(p_i, u) $$
+	\end{enumerate}
+\end{itemize}
+Przyporządkowanie $\assign_f$ spełnia więc wszystkie warunki z~definicji.
+\end{proof}
+
+\begin{defn}
+\textbf{Ciągiem zdarzeń} dla rozwiązania problemu rozszerzonego będziemy nazywać rosnący ciąg $\{e_i\}_0^k$ zawierający wszystkie elementy ze zbioru
+$$ \{ t_i, t_i + d_i : i = 1, 2, \dots, |P| \} \cup \{ 0, D \} $$
+\end{defn}
+
+\begin{thm}
+Niech dane będzie pewne rozwiązanie problemu rozszerzonego oraz odpowiadające mu: przyporządkowanie $\assign$ i ciąg zdarzeń $\{e_i\}_0^k$.
+Wówczas
+$$ M(\assign) = \sum_{i=0}^{k-1} M(\assign'_{e_i}) \cdot (e_{i+1} - e_i) $$
+gdzie $\assign'_t$ oznacza rozwiązanie optymalne problemu podstawowego.
+\end{thm}
+
+\noindent
+Powyższe twierdzenie ma zaś na~celu udowodnić poprawność metody obliczania braków w~algorytmie.
+Mówi ono, że~możemy zgodnie z~opisem podzielić okno czasowe z~pomocą początków i~końców projektów i~zastosować na~nich problem podstawowy.
+
+\begin{proof}
+Założenie poczynione w~definicji zadania, mówiące o~tym, że~eksperci mogą zmieniać projekty po~zakończeniu jednostki czasu, zapewnia, że przyporządkowanie eksperta $e$ do podzadania $(u, p)$ w chwili $t$ nie ma wpływu na jego przyporządkowanie w~żadnej innej chwili.
+Wobec tego, na mocy twierdzenia \ref{thm:assignmoment} oraz możemy podzielić przyporządkowanie $\assign$ na $D$ przyporządkowań chwilowych, gdzie $D$ jest dostępną długością okna czasowego.
+Wówczas uzyskujemy
+$$ M(\assign) = \sum_{i=0}^{D} M(\assign'_i) $$
+gdzie $\assign_i$ jest przyporządkowaniem chwilowym w~chwili $i$.\\
+
+\noindent
+Zauważmy jednak,~że może się zdarzyć, że w~chwilach $t$ i $t+1$ wykonywane~są te~same projekty (tj. dla każdego projektu $p_i$ zachodzi $t_i \leq t \leq t+1 \leq t_i + d_i$).
+Wówczas, algorytm podstawowy zostanie wykonany dwukrotnie dla~tych samych danych wejściowych; z~optymalności algorytmu podstawowego otrzymujemy więc
+$$ M(\assign'_t) = M(\assign'_{t+1}) $$
+Sytuacje opisane powyżej mają miejsce dla wszystkich chwil w przedziałach $[e_i, e_{i+1})$, $i = 0, 1, \dots, k-1$,
+a~więc wobec powyższej równości otrzymujemy
+$$ M(\assign) = \sum_{i=0}^{k-1} M(\assign'_{e_i}) \cdot (e_{i+1} - e_i) $$
+\end{proof}
 
 \subsection{Oszacowanie złożoności czasowej} \label{complexity}
 Określając złożoność algorytmu musimy wykonać kilka spostrzeżeń:
 \begin{enumerate}
 	\item Ilość iteracji wykonania algorytmu genetycznego jest z góry ograniczona ustalonym parametrem - nazwijmy go $MAX_{IT}$. Pozostałe warunki stopu jedynie zmniejszają tą wartość.
-	\item Operacja krzyżowania wykonuje się w czasie $O(D)$, podobnie jak operacja mutacji.
+	\item Operacja krzyżowania wykonuje się w czasie $O(|P|)$, podobnie jak operacja mutacji.
 	\item Dla stałej $MAX_{POP}$ określającej największy rozmiar populacji, wybór osobników przy zastosowaniu metody koła ruletki odbędzie się w czasie $O(MAX_{POP})$. Pesymistycznie trzeba założyć, że metoda ta będzie stosowana w każdej iteracji algorytmu.
 	\item Złożoność funkcji rozwiązującej podproblem dla danego przedziału jest równa złożoności rozwiązania podstawowego czyli $O((|E| + |S| + |P|)^3)$
-	\item Z poprzedniego punktu wynika, że czas wyznaczenia wartości funkcji przystosowania dla chromosomu jest rzędu $O(D * (|E| + |S| + |P|)^3)$
+	\item Z poprzedniego punktu wynika, że czas wyznaczenia wartości funkcji przystosowania dla chromosomu jest rzędu $O(D \cdot (|E| + |S| + |P|)^3)$
 	\item Wyznaczenie elementu o najwyższej wartości funkcji przystosowania zajmie \\$O(MAX_{POP})$.
 \end{enumerate}
-Zatem w każdej iteracji najbardziej kosztownym obliczeniem będzie wyznaczenie wartości funkcji przystosowania dla każdego elementu nowej populacji. Czas wykonania tej operacji jest co najwyżej rzędu $O(MAX_{POP} * D * (|E| + |S| + |P|)^3)$ a czas wykonania całego algorytmu
-$$O(MAX_{IT} * MAX_{POP} * D * (|E| + |S| + |P|)^3)$$
+Zatem w każdej iteracji najbardziej kosztownym obliczeniem będzie wyznaczenie wartości funkcji przystosowania dla każdego elementu nowej populacji. Czas wykonania tej operacji jest co najwyżej rzędu $O(MAX_{POP} \cdot D \cdot (|E| + |S| + |P|)^3)$ a czas wykonania całego algorytmu
+$$O(MAX_{IT} \cdot MAX_{POP} \cdot D \cdot (|E| + |S| + |P|)^3)$$
 
 \newpage
 \section{Spis zawartości załączonej płyty CD}
