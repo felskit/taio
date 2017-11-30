@@ -1,3 +1,4 @@
+% !TeX spellcheck = pl_PL
 \documentclass[12pt,a4paper]{article}
 \usepackage[T1]{fontenc} 
 \usepackage[utf8]{inputenc}
@@ -21,6 +22,7 @@
 \pgfplotsset{compat=1.8}
 \usepgfplotslibrary{statistics}
 \usepackage{xcolor}
+\usepackage[edges]{forest}
 
 \newtheorem{lem}{Lemat}
 \newtheorem{thm}{Twierdzenie}
@@ -44,6 +46,45 @@
 \renewcommand{\lstlistingname}{Przykład}
 \lstset{
 	captionpos=b
+}
+\newlength\Size
+\setlength\Size{4pt}
+\definecolor{folderbg}{RGB}{124,166,198}
+\definecolor{folderborder}{RGB}{110,144,169}
+
+\tikzset{%
+	folder/.pic={%
+		\filldraw [draw=folderborder, top color=folderbg!50, bottom color=folderbg] (-1.05*\Size,0.2\Size+5pt) rectangle ++(.75*\Size,-0.2\Size-5pt);
+		\filldraw [draw=folderborder, top color=folderbg!50, bottom color=folderbg] (-1.15*\Size,-\Size) rectangle (1.15*\Size,\Size);
+	},
+	file/.pic={%
+		\filldraw [draw=folderborder, top color=folderbg!5, bottom color=folderbg!10] (-\Size,.4*\Size+5pt) coordinate (a) |- (\Size,-1.2*\Size) coordinate (b) -- ++(0,1.6*\Size) coordinate (c) -- ++(-5pt,5pt) coordinate (d) -- cycle (d) |- (c) ;
+	},
+}
+\forestset{%
+	declare autowrapped toks={pic me}{},
+	pic dir tree/.style={%
+		for tree={%
+			folder,
+			font=\ttfamily,
+			grow'=0,
+		},
+		before typesetting nodes={%
+			for tree={%
+				edge label+/.option={pic me},
+			},
+		},
+	},
+	pic me set/.code n args=2{%
+		\forestset{%
+			#1/.style={%
+				inner xsep=2\Size,
+				pic me={pic {#2}},
+			}
+		}
+	},
+	pic me set={directory}{folder},
+	pic me set={file}{file},
 }
 
 \begin{document}
@@ -1087,19 +1128,19 @@ Wyszczególnione zostały trzy warunki:
 W przypadku dwóch ostatnich warunków stopu, liczby generacji są parametrem programu modyfikowalnym z~poziomu kodu źródłowego.
 
 \subsubsection{Kontrola populacji}
-W kolejnych iteracjach algorytmu powstają chromosomy nowej populacji. Kluczowym zjawiskiem występującym w genetyce jest stworzenie nowej generacji bazując na osobnikach już istniejących. W świecie algorytmów genetycznych sprowadza się to do
+W kolejnych iteracjach algorytmu powstają chromosomy nowej populacji. Kluczowym zjawiskiem występującym w genetyce jest stworzenie nowej generacji bazując na osobnikach już istniejących. W świecie algorytmów genetycznych sprowadza się to do:
 \begin{enumerate}
 	\item wyboru kandydatów biorących udział w stworzeniu nowej populacji,
 	\item zastosowania operatorów genetycznych do osobników aktualnej populacji,
 	\item ograniczenia rozmiaru nowopowstałej populacji.
 \end{enumerate}
-W zależności od wartości funkcji przystosowania osobnik ma więsze lub mniejsze szanse na udział w tworzeniu kolejnego pokolenia. Istnieje wiele podejść umożliwiających wybór osobników, jednym z nich jest \textbf{metoda koła ruletki}.
+W zależności od wartości funkcji przystosowania osobnik ma większe lub mniejsze szanse na udział w tworzeniu kolejnego pokolenia. Istnieje wiele podejść umożliwiających wybór osobników, jednym z nich jest \textbf{metoda koła ruletki}.
 
 \subsubsection*{Metoda koła ruletki}
 Polega na wielokrotnym losowaniu chromosomu z dotychczasowej populacji uwzględniając fakt, że nie każdy osobnik ma jednakową szansę na bycie wylosowanym. Każdy z~nich ma przypisane prawdopodobieństwo bycia wybranym.
 W~przypadku opracowanego algorytmu jest ono odwrotnie proporcjonalne do wartości funkcji przystosowania (ponieważ funkcja przystosowania jest minimalizowana). Warto zauważyć, że nie zapewnia to zachowania osobników o~najniższej wartości funkcji przystosowania -- jedynie zwiększa prawdopodobieństwo ich wyboru.\\
 
-\begin{tcolorbox}[title=Przykład --- Metoda koła ruletki]
+\begin{tcolorbox}[title=Przykład --- metoda koła ruletki]
 Załóżmy, że w~populacji znajdują~się trzy rozwiązania danego problemu o~wartościach funkcji przystosowania kolejno
 2, 4 i 5.
 Wówczas proces obliczania prawdopodobieństwa wyboru każdego z~tych rozwiązań na~etapie redukcji populacji przedstawia poniższa tabela:
@@ -1172,13 +1213,13 @@ roulette(population, new_population_size):
 \end{tcolorbox}
 
 \subsubsection*{Uwagi}
-Po zastosowaniu przede wszystkim operatora mutacji może okazać się, że nowopowstały osobnik nie jest poprawnym rozwiązaniem. Przykładowo, patrząc na rozpatrywany problem byłby tak, gdyby chwila rozpoczęcia wykonania projektu wypadłaby zbyt późno tzn. projekt mógłby zakończyć się po upływie ustalonego na wykonanie wszystkich projektów okna czasu. \\
+Po zastosowaniu przede wszystkim operatora mutacji może okazać się, że nowo powstały osobnik nie jest poprawnym rozwiązaniem. Przykładowo, patrząc na rozpatrywany problem byłby tak, gdyby chwila rozpoczęcia wykonania projektu wypadłaby zbyt późno tzn. projekt mógłby zakończyć się po upływie ustalonego na wykonanie wszystkich projektów okna czasu. \\
 
 \noindent 
 W zastosowanym podejściu ustalono, że najlepsze wyniki można uzyskać przy zastosowaniu metody koła ruletki dopiero po przekroczeniu z góry ustalonej wielkości populacji. W innych przypadkach następna populacja jest inicjowana osobnikami populacji poprzedniej. \\
 
 \noindent
-W szczególnych przypadkach po zastosowaniu operatorów mutacji i krzyżowania mogłoby dojść do sytuacji, gdzie wszystkie osobniki nie odpowiadałyby poprawnej definicji problemu. Taka sytuacja może wyniknąć m.in. ze złego wyboru parametrów mutacji. Jeśli tak się stanie to algorytm zakończcy działanie.
+W szczególnych przypadkach po zastosowaniu operatorów mutacji i krzyżowania mogłoby dojść do sytuacji, gdzie wszystkie osobniki nie odpowiadałyby poprawnej definicji problemu. Taka sytuacja może wyniknąć m.in. ze złego wyboru parametrów mutacji. Jeśli tak się stanie to algorytm zakończy działanie.
 
 \subsubsection{Krzyżowanie osobników}
 Jedną z idei algorytmów genetycznych jest symulacja ewolucji, którą można zaobserwować w przyrodzie. Odbywa się to za pomocą operatorów genetycznych: krzyżowania i mutacji.\\
@@ -1275,9 +1316,10 @@ Naszym celem jest przeprowadzenie mutacji w 3 punktach i otrzymanie nowego osobn
 \noindent
  Analogicznie do operacji krzyżowania, zmutowany osobnik zostanie dodany do populacji tylko, jeżeli jeszcze w niej nie występuje. Szansa na to, że dany osobnik zostanie poddany mutacji jest także parametrem algorytmu genetycznego, który zależy od rozwiązywanego zadania i jego rozmiaru.
 
+\newpage
 \subsubsection{Działanie}
 % opis jak te klocki powyżej są zlepione w algorytm (może diagram jak u Felicji)
-Ogólny zarys algorytmu wygląda następująco:
+Ogólny zarys algorytmu wygląda następująco:\\
 \begin{tcolorbox}[title=Pseudokod algorytmu]
 \begin{verbatim}
 solution(max_pop, max_it, max_it_without_change, E, S, P, D):
@@ -1297,25 +1339,28 @@ solution(max_pop, max_it, max_it_without_change, E, S, P, D):
                 it_without_change <- 0
         jeśli best_fitness == 0 lub 
               it_without_change == max_it_without_change:
-           zwróc best
+           zwróć best
         jeśli len(population) > max_pop:
             population <- roulette(population, max_pop)
         population <- zastosuj krzyżowanie do populacji
         population <- zastosuj mutację do populacji
-    zwróc best
+    zwróć best
 \end{verbatim}
 \end{tcolorbox}
+
+\vspace{0.5em}
 \noindent
 Zaprezentowany ogólny opis algorytmu stanowi punkt odniesienia dla analizy złożoności w sekcji \ref{complexity}
 
 \subsection{Dowód poprawności}
 \label{subsec:correctnessintervals}
 Z~uwagi na~fakt, że zaimplementowany algorytm genetyczny ma w~dużej mierze charakter losowy i nie~gwarantuje znalezienia rozwiązania optymalnego, nie jest możliwe przeprowadzenie konwencjonalnego dowodu jego poprawności.
-Jednakże w~przypadku uproszczeń zastosowanych w~rozwiązaniu, szczególnie na~etapie oceny pojedynczego osobnika, należy wykazać, że~ich zastosowanie nie~ma negatywnego wpływu na~całkowite działanie algorytmu.\\
+Jednakże w~przypadku uproszczeń zastosowanych w~rozwiązaniu, szczególnie na~etapie oceny pojedynczego osobnika, należy wykazać, że nie~mają one negatywnego wpływu na~całościowe działanie algorytmu.\\
 
 \noindent
 W~tej podsekcji wykażemy dwie własności rozwiązywanego problemu, które pozwalają na~zastosowanie wyżej wymienionych uproszczeń bez~pogorszenia jakości algorytmu.
 
+\newpage
 \begin{defn}
 Niech dane będzie pewne przyporządkowanie $\assign$ dla problemu rozszerzonego oraz wektor $t_1, t_2, \dots, t_{|P|}$ oznaczający czasy rozpoczęcia poszczególnych projektów.
 Wówczas dla dowolnej chwili $t \in \{ 1, 2, \dots, D \}$ przyporządkowanie $\assign_t$ zdefiniowane następująco:
@@ -1402,7 +1447,66 @@ $$O(MAX_{IT} \cdot MAX_{POP} \cdot D \cdot (|E| + |S| + |P|)^3)$$
 
 \newpage
 \section{Spis zawartości załączonej płyty CD}
-% co na płytce wypalimy chyba kod lab2 (tylko trzeba będzie skopiować poprawiony z lab3) i kod lab3
+Zgodnie z wymaganiami przedmiotu, podczas oddawania ostatniego etapu projektu do dokumentacji końcowej została załączona płyta CD. Opisane w niniejszej dokumentacji algorytmy zostały zaimplementowane w języku skryptowym Python, więc nie zostały załączone skompilowane pliki wykonywalne.\\
+
+\noindent
+W skład rzeczy zamieszczonych na dołączonej płycie CD wchodzi:
+\begin{itemize}
+	\item wersja elektroniczna niniejszej dokumentacji w pliku \texttt{dokumentacja.tex} znajdująca się w katalogu \texttt{/doc},
+	\item kod źródłowy programu rozwiązującego podstawową wersję problemu (wraz z przykładowym wejściem) znajdujący się w katalogu \texttt{/src/lab2},
+	\item kod źródłowy programu rozwiązującego rozszerzoną wersję problemu (wraz z przykładowym wejściem) znajdujący się w katalogu \texttt{/src/lab3}.
+\end{itemize}
+
+\noindent
+Pliki tekstowe zawierające przykładowe wejścia dla podstawowej i rozszerzonej wersji problemu noszą nazwę \texttt{input.txt} i znajdują się w głównych katalogach zawierających kody źródłowe poszczególnych programów, czyli odpowiednio \texttt{/src/lab2} i \texttt{/src/lab3}.\\
+
+\noindent
+Przed uruchomieniem należy się upewnić, że na komputerze znajduje się interpreter Pythona w wersji 3.X i moduł \texttt{networkx}, który dostarcza graf skierowany wykorzystywany w rozwiązaniach. Bibliotekę \texttt{networkx} można pobrać przy pomocy Pythonowego menedżera paczek \texttt{pip} wpisując w konsoli polecenie:
+\begin{verbatim}
+$ pip3 install networkx
+\end{verbatim}
+Wówczas możliwe będzie uruchomienie programów poleceniem
+\begin{verbatim}
+$ python3 main.py
+\end{verbatim}
+wywołanym katalogu \texttt{/src/lab2} lub \texttt{/src/lab3}.\\
+
+\noindent
+Poniższy schemat ilustruje strukturę zawartości płyty CD.\\
+\begin{center}
+	\begin{forest}
+		pic dir tree,
+		where level=0{}{% folder icons by default; override using file for file icons
+			directory,
+		},
+		[CD
+			[doc
+				[dokumentacja.pdf, file
+				]
+			]
+			[src
+				[lab2
+					[src
+					]
+					[test
+					]
+					[input.txt, file
+					]
+					[main.py, file
+					]
+				]
+				[lab3
+					[src
+					]
+					[input.txt, file
+					]
+					[main.py, file
+					]
+				]
+			]
+		]
+	\end{forest}
+\end{center}
 
 \newpage
 \begin{thebibliography}{9}
