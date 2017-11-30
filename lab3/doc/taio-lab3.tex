@@ -1109,6 +1109,7 @@ fitness_function(m):
 Dla uproszczenia w~pseudokodzie pominięto zapamiętywanie wyznaczonego przyporządkowania.
 W~faktycznym programie przyporządkowania pamiętane są jednak razem z~wyznaczoną wartością funkcji przystosowania, aby nie liczyć ich wielokrotnie.
 
+\newpage
 \subsubsection{Wybór najlepszego osobnika z~populacji}
 Wartość funkcji przystosowania obliczana jest na~początku algorytmu dla~całej populacji początkowej oraz w~każdej kolejnej generacji dla~osobników nowo dodanych do~populacji.
 Program wyznacza najlepszego osobnika znajdującego się w~populacji w~obecnej generacji i porównuje go z~najlepszym osobnikiem znalezionym do tej pory. \\
@@ -1373,12 +1374,12 @@ nazywamy \textbf{przyporządkowaniem chwilowym}.
 Dla każdego $t \in \{ 1, 2, \dots, D \}$ przyporządkowanie chwilowe $\assign_t$ jest poprawnym rozwiązaniem problemu podstawowego dla~danych wejściowych $\ability_t$, $\need_t$ postaci
 \begin{itemize}
 	\item $(\forall e \in E) (\forall u \in U) \quad \ability_t(e, u) = \ability(e, u)$,
-	\item $(\forall p_i \in P) (\forall u \in U) \quad \need_t(p, u) = \begin{cases}
-		\need(p, u) & \text{jeżeli } t_i \leq t \leq t_i + d_i, \\
+	\item $(\forall p_i \in P) (\forall u \in U) \quad \need_t(p_i, u) = \begin{cases}
+		\need(p_i, u) & \text{jeżeli } t_i \leq t \leq t_i + d_i, \\
 		0 & \text{w przeciwnym przypadku},
 	\end{cases}$
 \end{itemize} 
-gdzie $d_i$ jest długością projektu $p_i$.
+gdzie $d_i$ jest długością projektu $p_i$, a $t_i$ jego czasem rozpoczęcia.
 \end{thm}
 
 \noindent
@@ -1388,25 +1389,26 @@ Powyższe twierdzenie ma na~celu uzasadnienie możliwości użycia algorytmu pod
 Aby udowodnić to twierdzenie, sprawdźmy, czy zaproponowane przyporządkowania spełnia warunki z~definicji \ref{defn:assign} dla problemu podstawowego.
 \begin{itemize}
 	\item Z definicji przyporządkowania, jeśli $(e, u, p, t) \in \assign$, to $\ability(e, u) = 1$.
-	\item Każdy ekspert $e \in E$ mógł być w~relacji z~co~najwyżej jedną trójką $(u, p, t)$, a~więc w~obliczu ustalenia wartości $t$, w~przyporządkowaniu $\assign_f$ może być w~relacji z~co~najwyżej jedną parą $(u, p)$.
+	\item Każdy ekspert $e \in E$ mógł być w~relacji z~co~najwyżej jedną trójką $(u, p, t)$, a~więc w~obliczu ustalenia wartości $t$, w~przyporządkowaniu $\assign_t$ może być w~relacji z~co~najwyżej jedną parą $(u, p)$.
 	\item Aby sprawdzić ostatni warunek, musimy rozpatrzyć dwa przypadki:
 	\begin{enumerate}
-		\item Jeśli projekt $p_i$ jest wykonywany w~chwili $t$ (tj. $t_i \leq k \leq t_i + d_i$), to z~definicji przyporządkowania mamy
-		$$ \assigned_f(p_i, u) = \assigned(p_i, u, t) \leq \need(p_i, u) $$
+		\item Jeśli projekt $p_i$ jest wykonywany w~chwili $t$ (tj. $t_i \leq t \leq t_i + d_i$), to z~definicji przyporządkowania mamy
+		$$ \assigned_t(p_i, u) = \assigned(p_i, u, t) \leq \need(p_i, u) $$
 		\item Jeśli projekt $p_i$ nie jest wykonywany w~chwili $t$, to w~przyporządkowaniu $\assign$ nie może istnieć żadna czwórka postaci $(e, u, p_i, t)$, $e \in E, u \in U$, a więc
-		$$ \assigned_f(p_i, u) = \assigned(p_i, u, t) = 0 \leq \need(p_i, u) $$
+		$$ \assigned_t(p_i, u) = \assigned(p_i, u, t) = 0 \leq \need(p_i, u) $$
 	\end{enumerate}
 \end{itemize}
-Przyporządkowanie $\assign_f$ spełnia więc wszystkie warunki z~definicji.
+Przyporządkowanie $\assign_t$ spełnia więc wszystkie warunki z~definicji.
 \end{proof}
 
 \begin{defn}
 \textbf{Ciągiem zdarzeń} dla rozwiązania problemu rozszerzonego będziemy nazywać rosnący ciąg $\{e_i\}_0^k$ zawierający wszystkie elementy ze zbioru
 $$ \{ t_i, t_i + d_i : i = 1, 2, \dots, |P| \} \cup \{ 0, D \} $$
+gdzie $t_i$ oznacza początek wykonywania projektu $p_i$, $d_i$ --- długość projektu $p_i$, zaś $D$ --- długość okna czasowego przeznaczonego na~wykonanie projektów.
 \end{defn}
 
 \begin{thm}
-Niech dane będzie pewne rozwiązanie problemu rozszerzonego oraz odpowiadające mu: przyporządkowanie $\assign$ i ciąg zdarzeń $\{e_i\}_0^k$.
+Niech dane będzie pewne optymalne rozwiązanie problemu rozszerzonego oraz odpowiadające mu: przyporządkowanie $\assign$ i ciąg zdarzeń $\{e_i\}_0^k$.
 Wówczas
 $$ M(\assign) = \sum_{i=0}^{k-1} M(\assign'_{e_i}) \cdot (e_{i+1} - e_i) $$
 gdzie $\assign'_t$ oznacza rozwiązanie optymalne problemu podstawowego.
@@ -1420,7 +1422,7 @@ Mówi ono, że~możemy zgodnie z~opisem podzielić okno czasowe z~pomocą począ
 Założenie poczynione w~definicji zadania, mówiące o~tym, że~eksperci mogą zmieniać projekty po~zakończeniu jednostki czasu, zapewnia, że przyporządkowanie eksperta $e$ do podzadania $(u, p)$ w chwili $t$ nie ma wpływu na jego przyporządkowanie w~żadnej innej chwili.
 Wobec tego, na mocy twierdzenia \ref{thm:assignmoment} oraz możemy podzielić przyporządkowanie $\assign$ na $D$ przyporządkowań chwilowych, gdzie $D$ jest dostępną długością okna czasowego.
 Wówczas uzyskujemy
-$$ M(\assign) = \sum_{i=0}^{D} M(\assign'_i) $$
+$$ M(\assign) = \sum_{i=1}^{D} M(\assign'_i) $$
 gdzie $\assign_i$ jest przyporządkowaniem chwilowym w~chwili $i$.\\
 
 \noindent
@@ -1438,12 +1440,21 @@ Określając złożoność algorytmu musimy wykonać kilka spostrzeżeń:
 	\item Ilość iteracji wykonania algorytmu genetycznego jest z góry ograniczona ustalonym parametrem - nazwijmy go $MAX_{IT}$. Pozostałe warunki stopu jedynie zmniejszają tą wartość.
 	\item Operacja krzyżowania wykonuje się w czasie $O(|P|)$, podobnie jak operacja mutacji.
 	\item Dla stałej $MAX_{POP}$ określającej największy rozmiar populacji, wybór osobników przy zastosowaniu metody koła ruletki odbędzie się w czasie $O(MAX_{POP})$. Pesymistycznie trzeba założyć, że metoda ta będzie stosowana w każdej iteracji algorytmu.
-	\item Złożoność funkcji rozwiązującej podproblem dla danego przedziału jest równa złożoności rozwiązania podstawowego czyli $O((|E| + |S| + |P|)^3)$
+	\item Złożoność funkcji rozwiązującej podproblem dla danego przedziału jest równa złożoności rozwiązania podstawowego czyli $O((|E| + |S| + |P|)^3)$ (uzasadnienie w sekcji \ref{boundedflow})
 	\item Z poprzedniego punktu wynika, że czas wyznaczenia wartości funkcji przystosowania dla chromosomu jest rzędu $O(D \cdot (|E| + |S| + |P|)^3)$
 	\item Wyznaczenie elementu o najwyższej wartości funkcji przystosowania zajmie \\$O(MAX_{POP})$.
 \end{enumerate}
 Zatem w każdej iteracji najbardziej kosztownym obliczeniem będzie wyznaczenie wartości funkcji przystosowania dla każdego elementu nowej populacji. Czas wykonania tej operacji jest co najwyżej rzędu $O(MAX_{POP} \cdot D \cdot (|E| + |S| + |P|)^3)$ a czas wykonania całego algorytmu
 $$O(MAX_{IT} \cdot MAX_{POP} \cdot D \cdot (|E| + |S| + |P|)^3)$$
+
+\subsubsection{Złożoność problemu podstawowego} \label{boundedflow}
+Uzasadnienie, że złożoność czasowa rozwiązania problemu podstawowego jest rzędu $O((|E| + |S| + |P|)^3)$ wymaga zauważenia dwóch faktów. Oznaczmy graf reprezentujący pewne zadanie problemu podstawowego jako $G$, $G_E$ będzie zbiorem jego krawędzi, a $G_V$ zbiorem wierzchołków.
+\begin{enumerate}
+	\item W każdej iteracji algorytmu Edmondsa-Karpa (czyli po znalezieniu ścieżki rozszerzającej w czasie $O(|G_E|)$) monotonnicznie zwiększa się wartość bieżącego przepływu. Fakt ten wynika bezpośrednio z definicji ścieżki rozszerzającej.
+	\item Ograniczeniem górnym na wartość przepływu jest liczba ekspertów. Wynika to z konstrukcji grafu w problemie podstawowym - źródło jest połączone jedynie z wierzchołkami odpowiadającymi ekspertom. Ponadto, są to krawędzie o przepustowości $1$. Zatem największą możliwą wartością przepływu jest $|E|$.
+\end{enumerate}
+Fakt pierwszy stanowi przypomnienie ogólnej koncepcji algorytmów opartych o pomysł Forda-Fulkersona. Fakt drugi nakłada ograniczenie na wartość przepływu czyli liczbę iteracji algorytmu lub też na liczbę wykonań operacji wyszukiwania ścieżki rozszerzającej. Ponadto liczbę ekspertów możemy ograniczyć przez liczność zbioru wierzchołków grafu. Ostatecznie otrzymujemy:
+$$O(|G_E|) * O(|E|) = O(|G_V|^2) * O(|G_V|) = O(|G_V|^3) = O((|E| + |S| + |P|)^3)$$
 
 \newpage
 \section{Spis zawartości załączonej płyty CD}
@@ -1458,19 +1469,20 @@ W skład rzeczy zamieszczonych na dołączonej płycie CD wchodzi:
 \end{itemize}
 
 \noindent
-Pliki tekstowe zawierające przykładowe wejścia dla podstawowej i rozszerzonej wersji problemu noszą nazwę \texttt{input.txt} i znajdują się w głównych katalogach zawierających kody źródłowe poszczególnych programów, czyli odpowiednio \texttt{/src/lab2} i \texttt{/src/lab3}.\\
+Pliki tekstowe zawierające przykładowe wejścia dla podstawowej i rozszerzonej wersji problemu noszą nazwę \texttt{input.txt} i znajdują się w głównych katalogach projektów, czyli odpowiednio \texttt{/src/lab2} i \texttt{/src/lab3}.\\
 
 \noindent
-Przed uruchomieniem należy się upewnić, że na komputerze znajduje się interpreter Pythona w wersji 3.X i moduł \texttt{networkx}, który dostarcza graf skierowany wykorzystywany w rozwiązaniach. Bibliotekę \texttt{networkx} można pobrać przy pomocy Pythonowego menedżera paczek \texttt{pip} wpisując w konsoli polecenie:
+Przed uruchomieniem należy się upewnić, że na komputerze znajduje się interpreter Pythona w wersji 3.x i moduł \texttt{networkx}, który dostarcza graf skierowany wykorzystywany w przygotowanych rozwiązaniach. Bibliotekę \texttt{networkx} można pobrać przy pomocy Pythonowego menedżera paczek \texttt{pip} wpisując w konsoli polecenie:
 \begin{verbatim}
 $ pip3 install networkx
 \end{verbatim}
-Wówczas możliwe będzie uruchomienie programów poleceniem
+Wówczas możliwe będzie uruchomienie każdego z programów poleceniem
 \begin{verbatim}
 $ python3 main.py
 \end{verbatim}
 wywołanym katalogu \texttt{/src/lab2} lub \texttt{/src/lab3}.\\
 
+\newpage
 \noindent
 Poniższy schemat ilustruje strukturę zawartości płyty CD.\\
 \begin{center}
