@@ -47,6 +47,7 @@
 \lstset{
 	captionpos=b
 }
+
 \newlength\Size
 \setlength\Size{4pt}
 \definecolor{folderbg}{RGB}{124,166,198}
@@ -58,7 +59,7 @@
 		\filldraw [draw=folderborder, top color=folderbg!50, bottom color=folderbg] (-1.15*\Size,-\Size) rectangle (1.15*\Size,\Size);
 	},
 	file/.pic={%
-		\filldraw [draw=folderborder, top color=folderbg!5, bottom color=folderbg!10] (-\Size,.4*\Size+5pt) coordinate (a) |- (\Size,-0.8*\Size) coordinate (b) -- ++(0,1.2*\Size) coordinate (c) -- ++(-5pt,5pt) coordinate (d) -- cycle (d) |- (c) ;
+		\filldraw [draw=folderborder, top color=folderbg!5, bottom color=folderbg!10] (-\Size,.4*\Size+5pt) coordinate (a) |- (\Size,-1.2*\Size) coordinate (b) -- ++(0,1.6*\Size) coordinate (c) -- ++(-5pt,5pt) coordinate (d) -- cycle (d) |- (c) ;
 	},
 }
 \forestset{%
@@ -67,7 +68,6 @@
 		for tree={%
 			folder,
 			font=\ttfamily,
-			inner ysep=0.1\Size,
 			grow'=0,
 		},
 		before typesetting nodes={%
@@ -756,7 +756,7 @@ $$[2, 0, 5, 0, 0, 3]$$
 Ważnym jest, że jednostki czasu są niepodzielne i zarówno ogólny czas przeznaczony na~wykonanie wszystkich projektów, jak i czas realizacji poszczególnych projektów musi wynosić przynajmniej jedną jednostkę czasu. Dodatkowo zakładamy również, że~wymagania każdego projektu są~stałe w~każdej jednostce czasu jego trwania.\\
 
 \noindent
-Ekspert zatrudniony do pracy nad projektem $P_1$ w jednostce czasu od chwili $t_k$ do chwili $t_{k+1}$ nie będzie mógł brać udziału w równoległym projekcie $P_2$ w tej jednostce czasu. Ponadto każdy ekspert podczas pracy nad projektem może nadal wykorzystywać tylko jedną z posiadanych umiejętności i nie może jej zmienić w trakcie trwania jednostki czasu. Jest możliwa natomiast zmiana projektu i/lub umiejętności po upływie danej jednostki czasu. Wspomniany ekspert mógłby w jednostce czasu od chwili $t_{k+1}$ do chwili $t_{k+2}$ dalej pracować nad projektem $P_1$ wykorzystując tę samą lub inną umiejętność albo zmienić projekt na $P_2$ i pracować na wcześniej wspomnianych zasadach.\\
+Ekspert zatrudniony do pracy nad projektem $P_1$ w jednostce czasu od chwili $t_k$ do chwili $t_{k}$ nie będzie mógł brać udziału w równoległym projekcie $P_2$ w tej jednostce czasu. Ponadto każdy ekspert podczas pracy nad projektem może nadal wykorzystywać tylko jedną z posiadanych umiejętności i nie może jej zmienić w trakcie trwania jednostki czasu. Jest możliwa natomiast zmiana projektu i/lub umiejętności po upływie danej jednostki czasu. Wspomniany ekspert mógłby w jednostce czasu od chwili $t_{k+1}$ do chwili $t_{k+2}$ dalej pracować nad projektem $P_1$ wykorzystując tę samą lub inną umiejętność albo zmienić projekt na $P_2$ i pracować na wcześniej wspomnianych zasadach.\\
 
 \noindent
 Definicja braków i jej założenia są nadal podtrzymywane. Różnica w rozszerzonym problemie dotyczy ich interpretacji, ponieważ braki i przyporządkowania rozpatrujemy teraz w danej jednostce czasu. Oznacza to, że zarówno braki jak i przyporządkowania ekspertów do danego projektu mogą się różnić na przestrzeni czasu, a ostateczna liczba braków jest równa sumie wszystkich braków w czasie trwania procesu wytwórczego projektu.\\
@@ -1218,7 +1218,7 @@ roulette(population, new_population_size):
 Po zastosowaniu przede wszystkim operatora mutacji może okazać się, że nowo powstały osobnik nie jest poprawnym rozwiązaniem. Przykładowo, patrząc na rozpatrywany problem byłby tak, gdyby chwila rozpoczęcia wykonania projektu wypadłaby zbyt późno tzn. projekt mógłby zakończyć się po upływie ustalonego na wykonanie wszystkich projektów okna czasu. \\
 
 \noindent 
-W zastosowanym podejściu ustalono, że najlepsze wyniki można uzyskać przy zastosowaniu metody koła ruletki dopiero po przekroczeniu z góry ustalonej wielkości populacji. W innych przypadkach następna populacja jest inicjowana osobnikami populacji poprzedniej. \\
+W zastosowanym podejściu ustalono, że najlepsze wyniki można uzyskać przy zastosowaniu metody koła ruletki dopiero po przekroczeniu z góry ustalonej wielkości populacji. W~innych przypadkach następna populacja jest inicjowana osobnikami populacji poprzedniej. \\
 
 \noindent
 W szczególnych przypadkach po zastosowaniu operatorów mutacji i krzyżowania mogłoby dojść do sytuacji, gdzie wszystkie osobniki nie odpowiadałyby poprawnej definicji problemu. Taka sytuacja może wyniknąć m.in. ze złego wyboru parametrów mutacji. Jeśli tak się stanie to algorytm zakończy działanie.
@@ -1438,21 +1438,21 @@ $$ M(\assign) = \sum_{i=0}^{k-1} M(\assign'_{e_i}) \cdot (e_{i+1} - e_i) $$
 \subsection{Oszacowanie złożoności czasowej} \label{complexity}
 Określając złożoność algorytmu musimy wykonać kilka spostrzeżeń:
 \begin{enumerate}
-	\item Ilość iteracji wykonania algorytmu genetycznego jest z góry ograniczona ustalonym parametrem - nazwijmy go $MAX_{IT}$. Pozostałe warunki stopu jedynie zmniejszają tą wartość.
+	\item Ilość iteracji wykonania algorytmu genetycznego jest z góry ograniczona ustalonym parametrem - nazwijmy go $MAX_{IT}$. Pozostałe warunki stopu jedynie zmniejszają tę wartość.
 	\item Operacja krzyżowania wykonuje się w czasie $O(|P|)$, podobnie jak operacja mutacji.
 	\item Dla stałej $MAX_{POP}$ określającej największy rozmiar populacji, wybór osobników przy zastosowaniu metody koła ruletki odbędzie się w czasie $O(MAX_{POP})$. Pesymistycznie trzeba założyć, że metoda ta będzie stosowana w każdej iteracji algorytmu.
 	\item Złożoność funkcji rozwiązującej podproblem dla danego przedziału jest równa złożoności rozwiązania podstawowego czyli $O((|E| + |S| + |P|)^3)$ (uzasadnienie w sekcji \ref{boundedflow})
 	\item Z poprzedniego punktu wynika, że czas wyznaczenia wartości funkcji przystosowania dla chromosomu jest rzędu $O(D \cdot (|E| + |S| + |P|)^3)$
 	\item Wyznaczenie elementu o najwyższej wartości funkcji przystosowania zajmie \\$O(MAX_{POP})$.
 \end{enumerate}
-Zatem w każdej iteracji najbardziej kosztownym obliczeniem będzie wyznaczenie wartości funkcji przystosowania dla każdego elementu nowej populacji. Czas wykonania tej operacji jest co najwyżej rzędu $O(MAX_{POP} \cdot D \cdot (|E| + |S| + |P|)^3)$ a czas wykonania całego algorytmu
+Zatem w każdej iteracji najbardziej kosztownym obliczeniem będzie wyznaczenie wartości funkcji przystosowania dla każdego elementu nowej populacji. Czas wykonania tej operacji jest co najwyżej rzędu $O(MAX_{POP} \cdot D \cdot (|E| + |S| + |P|)^3)$, a czas wykonania całego algorytmu:
 $$O(MAX_{IT} \cdot MAX_{POP} \cdot D \cdot (|E| + |S| + |P|)^3)$$
 
 \subsubsection{Złożoność problemu podstawowego} \label{boundedflow}
 Uzasadnienie, że złożoność czasowa rozwiązania problemu podstawowego jest rzędu $O((|E| + |S| + |P|)^3)$ wymaga zauważenia dwóch faktów. Oznaczmy graf reprezentujący pewne zadanie problemu podstawowego jako $G$, $G_E$ będzie zbiorem jego krawędzi, a $G_V$ zbiorem wierzchołków.
 \begin{enumerate}
-	\item W każdej iteracji algorytmu Edmondsa-Karpa (czyli po znalezieniu ścieżki rozszerzającej w czasie $O(|G_E|)$) monotonnicznie zwiększa się wartość bieżącego przepływu. Fakt ten wynika bezpośrednio z definicji ścieżki rozszerzającej.
-	\item Ograniczeniem górnym na wartość przepływu jest liczba ekspertów. Wynika to z konstrukcji grafu w problemie podstawowym - źródło jest połączone jedynie z wierzchołkami odpowiadającymi ekspertom. Ponadto, są to krawędzie o przepustowości $1$. Zatem największą możliwą wartością przepływu jest $|E|$.
+	\item W każdej iteracji algorytmu Edmondsa-Karpa (czyli po znalezieniu ścieżki rozszerzającej w czasie $O(|G_E|)$) monotoniczne zwiększa się wartość bieżącego przepływu. Fakt ten wynika bezpośrednio z definicji ścieżki rozszerzającej.
+	\item Ograniczeniem górnym na wartość przepływu jest liczba ekspertów. Wynika to z~konstrukcji grafu w problemie podstawowym - źródło jest połączone jedynie z~wierzchołkami odpowiadającymi ekspertom. Ponadto, są to krawędzie o przepustowości $1$. Zatem największą możliwą wartością przepływu jest $|E|$.
 \end{enumerate}
 Fakt pierwszy stanowi przypomnienie ogólnej koncepcji algorytmów opartych o pomysł Forda-Fulkersona. Fakt drugi nakłada ograniczenie na wartość przepływu czyli liczbę iteracji algorytmu lub też na liczbę wykonań operacji wyszukiwania ścieżki rozszerzającej. Ponadto liczbę ekspertów możemy ograniczyć przez liczność zbioru wierzchołków grafu. Ostatecznie otrzymujemy:
 $$O(|G_E|) * O(|E|) = O(|G_V|^2) * O(|G_V|) = O(|G_V|^3) = O((|E| + |S| + |P|)^3)$$
@@ -1473,6 +1473,12 @@ W skład rzeczy zamieszczonych na dołączonej płycie CD wchodzi:
 Pliki tekstowe zawierające przykładowe wejścia dla podstawowej i rozszerzonej wersji problemu noszą nazwę \texttt{input.txt} i znajdują się w głównych katalogach projektów, czyli odpowiednio \texttt{/src/lab2} i \texttt{/src/lab3}.\\
 
 \noindent
+Plik wejściowy dla podstawowej wersji problemu powinien zawierać dodatnią liczbę umiejętności (ozn. \texttt{u}), nieujemną liczbę ekspertów (ozn. \texttt{e}) i nieujemną liczbę projektów (ozn. \texttt{p}) rozdzielone przecinkami w pierwszej linii. Kolejne \texttt{e} linii powinno zawierać wektory umiejętności ekspertów (binarne), a następujące po nich \texttt{p} linii -- wektory zapotrzebowań projektów (naturalne). Wszystkie wektory powinny być długości \texttt{u} i zawierać elementy rozdzielone przecinkami.\\
+
+\noindent
+Plik wejściowy dla rozszerzonej wersji problemu został poszerzony o czwarty parametr w~pierwszej linii -- dodatnią liczbę jednostek czasu przeznaczoną na wykonanie wszystkich projektów (ozn. \texttt{D}). Wektory zapotrzebowania projektów zostały rozszerzone o \texttt{u+1} element, którym jest czas trwania danego projektu w jednostkach czasu (ozn. \texttt{d}). Ponadto powinno zachodzić \texttt{0$\,<\,$d$\,\leq\,$D}.\\
+
+\noindent
 Przed uruchomieniem należy się upewnić, że na komputerze znajduje się interpreter Pythona w wersji 3.x i moduł \texttt{networkx}, który dostarcza graf skierowany wykorzystywany w przygotowanych rozwiązaniach. Bibliotekę \texttt{networkx} można pobrać przy pomocy Pythonowego menedżera paczek \texttt{pip} wpisując w konsoli polecenie:
 \begin{verbatim}
 $ pip3 install networkx
@@ -1483,6 +1489,7 @@ $ python3 main.py input.txt
 \end{verbatim}
 wywołanym katalogu \texttt{/src/lab2} lub \texttt{/src/lab3}.\\
 
+\newpage
 \noindent
 Poniższy schemat ilustruje strukturę zawartości płyty CD.\\
 \begin{center}
