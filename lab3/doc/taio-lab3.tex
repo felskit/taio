@@ -1376,7 +1376,7 @@ Dla każdego $t \in \{ 0, 1, \dots, D - 1 \}$ przyporządkowanie chwilowe $\assi
 \begin{itemize}
 	\item $(\forall e \in E) (\forall u \in U) \quad \ability_t(e, u) = \ability(e, u)$,
 	\item $(\forall p_i \in P) (\forall u \in U) \quad \need_t(p_i, u) = \begin{cases}
-		\need(p_i, u) & \text{jeżeli } t_i \leq t \leq t_i + d_i, \\
+		\need(p_i, u) & \text{jeżeli } t_i \leq t < t_i + d_i, \\
 		0 & \text{w przeciwnym przypadku},
 	\end{cases}$
 \end{itemize} 
@@ -1393,7 +1393,7 @@ Aby udowodnić to twierdzenie, sprawdźmy, czy zaproponowane przyporządkowania 
 	\item Każdy ekspert $e \in E$ mógł być w~relacji z~co~najwyżej jedną trójką $(u, p, t)$, a~więc w~obliczu ustalenia wartości $t$, w~przyporządkowaniu $\assign_t$ może być w~relacji z~co~najwyżej jedną parą $(u, p)$.
 	\item Aby sprawdzić ostatni warunek, musimy rozpatrzyć dwa przypadki:
 	\begin{enumerate}
-		\item Jeśli projekt $p_i$ jest wykonywany w~chwili $t$ (tj. $t_i \leq t \leq t_i + d_i$), to z~definicji przyporządkowania mamy
+		\item Jeśli projekt $p_i$ jest wykonywany w~chwili $t$ (tj. $t_i \leq t < t_i + d_i$), to z~definicji przyporządkowania mamy
 		$$ \assigned_t(p_i, u) = \assigned(p_i, u, t) \leq \need(p_i, u) $$
 		\item Jeśli projekt $p_i$ nie jest wykonywany w~chwili $t$, to w~przyporządkowaniu $\assign$ nie może istnieć żadna czwórka postaci $(e, u, p_i, t)$, $e \in E, u \in U$, a więc
 		$$ \assigned_t(p_i, u) = \assigned(p_i, u, t) = 0 \leq \need(p_i, u) $$
@@ -1412,19 +1412,19 @@ gdzie $t_i$ oznacza początek wykonywania projektu $p_i$, $d_i$ --- długość p
 Niech dane będzie pewne optymalne rozwiązanie problemu rozszerzonego oraz odpowiadające mu: przyporządkowanie $\assign$ i ciąg zdarzeń $\{e_i\}_0^k$.
 Wówczas
 $$ M(\assign) = \sum_{i=0}^{k-1} M(\assign'_{e_i}) \cdot (e_{i+1} - e_i) $$
-gdzie $\assign'_t$ oznacza rozwiązanie optymalne problemu podstawowego.
+gdzie $\assign'$ oznacza rozwiązanie optymalne problemu podstawowego.
 \end{thm}
 
 \noindent
 Powyższe twierdzenie ma zaś na~celu udowodnić poprawność metody obliczania braków w~algorytmie.
-Mówi ono, że~możemy zgodnie z~opisem podzielić okno czasowe z~pomocą początków i~końców projektów i~zastosować na~nich problem podstawowy.
+Mówi ono, że~możemy zgodnie z~opisem podzielić okno czasowe z~pomocą początków i~końców projektów i~zastosować na~nich algorytm podstawowy.
 
 \begin{proof}
 Założenie poczynione w~definicji zadania, mówiące o~tym, że~eksperci mogą zmieniać projekty po~zakończeniu jednostki czasu, zapewnia, że przyporządkowanie eksperta $e$ do podzadania $(u, p)$ w chwili $t$ nie ma wpływu na jego przyporządkowanie w~żadnej innej chwili.
 Wobec tego, na mocy twierdzenia \ref{thm:assignmoment} oraz możemy podzielić przyporządkowanie $\assign$ na $D$ przyporządkowań chwilowych, gdzie $D$ jest dostępną długością okna czasowego.
 Wówczas uzyskujemy
 $$ M(\assign) = \sum_{i=0}^{D-1} M(\assign'_i) $$
-gdzie $\assign_i$ jest przyporządkowaniem chwilowym w~chwili $i$.\\
+gdzie $\assign'_i$ jest optymalnym przyporządkowaniem chwilowym w~chwili $i$.\\
 
 \noindent
 Zauważmy jednak,~że może się zdarzyć, że w~chwilach $t$ i $t+1$ wykonywane~są te~same projekty (tj. dla każdego projektu $p_i$ zachodzi $t_i \leq t \leq t+1 < t_i + d_i$).
